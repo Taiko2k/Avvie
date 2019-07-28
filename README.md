@@ -4,7 +4,7 @@
 ## Avie!
 
 A utility for quickly croping images. Designed to be faster than the time it takes to locate the crop tool in GIMP. 
-<br><br><br><br>
+<br><br>
 
 ## Features
 
