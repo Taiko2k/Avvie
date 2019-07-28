@@ -12,8 +12,8 @@ A utility for quickly croping images. Designed to be faster than the time it tak
 
 
 
- - Crop square images for avatars
- - Quickly crop desktop wallpapers from photos
+ - Quickly crop square images for avatars
+ - Crop desktop wallpapers from photos
  - Scale images to preset output sizes
  - Quick saving
  - And more handy features (maybe)
