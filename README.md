@@ -6,9 +6,11 @@
 A utility for quickly croping images. Designed to be faster than the time it takes to locate the crop tool in GIMP. 
 <br><br><br><br>
 
+## Features
+
 <img src="https://user-images.githubusercontent.com/17271572/62006516-70aadc80-b195-11e9-8efb-44db232dd62b.png" hspace="0px" vspace="160px" height="260px" align="right">
 
-### Features
+
 
  - Crop square images for avatars
  - Quickly crop desktop wallpapers from photos
