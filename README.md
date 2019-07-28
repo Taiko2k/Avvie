@@ -17,3 +17,9 @@ A utility for quickly croping images. Designed to be faster than the time it tak
  - Scale images to preset output sizes
  - Quick saving
  - And more handy features (maybe)
+
+<br><br><br><br>
+
+## Setup and download
+
+todo
