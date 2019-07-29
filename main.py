@@ -569,16 +569,7 @@ class Window(Gtk.Window):
 
     def open_file(self, widget):
 
-        dialog = Gtk.FileChooserDialog(
-            title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN
-        )
-
-        dialog.add_buttons(
-            Gtk.STOCK_CANCEL,
-            Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN,
-            Gtk.ResponseType.OK,
-        )
+        dialog = Gtk.FileChooserNative(title="Please choose a file", action=Gtk.FileChooserAction.OPEN)
 
         f = Gtk.FileFilter()
         f.set_name("Image files")
@@ -586,11 +577,11 @@ class Window(Gtk.Window):
         f.add_mime_type("image/png")
         dialog.add_filter(f)
 
-        response = dialog.run()
+        dialog.run()
         filename = dialog.get_filename()
         dialog.destroy()
 
-        if response == Gtk.ResponseType.OK:
+        if filename:
             print("File selected: " + filename)
             picture.load(filename, self.get_size())
 
