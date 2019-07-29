@@ -20,6 +20,13 @@ A utility for quickly croping images. Designed to be faster than the time it tak
 
 <br><br><br><br>
 
-## Setup and download
+## Usage tips
+
+ - You can import by drag and drop
+ - The thumbnail preview shows the output exactly as it would be at 184x184 (minus jpeg compression)
+ - Hold <kdb>Ctrl</kbd> to move the selection rectangle slowly
+ - Click the preview to toggle between *square* and *circle* (The final output will always be square)
+
+## Download and setup
 
 todo
