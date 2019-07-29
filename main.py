@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import math
 import gi
 import cairo
@@ -249,25 +250,33 @@ class Picture:
         if self.rotation:
             im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
 
+        cropped = False
+
         if self.crop:
             cr = im.crop((self.rec_x, self.rec_y, self.rec_x + self.rec_w, self.rec_y + self.rec_h))
             cr.load()
+            cropped = True
         else:
             cr = im
+
+        old_size = cr.size
+        scaled = False
 
         if self.export_constrain:
             cr.thumbnail((self.export_constrain, self.export_constrain), Image.ANTIALIAS)
 
-        # if not hq:
-        #     cr.thumbnail((184, 184), Image.NEAREST)  #BILINEAR
-        # else:
-        #     cr.thumbnail((184, 184), Image.ANTIALIAS)
+        if old_size != cr.size:
+            scaled = True
+
         cr = self.apply_filters(cr)
 
-        w, h = cr.size
+        path = os.path.join(self.base_folder, self.file_name)
 
+        if cropped:
+            path += "-cropped"
 
-        path = os.path.join(self.base_folder, self.file_name + "-cropped")
+        if scaled:
+            path += "-scaled"
 
         if self.png:
             path += ".png"
@@ -474,6 +483,11 @@ class Window(Gtk.Window):
         self.about.set_website("https://github.com/taiko2k/avie")
         self.about.set_destroy_with_parent(True)
         self.about.set_logo_icon_name('com.github.taiko2k.avie')
+
+        for item in sys.argv:
+            if not item.endswith(".py") and os.path.isfile(item):
+                picture.load(item, self.get_size())
+                break
 
     def rotate_reset(self, button):
 
