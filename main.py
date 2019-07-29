@@ -92,6 +92,7 @@ class Picture:
         self.original_drag_size = (0, 0)
 
         self.scale_factor = 1
+        self.bounds = (500, 500)
 
         self.surface184 = None
 
@@ -102,6 +103,9 @@ class Picture:
         self.crop_ratio = None
         self.png = False
         self.crop = True
+        self.slow_drag = False
+        self.circle = False
+        self.rotation = 0
 
         self.corner_hot_area = 40
 
@@ -146,9 +150,15 @@ class Picture:
 
     def gen_thumb_184(self, hq=False):
 
+        if self.rotation and not hq:
+            return
+
         im = self.source_image
         if not im:
             return
+
+        if self.rotation:
+            im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
 
         if self.crop:
             cr = im.crop((self.rec_x, self.rec_y, self.rec_x + self.rec_w, self.rec_y + self.rec_h))
@@ -175,36 +185,29 @@ class Picture:
             arr, cairo.FORMAT_ARGB32, w, h
         )
 
-    def load(self, path, bounds):
+    def reload(self, keep_rect=False):
 
-        self.file_name = os.path.splitext(os.path.basename(path))[0]
+        im = self.source_image.copy()
+        im.load()
 
-        im = Image.open(path)
-
-
-        # im = im.rotate(20, expand=True)
-        self.source_image = im
+        if self.rotation:
+            im = im.rotate(self.rotation, expand=True, resample=0)
 
         w, h = im.size
         self.source_w, self.source_h = w, h
-
-        im = im.copy()
-
-        glo.spacing = 100
-
         self.display_w, self.display_h = w, h
         self.display_x, self.display_y = 40, 40
 
-        b_w, b_h = bounds
+        b_w, b_h = self.bounds
 
         if b_h > 100 and b_w > 100 and b_h - 80 < h:
             im.thumbnail((max(b_w - 320, 320), b_h - 80))
             self.display_w, self.display_h = im.size
 
         self.scale_factor = self.display_h / self.source_h
-        print(self.scale_factor)
-        self.rec_w = round(250 / self.scale_factor)
-        self.rec_h = self.rec_w
+        if not keep_rect:
+            self.rec_w = round(250 / self.scale_factor)
+            self.rec_h = self.rec_w
 
         if "A" not in im.getbands():
             im.putalpha(int(1 * 256.0))
@@ -215,6 +218,13 @@ class Picture:
             arr, cairo.FORMAT_ARGB32, self.display_w, self.display_h
         )
         self.ready = True
+
+    def load(self, path, bounds):
+
+        self.file_name = os.path.splitext(os.path.basename(path))[0]
+        self.bounds = bounds
+        self.source_image = Image.open(path)
+        self.reload()
 
     def get_display_rect(self):
 
@@ -235,6 +245,9 @@ class Picture:
         im = self.source_image
         if not im:
             return
+
+        if self.rotation:
+            im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
 
         if self.crop:
             cr = im.crop((self.rec_x, self.rec_y, self.rec_x + self.rec_w, self.rec_y + self.rec_h))
@@ -289,7 +302,12 @@ class Window(Gtk.Window):
 
         self.about = Gtk.AboutDialog()
 
+        self.rotate_reset_button = Gtk.Button(label="Reset rotation")
+        self.rot = Gtk.Scale.new_with_range(orientation=0, min=-180, max=180, step=4)
+
         self.setup_window()
+
+
 
     def setup_window(self):
 
@@ -305,10 +323,14 @@ class Window(Gtk.Window):
             | Gdk.EventMask.POINTER_MOTION_HINT_MASK
         )
 
+        self.set_events(self.get_events() | Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
+
         draw.connect("button-press-event", self.click)
         draw.connect("button-release-event", self.click_up)
         draw.connect("motion-notify-event", self.mouse_motion)
         draw.connect("leave-notify-event", self.mouse_leave)
+        self.connect("key-press-event", self.on_key_press_event)
+        self.connect("key-release-event", self.on_key_release_event)
 
         draw.connect("draw", self.draw)
         self.connect("drag_data_received", self.drag_drop_file)
@@ -345,6 +367,7 @@ class Window(Gtk.Window):
         vbox.set_border_width(15)
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+
 
         # label = Gtk.Label(label="Maximum size for downscale")
         # vbox.pack_start(child=label, expand=True, fill=False, padding=4)
@@ -420,6 +443,17 @@ class Window(Gtk.Window):
         opt.connect("toggled", self.toggle_menu_setting2, "21:9")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
+        self.rotate_reset_button.connect("clicked", self.rotate_reset)
+        self.rotate_reset_button.set_sensitive(False)
+
+        self.rot.set_value(0)
+        self.rot.set_size_request(180, -1)
+        self.rot.set_draw_value(False)
+        self.rot.set_has_origin(False)
+        self.rot.connect("value-changed", self.rotate)
+        vbox.pack_start(child=self.rot, expand=True, fill=False, padding=7)
+        vbox.pack_start(child=self.rotate_reset_button, expand=True, fill=False, padding=7)
+
 
 
         popover.add(vbox)
@@ -429,21 +463,54 @@ class Window(Gtk.Window):
         hb.pack_start(Gtk.Separator())
         hb.pack_start(menu)
 
+        #hb.pack_start(Gtk.Separator())
+
+
+        # hb.pack_start(self.rot)
 
         self.about.set_authors(["Taiko2k"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
         self.about.set_license_type(Gtk.License(3))
-        self.about.set_website("https://github.com/taiko2k")
+        self.about.set_website("https://github.com/taiko2k/avie")
         self.about.set_destroy_with_parent(True)
-        self.about.set_logo_icon_name('com.github.taiko2k.tauonmb')
+        self.about.set_logo_icon_name('com.github.taiko2k.avie')
+
+    def rotate_reset(self, button):
+
+        picture.rotation = 0
+        self.rot.set_value(0)
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.queue_draw()
+            picture.gen_thumb_184(hq=True)
+        self.rotate_reset_button.set_sensitive(False)
+
+    def rotate(self, scale):
+
+        picture.rotation = scale.get_value()
+        self.rotate_reset_button.set_sensitive(True)
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.queue_draw()
+            #picture.gen_thumb_184(hq=True)
+
+    def on_key_press_event(self, widget, event):
+
+        if event.keyval == Gdk.KEY_Control_L or event.keyval == Gdk.KEY_Control_R:
+            picture.slow_drag = True
+            picture.drag_start_position = None
+
+    def on_key_release_event(self, widget, event):
+
+        if event.keyval == Gdk.KEY_Control_L or event.keyval == Gdk.KEY_Control_R:
+            picture.slow_drag = False
+            picture.drag_start_position = None
 
     def show_about(self, button):
         self.about.run()
         self.about.hide()
 
     def toggle_menu_setting2(self, button, name):
-
-        print(name)
 
         if name == "square":
             picture.crop = True
@@ -524,11 +591,9 @@ class Window(Gtk.Window):
         dialog.destroy()
 
         if response == Gtk.ResponseType.OK:
-            print("Open clicked")
             print("File selected: " + filename)
             picture.load(filename, self.get_size())
-        elif response == Gtk.ResponseType.CANCEL:
-            print("Cancel clicked")
+
 
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
 
@@ -546,6 +611,12 @@ class Window(Gtk.Window):
     def click(self, draw, event):
 
         if event.button == 1:
+
+            w, h = self.get_size()
+            if w - 200 < event.x < w - 200 + 184:
+                if h - 200 < event.y < h - 200 + 184:
+                    picture.circle ^= True
+                    self.queue_draw()
 
             if not picture.source_image or not picture.crop:
                 return
@@ -577,8 +648,6 @@ class Window(Gtk.Window):
             picture.dragging_bl = False
             picture.dragging_tr = False
             picture.gen_thumb_184(hq=True)
-
-
 
         self.queue_draw()
 
@@ -624,7 +693,6 @@ class Window(Gtk.Window):
                 picture.rec_h = a * picture.crop_ratio[1]
 
 
-
     def mouse_motion(self, draw, event):
 
         if not picture.source_image:
@@ -633,10 +701,18 @@ class Window(Gtk.Window):
         if event.state & Gdk.ModifierType.BUTTON1_MASK and picture.crop:
             pass
 
+            rx, ry, rw, rh = picture.get_display_rect()
+
+            if picture.drag_start_position is None:
+                picture.drag_start_position = (event.x, event.y)
+                picture.original_position = (rx, ry)
+                picture.original_drag_size = (rw, rh)
+
+
             offset_x = event.x - picture.drag_start_position[0]
             offset_y = event.y - picture.drag_start_position[1]
 
-            rx, ry, rw, rh = picture.get_display_rect()
+
 
             if picture.dragging_tr:
 
@@ -666,12 +742,8 @@ class Window(Gtk.Window):
 
                 offset = (offset_x + offset_y) / 2
 
-                # picture.rec_x = round(picture.original_position[0] - offset)
                 rw = round(picture.original_drag_size[0] + offset)
-
-                # picture.rec_y = round(picture.original_position[1] - offset)
                 rh = round(picture.original_drag_size[1] + offset)
-
 
             elif picture.dragging_center:
 
@@ -679,8 +751,9 @@ class Window(Gtk.Window):
                 x_offset = event.x - picture.drag_start_position[0]
                 y_offset = event.y - picture.drag_start_position[1]
 
-                # x_offset = x_offset // 6
-                # y_offset = y_offset // 6
+                if picture.slow_drag:
+                    x_offset = x_offset // 10
+                    y_offset = y_offset // 10
 
                 rx = round(picture.original_position[0] + x_offset)
                 ry = round(picture.original_position[1] + y_offset)
@@ -791,8 +864,17 @@ class Window(Gtk.Window):
                 picture.gen_thumb_184(hq=True)
             if picture.surface184:
                 c.move_to(0, 0)
-                c.set_source_surface(picture.surface184, w - 200, h - 200)
-                c.paint()
+
+                if picture.circle:
+                    c.save()
+                    c.arc(w - 200 + (184 // 2), h - 200 + (184 // 2), 184 // 2, 0, 2 * math.pi)
+                    c.clip()
+                    c.set_source_surface(picture.surface184, w - 200 , h - 200)
+                    c.paint()
+                    c.restore()
+                else:
+                    c.set_source_surface(picture.surface184, w - 200, h - 200)
+                    c.paint()
 
 
 win = Window()
