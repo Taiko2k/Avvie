@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2019 Taiko2k captain.gxj@gmail.com -->
+<application>
+  <id type="desktop">com.github.taiko2k.avie.desktop</id>
+  <name>Avie</name>
+  <developer_name>Taiko2k</developer_name>
+  <summary>Crop images for avatars</summary>
+  <launchable type="desktop-id">com.github.taiko2k.tauonmb.desktop</launchable>
+  <metadata_license>GPL-3.0-or-later</metadata_license>
+  <project_license>todo</project_license>
+  <url type="homepage">https://github.com/Taiko2k/avie</url>
+  <url type="bugtracker">https://github.com/Taiko2k/avie/issues</url>
+  <icon type="remote" height="256" width="256">todo</icon>
+
+  <description>
+    <p>todo</p>
+    <p>Features:</p>
+    <ul>
+      <li>todo</li>
+    </ul>
+  </description>
+
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">todo</image>
+      <caption>todo</caption>
+    </screenshot>
+  </screenshots>
+
+  <categories>
+    <category>todo</category>
+  </categories>
+
+  <releases>
+    <release version="0.1" date="2019-07-29"/>
+  </releases>
+
+  <translation type="gettext">avie</translation>
+
+  <content_rating type="oars-1.1" />
+
+  <kudos>
+    <kudo>Notifications</kudo>
+    <kudo>HiDpiIcon</kudo>
+  </kudos>
+
+  <update_contact>captain.gxj_AT_gmail.com</update_contact>
+
+</application>
