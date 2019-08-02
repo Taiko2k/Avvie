@@ -31,6 +31,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 
 app_title = "Avie"
+version = "1.0"
 
 settings = Gtk.Settings.get_default()
 settings.set_property("gtk-application-prefer-dark-theme", True)
@@ -535,6 +536,7 @@ class Window(Gtk.Window):
         self.about.set_license_type(Gtk.License(3))
         self.about.set_website("https://github.com/taiko2k/avie")
         self.about.set_destroy_with_parent(True)
+        self.about.set_version(version)
         self.about.set_logo_icon_name('com.github.taiko2k.avie')
 
         for item in sys.argv:
