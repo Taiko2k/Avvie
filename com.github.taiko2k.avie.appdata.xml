@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2019 Taiko2k captain.gxj@gmail.com -->
 <application>
-  <id type="desktop">com.github.taiko2k.avie.desktop</id>
-  <name>Avie</name>
+  <id type="desktop">com.github.taiko2k.avvie.desktop</id>
+  <name>Avvie</name>
   <developer_name>Taiko2k</developer_name>
   <summary>Crop images for avatars</summary>
-  <launchable type="desktop-id">com.github.taiko2k.avie.desktop</launchable>
+  <launchable type="desktop-id">com.github.taiko2k.avvie.desktop</launchable>
   <metadata_license>CC-BY-SA-3.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
-  <url type="homepage">https://github.com/Taiko2k/avie</url>
-  <url type="bugtracker">https://github.com/Taiko2k/avie/issues</url>
+  <url type="homepage">https://github.com/Taiko2k/avvie</url>
+  <url type="bugtracker">https://github.com/Taiko2k/avvie/issues</url>
   <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/62344593-bcb5a280-b542-11e9-8efb-5a074ba367bb.png</icon>
 
   <description>

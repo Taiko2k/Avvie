@@ -30,7 +30,8 @@ gi.require_version('Notify', '0.7')
 from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 
-app_title = "Avie"
+app_title = "Avvie"
+app_id = "com.github.taiko2k.avvie"
 version = "1.0"
 
 settings = Gtk.Settings.get_default()
@@ -351,7 +352,7 @@ class Window(Gtk.Window):
         Gtk.Window.__init__(self, title=app_title)
 
         GLib.set_application_name(app_title)
-        GLib.set_prgname('com.github.taiko2k.avie')
+        GLib.set_prgname(app_id)
 
         # self.set_border_width(10)
         self.set_default_size(1200, 760)
@@ -534,10 +535,10 @@ class Window(Gtk.Window):
         self.about.set_authors(["Taiko2k"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
         self.about.set_license_type(Gtk.License(3))
-        self.about.set_website("https://github.com/taiko2k/avie")
+        self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
         self.about.set_destroy_with_parent(True)
         self.about.set_version(version)
-        self.about.set_logo_icon_name('com.github.taiko2k.avie')
+        self.about.set_logo_icon_name(app_id)
 
         for item in sys.argv:
             if not item.endswith(".py") and os.path.isfile(item):
