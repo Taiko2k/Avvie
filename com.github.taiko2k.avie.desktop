@@ -1,12 +1,12 @@
 [Desktop Entry]
 Comment=
 Exec=run.sh %U
-GenericName=Image Croper
+GenericName=Image Cropper
 Icon=com.github.taiko2k.avie
 MimeType=image/jpeg;image/png
 Name=Avie
 StartupWMClass=Avie
 Terminal=false
 Type=Application
-Categories=
+Categories=Graphics
 

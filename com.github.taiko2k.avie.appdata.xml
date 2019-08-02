@@ -5,34 +5,32 @@
   <name>Avie</name>
   <developer_name>Taiko2k</developer_name>
   <summary>Crop images for avatars</summary>
-  <launchable type="desktop-id">com.github.taiko2k.tauonmb.desktop</launchable>
-  <metadata_license>GPL-3.0-or-later</metadata_license>
-  <project_license>todo</project_license>
+  <launchable type="desktop-id">com.github.taiko2k.avie.desktop</launchable>
+  <metadata_license>CC-BY-SA-3.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
   <url type="homepage">https://github.com/Taiko2k/avie</url>
   <url type="bugtracker">https://github.com/Taiko2k/avie/issues</url>
-  <icon type="remote" height="256" width="256">todo</icon>
+  <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/62344593-bcb5a280-b542-11e9-8efb-5a074ba367bb.png</icon>
 
   <description>
-    <p>todo</p>
-    <p>Features:</p>
-    <ul>
-      <li>todo</li>
-    </ul>
+    <p>A simple editor for quickly cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers.
+      Can load and save in JPG and PNG. One click exporting with optional downscaling.</p>
+
   </description>
 
   <screenshots>
     <screenshot type="default">
-      <image type="source">todo</image>
-      <caption>todo</caption>
+      <image type="source">https://user-images.githubusercontent.com/17271572/62345284-e45a3a00-b545-11e9-813e-51faceeae462.jpg</image>
+      <caption>Main window showing image with a crop selection</caption>
     </screenshot>
   </screenshots>
 
   <categories>
-    <category>todo</category>
+    <category>Graphics</category>
   </categories>
 
   <releases>
-    <release version="0.1" date="2019-07-29"/>
+    <release version="1.0" date="2019-08-02"/>
   </releases>
 
   <translation type="gettext">avie</translation>

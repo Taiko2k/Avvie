@@ -20,6 +20,7 @@ import sys
 import math
 import gi
 import cairo
+import urllib.parse
 import subprocess
 from PIL import Image, ImageFilter
 
@@ -56,14 +57,6 @@ notify.add_action(
 def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-
-class Glo:
-    def __init__(self):
-
-        self.spacing = 100
-
-
-glo = Glo()
 
 
 class Picture:
@@ -219,6 +212,51 @@ class Picture:
             arr, cairo.FORMAT_ARGB32, self.display_w, self.display_h
         )
         self.ready = True
+        self.confine()
+
+
+    def set_ratio(self):
+
+        if self.crop_ratio and self.crop_ratio != (1, 1):
+
+            if self.crop_ratio == (21, 9) and abs(self.rec_h - 1080) < 50:
+                self.rec_h = 1080
+                self.rec_w = 2560
+
+            elif self.crop_ratio == (16, 9) and abs(self.rec_h - 1080) < 50:
+                self.rec_h = 1080
+                self.rec_w = 1920
+
+            else:
+                a = self.rec_h // self.crop_ratio[1]
+                self.rec_w = a * self.crop_ratio[0]
+                self.rec_h = a * self.crop_ratio[1]
+
+    def confine(self):
+
+        self.set_ratio()
+
+        # Confine mask rectangle to self
+        if self.rec_x + self.rec_w > self.source_w:
+            self.rec_x = self.source_w - self.rec_w
+        if self.rec_y + self.rec_h > self.source_h:
+            self.rec_y = self.source_h - self.rec_h
+
+        if self.rec_x < 0:
+            self.rec_x = 0
+        if self.rec_y < 0:
+            self.rec_y = 0
+
+        if self.rec_w > self.source_w:
+            self.rec_w = self.source_w
+            if self.crop_ratio == (1, 1):
+                self.rec_h = self.rec_w
+
+        if self.rec_h > self.source_h:
+            self.rec_h = self.source_h
+            self.rec_w = self.rec_h
+
+        
 
     def load(self, path, bounds):
 
@@ -278,11 +316,26 @@ class Picture:
         if scaled:
             path += "-scaled"
 
+        ext = '.jpg'
         if self.png:
-            path += ".png"
+            ext = '.png'
+
+        extra = ""
+
+        if os.path.isfile(path + ext):
+            i = 0
+            while True:
+                i += 1
+                extra = f"({str(i)})"
+                if not os.path.isfile(path + extra + ext):
+                    break
+
+        path = path + extra + ext
+
+        if self.png:
             cr.save(path, "PNG")
         else:
-            path += '.jpg'
+
             cr = cr.convert("RGB")
             cr.save(path, "JPEG", quality=95)
 
@@ -300,7 +353,7 @@ class Window(Gtk.Window):
         GLib.set_prgname('com.github.taiko2k.avie')
 
         # self.set_border_width(10)
-        self.set_default_size(1200, 700)
+        self.set_default_size(1200, 760)
 
         self.arrow_cursor = Gdk.Cursor(Gdk.CursorType.LEFT_PTR)
         self.drag_cursor = Gdk.Cursor(Gdk.CursorType.FLEUR)
@@ -315,8 +368,6 @@ class Window(Gtk.Window):
         self.rot = Gtk.Scale.new_with_range(orientation=0, min=-180, max=180, step=4)
 
         self.setup_window()
-
-
 
     def setup_window(self):
 
@@ -378,20 +429,23 @@ class Window(Gtk.Window):
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
 
-        # label = Gtk.Label(label="Maximum size for downscale")
-        # vbox.pack_start(child=label, expand=True, fill=False, padding=4)
 
 
-        opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "No downscale")
+
+        opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "1:1")
         opt1.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox.pack_start(child=opt1, expand=True, fill=False, padding=4)
-        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "184x184 max")
+
+        label = Gtk.Label(label="Set maximum size:")
+        vbox.pack_start(child=label, expand=True, fill=False, padding=4)
+
+        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "<= 184x184")
         opt2.connect("toggled", self.toggle_menu_setting, "184")
         vbox.pack_start(child=opt2, expand=True, fill=False, padding=4)
-        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "500x500 max")
+        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "<= 500x500")
         opt3.connect("toggled", self.toggle_menu_setting, "500")
         vbox.pack_start(child=opt3, expand=True, fill=False, padding=4)
-        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "1000x1000 max")
+        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "<= 1000x1000")
         opt4.connect("toggled", self.toggle_menu_setting, "1000")
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
@@ -473,7 +527,6 @@ class Window(Gtk.Window):
         hb.pack_start(menu)
 
         #hb.pack_start(Gtk.Separator())
-
 
         # hb.pack_start(self.rot)
 
@@ -602,13 +655,15 @@ class Window(Gtk.Window):
 
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
 
+
         if target_type == TARGET_TYPE_URI_LIST:
             uris = selection.get_data().strip()
             uri = uris.decode().splitlines()[0]
 
+
             if not uri.startswith("file://"):
                 return
-            path = uri[7:]
+            path = urllib.parse.unquote(uri[7:])
             if os.path.isfile(path):
                 picture.load(path, self.get_size())
             self.queue_draw()
@@ -661,42 +716,8 @@ class Window(Gtk.Window):
         self.get_window().set_cursor(self.arrow_cursor)
 
     def confine(self):
-
-        # Confine mask rectangle to picture
-        if picture.rec_x + picture.rec_w > picture.source_w:
-            picture.rec_x = picture.source_w - picture.rec_w
-        if picture.rec_y + picture.rec_h > picture.source_h:
-            picture.rec_y = picture.source_h - picture.rec_h
-
-        if picture.rec_x < 0:
-            picture.rec_x = 0
-        if picture.rec_y < 0:
-            picture.rec_y = 0
-
-        if picture.rec_w > picture.source_w:
-            picture.rec_w = picture.source_w
-            if picture.crop_ratio == (1, 1):
-                picture.rec_h = picture.rec_w
-
-        if picture.rec_h > picture.source_h:
-            picture.rec_h = picture.source_h
-            picture.rec_w = picture.rec_h
-
-        if picture.crop_ratio and picture.crop_ratio != (1, 1):
-
-            if picture.crop_ratio == (21, 9) and abs(picture.rec_h - 1080) < 50:
-                picture.rec_h = 1080
-                picture.rec_w = 2560
-
-            elif picture.crop_ratio == (16, 9) and abs(picture.rec_h - 1080) < 50:
-                picture.rec_h = 1080
-                picture.rec_w = 1920
-
-            else:
-                a = picture.rec_h // picture.crop_ratio[1]
-                picture.rec_w = a * picture.crop_ratio[0]
-                picture.rec_h = a * picture.crop_ratio[1]
-
+        
+        picture.confine()
 
     def mouse_motion(self, draw, event):
 
@@ -874,7 +895,7 @@ class Window(Gtk.Window):
                     c.save()
                     c.arc(w - 200 + (184 // 2), h - 200 + (184 // 2), 184 // 2, 0, 2 * math.pi)
                     c.clip()
-                    c.set_source_surface(picture.surface184, w - 200 , h - 200)
+                    c.set_source_surface(picture.surface184, w - 200, h - 200)
                     c.paint()
                     c.restore()
                 else:
