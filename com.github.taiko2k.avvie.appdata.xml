@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2019 Taiko2k captain.gxj@gmail.com -->
-<application>
-  <id type="desktop">com.github.taiko2k.avvie.desktop</id>
+<component type="desktop-application">
+  <id>com.github.taiko2k.avvie</id>
   <name>Avvie</name>
   <developer_name>Taiko2k</developer_name>
-  <summary>Crop images for avatars</summary>
+  <summary>Crop images for avatars or wallpapers</summary>
   <launchable type="desktop-id">com.github.taiko2k.avvie.desktop</launchable>
   <metadata_license>CC-BY-SA-3.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
@@ -13,8 +13,8 @@
   <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/62344593-bcb5a280-b542-11e9-8efb-5a074ba367bb.png</icon>
 
   <description>
-    <p>A simple editor for quickly cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers.
-      Can load and save in JPG and PNG. One click exporting with optional downscaling.</p>
+    <p>A simple tool for quickly cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers.
+      Can load and save in JPG and PNG. One click exporting with optional downscaling or 1:1 output for optimal quality.</p>
 
   </description>
 
@@ -30,7 +30,7 @@
   </categories>
 
   <releases>
-    <release version="1.0" date="2019-08-02"/>
+    <release version="1.0" date="2019-08-03"/>
   </releases>
 
   <translation type="gettext">avvie</translation>
@@ -40,8 +40,9 @@
   <kudos>
     <kudo>Notifications</kudo>
     <kudo>HiDpiIcon</kudo>
+    <kudo>ModernToolkit</kudo>
   </kudos>
 
   <update_contact>captain.gxj_AT_gmail.com</update_contact>
 
-</application>
+</component>

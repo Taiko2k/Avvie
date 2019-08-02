@@ -44,6 +44,7 @@ background_color = (0.15, 0.15, 0.15)
 
 Notify.init(app_title)
 notify = Notify.Notification.new(app_title, "Image file exported to Downloads.")
+notify_invalid_output = Notify.Notification.new(app_title, "Could not locate output Downloads folder!")
 
 TARGET_TYPE_URI_LIST = 80
 
@@ -98,7 +99,7 @@ class Picture:
         self.surface184 = None
 
         self.file_name = ""
-        self.base_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+        self.base_folder = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
         self.sharpen = False
         self.export_constrain = None
         self.crop_ratio = None
@@ -297,6 +298,9 @@ class Picture:
         self.rec_h = round(h / self.scale_factor)
 
     def export(self):
+
+        if not os.path.isdir(self.base_folder):
+            notify_invalid_output.show()
 
         im = self.source_image
         if not im:
@@ -625,6 +629,7 @@ class Window(Gtk.Window):
         picture.lock_ratio = True
 
         if name == "rect":
+            picture.crop = True
             picture.lock_ratio = False
 
         if name == "square":
@@ -633,6 +638,7 @@ class Window(Gtk.Window):
             picture.rec_w = picture.rec_h
 
         if name == '21:9':
+            picture.crop = True
             picture.crop_ratio = (21, 9)
             if picture.source_w >= 2560:
                 picture.rec_w = 2560
@@ -769,7 +775,6 @@ class Window(Gtk.Window):
             return
 
         if event.state & Gdk.ModifierType.BUTTON1_MASK and picture.crop:
-            pass
 
             rx, ry, rw, rh = picture.get_display_rect()
 
@@ -872,18 +877,19 @@ class Window(Gtk.Window):
 
         gdk_window = self.get_window()
 
-        if picture.test_br(event.x, event.y):
-            gdk_window.set_cursor(self.br_cursor)
-        elif picture.test_tr(event.x, event.y):
-            gdk_window.set_cursor(self.tr_cursor)
-        elif picture.test_bl(event.x, event.y):
-            gdk_window.set_cursor(self.bl_cursor)
-        elif picture.test_tl(event.x, event.y):
-            gdk_window.set_cursor(self.tl_cursor)
-        elif picture.test_center_start_drag(event.x, event.y) or picture.dragging_center:
-            gdk_window.set_cursor(self.drag_cursor)
-        else:
-            gdk_window.set_cursor(self.arrow_cursor)
+        if picture.crop:
+            if picture.test_br(event.x, event.y):
+                gdk_window.set_cursor(self.br_cursor)
+            elif picture.test_tr(event.x, event.y):
+                gdk_window.set_cursor(self.tr_cursor)
+            elif picture.test_bl(event.x, event.y):
+                gdk_window.set_cursor(self.bl_cursor)
+            elif picture.test_tl(event.x, event.y):
+                gdk_window.set_cursor(self.tl_cursor)
+            elif picture.test_center_start_drag(event.x, event.y) or picture.dragging_center:
+                gdk_window.set_cursor(self.drag_cursor)
+            else:
+                gdk_window.set_cursor(self.arrow_cursor)
 
     def draw(self, wid, c):
 

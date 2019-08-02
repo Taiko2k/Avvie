@@ -14,7 +14,7 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
  - Crop desktop wallpapers from photos
  - Scale images to preset output sizes
  - Quick saving
- - And more handy features like flip and rotate
+ - And more handy features
 
 <br><br><br><br>
 
@@ -23,7 +23,7 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
  - You can import by drag and drop
  - The thumbnail preview shows the output exactly as it would be at 184x184
  - Hold <kdb>Ctrl</kbd> to move the selection rectangle slowly
- - Click the preview to toggle between *square* and *circle* (The final output will always be square)
+ - Click the preview to toggle between ***square*** and ***circle*** (The final output will always be square)
 
 ## Download and setup
 
