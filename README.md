@@ -29,4 +29,4 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
 
 ## Download and setup
 
-todo
+Beta version: See Flatpak bundle package in releases tab
