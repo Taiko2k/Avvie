@@ -75,6 +75,7 @@ class Picture:
         self.display_x = 0
         self.display_y = 0
         self.ready = False
+        self.lock_ratio = True
 
         self.rec_x = 10
         self.rec_y = 10
@@ -249,7 +250,8 @@ class Picture:
 
     def confine(self):
 
-        self.set_ratio()
+        if self.lock_ratio:
+            self.set_ratio()
 
         # Confine mask rectangle to self
         if self.rec_x + self.rec_w > self.source_w:
@@ -264,12 +266,14 @@ class Picture:
 
         if self.rec_w > self.source_w:
             self.rec_w = self.source_w
-            if self.crop_ratio == (1, 1):
-                self.rec_h = self.rec_w
+            if self.lock_ratio:
+                if self.crop_ratio == (1, 1):
+                    self.rec_h = self.rec_w
 
         if self.rec_h > self.source_h:
             self.rec_h = self.source_h
-            self.rec_w = self.rec_h
+            if self.lock_ratio:
+                self.rec_w = self.rec_h
 
     def load(self, path, bounds):
 
@@ -511,6 +515,11 @@ class Window(Gtk.Window):
         opt.connect("toggled", self.toggle_menu_setting2, "square")
         opt.set_active(True)
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Free Rectangle")
+        opt.connect("toggled", self.toggle_menu_setting2, "rect")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+
         opt = Gtk.RadioButton.new_with_label_from_widget(opt, "16:10")
         opt.connect("toggled", self.toggle_menu_setting2, "16:10")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
@@ -612,6 +621,11 @@ class Window(Gtk.Window):
         self.about.hide()
 
     def toggle_menu_setting2(self, button, name):
+
+        picture.lock_ratio = True
+
+        if name == "rect":
+            picture.lock_ratio = False
 
         if name == "square":
             picture.crop = True
@@ -767,38 +781,10 @@ class Window(Gtk.Window):
             offset_x = event.x - picture.drag_start_position[0]
             offset_y = event.y - picture.drag_start_position[1]
 
-            if picture.dragging_tr:
-
-                offset = ((offset_x + (offset_y * -1)) / 2)
-                ry = round(picture.original_position[1] - offset)
-                rh = round(picture.original_drag_size[1] + offset)
-                rw = round(picture.original_drag_size[0] + offset)
-
-            if picture.dragging_bl:
-
-                offset = (((offset_x * -1) + offset_y) / 2)
-                rx = round(picture.original_position[0] - offset)
-                rh = round(picture.original_drag_size[1] + offset)
-                rw = round(picture.original_drag_size[0] + offset)
-
-            elif picture.dragging_tl:
-
-                offset = ((offset_x + offset_y) / 2) * -1
-
-                rx = round(picture.original_position[0] - offset)
-                rw = round(picture.original_drag_size[0] + offset)
-
-                ry = round(picture.original_position[1] - offset)
-                rh = round(picture.original_drag_size[1] + offset)
-
-            elif picture.dragging_br:
-
-                offset = (offset_x + offset_y) / 2
-
-                rw = round(picture.original_drag_size[0] + offset)
-                rh = round(picture.original_drag_size[1] + offset)
-
-            elif picture.dragging_center:
+            if picture.dragging_center and not (picture.dragging_tl or
+                                                picture.dragging_bl or
+                                                picture.dragging_br or
+                                                picture.dragging_tr):
 
                 # Drag mask rectangle relative to original click position
                 x_offset = event.x - picture.drag_start_position[0]
@@ -810,6 +796,68 @@ class Window(Gtk.Window):
 
                 rx = round(picture.original_position[0] + x_offset)
                 ry = round(picture.original_position[1] + y_offset)
+
+            elif not picture.lock_ratio:
+
+                if picture.dragging_tr:
+
+                    ry = round(picture.original_position[1] + offset_y)
+                    rh = round(picture.original_drag_size[1] - offset_y)
+                    rw = round(picture.original_drag_size[0] + offset_x)
+
+                if picture.dragging_bl:
+
+                    rx = round(picture.original_position[0] + offset_x)
+                    rh = round(picture.original_drag_size[1] + offset_y)
+                    rw = round(picture.original_drag_size[0] - offset_x)
+
+                elif picture.dragging_tl:
+
+                    rx = round(picture.original_position[0] + offset_x)
+                    rw = round(picture.original_drag_size[0] - offset_x)
+
+                    ry = round(picture.original_position[1] + offset_y)
+                    rh = round(picture.original_drag_size[1] - offset_y)
+
+                elif picture.dragging_br:
+
+                    rw = round(picture.original_drag_size[0] + offset_x)
+                    rh = round(picture.original_drag_size[1] + offset_y)
+
+            else:
+
+                if picture.dragging_tr:
+
+                    offset = ((offset_x + (offset_y * -1)) / 2)
+                    ry = round(picture.original_position[1] - offset)
+                    rh = round(picture.original_drag_size[1] + offset)
+                    rw = round(picture.original_drag_size[0] + offset)
+
+                if picture.dragging_bl:
+
+                    offset = (((offset_x * -1) + offset_y) / 2)
+                    rx = round(picture.original_position[0] - offset)
+                    rh = round(picture.original_drag_size[1] + offset)
+                    rw = round(picture.original_drag_size[0] + offset)
+
+                elif picture.dragging_tl:
+
+                    offset = ((offset_x + offset_y) / 2) * -1
+
+                    rx = round(picture.original_position[0] - offset)
+                    rw = round(picture.original_drag_size[0] + offset)
+
+                    ry = round(picture.original_position[1] - offset)
+                    rh = round(picture.original_drag_size[1] + offset)
+
+                elif picture.dragging_br:
+
+                    offset = (offset_x + offset_y) / 2
+
+                    rw = round(picture.original_drag_size[0] + offset)
+                    rh = round(picture.original_drag_size[1] + offset)
+
+
 
             picture.save_display_rect(rx, ry, rw, rh)
 
@@ -909,6 +957,9 @@ class Window(Gtk.Window):
 
                 if picture.rec_h == 1080 and (picture.rec_w == 2560 or picture.rec_w == 1920):
                     c.set_source_rgba(0.2, 0.9, 0.2, 1)
+                elif picture.lock_ratio and picture.crop_ratio != (1, 1):
+                    if picture.rec_w / picture.crop_ratio[0] * picture.crop_ratio[1] == picture.rec_h:
+                        c.set_source_rgba(0.9, 0.9, 0.4, 1)
 
                 c.show_text(f"{picture.rec_w} x {picture.rec_h}")
 
