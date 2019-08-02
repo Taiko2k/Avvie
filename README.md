@@ -8,7 +8,7 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
 
 ## Features
 
-<img src="https://user-images.githubusercontent.com/17271572/62006516-70aadc80-b195-11e9-8efb-44db232dd62b.png" hspace="0px" vspace="160px" height="260px" align="right">
+<img src="https://user-images.githubusercontent.com/17271572/62346882-e0c9b180-b54b-11e9-9fbd-aa313928ef23.png" hspace="0px" vspace="160px" height="260px" align="right">
 
 
 
