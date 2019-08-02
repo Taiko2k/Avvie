@@ -1,4 +1,4 @@
-# Avie!
+# Avvie!
 
 # Copyright 2019 Taiko2k captain(dot)gxj(at)gmail.com
 
@@ -102,6 +102,8 @@ class Picture:
         self.slow_drag = False
         self.circle = False
         self.rotation = 0
+        self.flip_hoz = False
+        self.flip_vert = False
 
         self.corner_hot_area = 40
 
@@ -153,6 +155,11 @@ class Picture:
         if not im:
             return
 
+        if self.flip_hoz:
+            im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
+        if self.flip_vert:
+            im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
+
         if self.rotation:
             im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
 
@@ -185,6 +192,11 @@ class Picture:
 
         im = self.source_image.copy()
         im.load()
+
+        if self.flip_hoz:
+            im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
+        if self.flip_vert:
+            im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
 
         if self.rotation:
             im = im.rotate(self.rotation, expand=True, resample=0)
@@ -286,6 +298,11 @@ class Picture:
         im = self.source_image
         if not im:
             return
+
+        if self.flip_hoz:
+            im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
+        if self.flip_vert:
+            im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
 
         if self.rotation:
             im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
@@ -410,6 +427,7 @@ class Window(Gtk.Window):
         self.set_titlebar(hb)
 
         button = Gtk.Button()
+        button.set_tooltip_text("Open image file")
         icon = Gio.ThemedIcon(name="document-open-symbolic")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         button.add(image)
@@ -417,6 +435,7 @@ class Window(Gtk.Window):
         button.connect("clicked", self.open_file)
 
         button = Gtk.Button()
+        button.set_tooltip_text("Export to Downloads folder")
         icon = Gio.ThemedIcon(name="document-save-symbolic")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         button.add(image)
@@ -429,9 +448,6 @@ class Window(Gtk.Window):
         vbox.set_border_width(15)
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
-
-
-
 
 
         opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "1:1")
@@ -494,7 +510,7 @@ class Window(Gtk.Window):
         opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Crop")
         opt.connect("toggled", self.toggle_menu_setting2, "none")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Square")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Square Crop")
         opt.connect("toggled", self.toggle_menu_setting2, "square")
         opt.set_active(True)
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
@@ -519,6 +535,12 @@ class Window(Gtk.Window):
         vbox.pack_start(child=self.rot, expand=True, fill=False, padding=7)
         vbox.pack_start(child=self.rotate_reset_button, expand=True, fill=False, padding=7)
 
+        flip_vert_button = Gtk.Button(label="Flip Vertical")
+        flip_vert_button.connect("clicked", self.toggle_flip_vert)
+        vbox.pack_start(child=flip_vert_button, expand=True, fill=False, padding=2)
+        flip_hoz_button = Gtk.Button(label="Flip Horizontal")
+        flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
+        vbox.pack_start(child=flip_hoz_button, expand=True, fill=False, padding=2)
 
 
         popover.add(vbox)
@@ -544,6 +566,21 @@ class Window(Gtk.Window):
             if not item.endswith(".py") and os.path.isfile(item):
                 picture.load(item, self.get_size())
                 break
+
+    def toggle_flip_vert(self, button):
+        picture.flip_vert ^= True
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.queue_draw()
+            picture.gen_thumb_184(hq=True)
+
+    def toggle_flip_hoz(self, button):
+        picture.flip_hoz ^= True
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.queue_draw()
+            picture.gen_thumb_184(hq=True)
+
 
     def rotate_reset(self, button):
 
