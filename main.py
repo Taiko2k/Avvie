@@ -34,15 +34,19 @@ app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
 version = "1.0"
 
-settings = Gtk.Settings.get_default()
-settings.set_property("gtk-application-prefer-dark-theme", True)
-background_color = (0.15, 0.15, 0.15)
+try:
+    settings = Gtk.Settings.get_default()
+    settings.set_property("gtk-application-prefer-dark-theme", True)
+except AttributeError:
+    print("Failed to get GTK settings")
 
+background_color = (0.15, 0.15, 0.15)
 
 Notify.init(app_title)
 notify = Notify.Notification.new(app_title, "Image file exported to Downloads.")
 
 TARGET_TYPE_URI_LIST = 80
+
 
 def open_encode_out(notification, action, data):
     subprocess.call(["xdg-open", picture.base_folder])
@@ -60,10 +64,10 @@ def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-
 class Picture:
     def __init__(self):
         self.source_image = None
+        self.surface = None
         self.source_w = 0
         self.source_h = 0
         self.display_w = 0
@@ -106,7 +110,6 @@ class Picture:
         self.flip_vert = False
 
         self.corner_hot_area = 40
-
 
     def test_br(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
@@ -181,7 +184,6 @@ class Picture:
 
         cr = self.apply_filters(cr)
 
-
         by = cr.tobytes("raw", "BGRa")
         arr = bytearray(by)
         self.surface184 = cairo.ImageSurface.create_for_data(
@@ -228,7 +230,6 @@ class Picture:
         self.ready = True
         self.confine()
 
-
     def set_ratio(self):
 
         if self.crop_ratio and self.crop_ratio != (1, 1):
@@ -269,8 +270,6 @@ class Picture:
         if self.rec_h > self.source_h:
             self.rec_h = self.source_h
             self.rec_w = self.rec_h
-
-        
 
     def load(self, path, bounds):
 
@@ -449,7 +448,6 @@ class Window(Gtk.Window):
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
-
         opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "1:1")
         opt1.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox.pack_start(child=opt1, expand=True, fill=False, padding=4)
@@ -496,7 +494,6 @@ class Window(Gtk.Window):
 
         hb.pack_end(menu)
 
-
         # CROP MENU ----------------------------------------------------------
         menu = Gtk.MenuButton()
         icon = Gio.ThemedIcon(name="insert-image-symbolic")
@@ -542,7 +539,6 @@ class Window(Gtk.Window):
         flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
         vbox.pack_start(child=flip_hoz_button, expand=True, fill=False, padding=2)
 
-
         popover.add(vbox)
         menu.set_popover(popover)
         vbox.show_all()
@@ -550,8 +546,7 @@ class Window(Gtk.Window):
         hb.pack_start(Gtk.Separator())
         hb.pack_start(menu)
 
-        #hb.pack_start(Gtk.Separator())
-
+        # hb.pack_start(Gtk.Separator())
         # hb.pack_start(self.rot)
 
         self.about.set_authors(["Taiko2k"])
@@ -580,7 +575,6 @@ class Window(Gtk.Window):
             picture.reload(keep_rect=True)
             self.queue_draw()
             picture.gen_thumb_184(hq=True)
-
 
     def rotate_reset(self, button):
 
@@ -669,7 +663,6 @@ class Window(Gtk.Window):
         picture.gen_thumb_184(hq=True)
         self.queue_draw()
 
-
     def save(self, widget):
 
         picture.export()
@@ -692,14 +685,11 @@ class Window(Gtk.Window):
             print("File selected: " + filename)
             picture.load(filename, self.get_size())
 
-
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
-
 
         if target_type == TARGET_TYPE_URI_LIST:
             uris = selection.get_data().strip()
             uri = uris.decode().splitlines()[0]
-
 
             if not uri.startswith("file://"):
                 return
@@ -774,11 +764,8 @@ class Window(Gtk.Window):
                 picture.original_position = (rx, ry)
                 picture.original_drag_size = (rw, rh)
 
-
             offset_x = event.x - picture.drag_start_position[0]
             offset_y = event.y - picture.drag_start_position[1]
-
-
 
             if picture.dragging_tr:
 
