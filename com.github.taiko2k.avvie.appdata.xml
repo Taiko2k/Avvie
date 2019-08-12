@@ -13,8 +13,7 @@
   <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/62344593-bcb5a280-b542-11e9-8efb-5a074ba367bb.png</icon>
 
   <description>
-    <p>A simple tool for quickly cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers.
-      Can load and save in JPG and PNG. One click exporting with optional downscaling or 1:1 output for optimal quality.</p>
+    <p>A tool for quickly cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers. Export in one click to your Downloads folder.</p>
 
   </description>
 
@@ -30,7 +29,7 @@
   </categories>
 
   <releases>
-    <release version="1.0" date="2019-08-03"/>
+    <release version="1.0" date="2019-08-07"/>
   </releases>
 
   <translation type="gettext">avvie</translation>
@@ -38,7 +37,6 @@
   <content_rating type="oars-1.1" />
 
   <kudos>
-    <kudo>Notifications</kudo>
     <kudo>HiDpiIcon</kudo>
     <kudo>ModernToolkit</kudo>
   </kudos>

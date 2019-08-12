@@ -454,22 +454,22 @@ class Window(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(15)
 
-        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+        #vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+
+        label = Gtk.Label(label="Maximum output size:")
+        vbox.pack_start(child=label, expand=True, fill=False, padding=4)
 
         opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "1:1")
         opt1.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox.pack_start(child=opt1, expand=True, fill=False, padding=4)
 
-        label = Gtk.Label(label="Set maximum size:")
-        vbox.pack_start(child=label, expand=True, fill=False, padding=4)
-
-        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "<= 184x184")
+        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "184x184")
         opt2.connect("toggled", self.toggle_menu_setting, "184")
         vbox.pack_start(child=opt2, expand=True, fill=False, padding=4)
-        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "<= 500x500")
+        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "500x500")
         opt3.connect("toggled", self.toggle_menu_setting, "500")
         vbox.pack_start(child=opt3, expand=True, fill=False, padding=4)
-        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "<= 1000x1000")
+        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "1000x1000")
         opt4.connect("toggled", self.toggle_menu_setting, "1000")
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
@@ -970,6 +970,20 @@ class Window(Gtk.Window):
                 c.show_text(f"{picture.rec_w} x {picture.rec_h}")
 
             w, h = self.get_size()
+
+
+            ex_w = picture.rec_w
+            ex_h = picture.rec_h
+            ratio = ex_h / ex_w
+
+            if picture.export_constrain:
+                if ex_w > picture.export_constrain:
+                    ex_w = picture.export_constrain
+                    ex_h = int(ex_w * ratio)
+                if ex_h > picture.export_constrain:
+                    ex_h = picture.export_constrain
+                    ex_w = int(ex_w * ratio)
+
             if not picture.surface184:
                 picture.gen_thumb_184(hq=True)
             if picture.surface184:
@@ -986,8 +1000,19 @@ class Window(Gtk.Window):
                     c.set_source_surface(picture.surface184, w - 200, h - 200)
                     c.paint()
 
+                c.select_font_face("Sans")
+                c.set_font_size(13)
+                c.move_to(w - 200, h - 205)
+
+
+                c.set_source_rgba(0.4, 0.4, 0.4, 1)
+
+                c.show_text(f"{ex_w} x {ex_h}")
+
 
 win = Window()
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()
+notify.close()
+notify_invalid_output.close()
