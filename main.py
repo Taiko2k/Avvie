@@ -302,7 +302,7 @@ class Picture:
         self.rec_w = round(w / self.scale_factor)
         self.rec_h = round(h / self.scale_factor)
 
-    def export(self):
+    def export(self, path=None):
 
         if not os.path.isdir(self.base_folder):
             notify_invalid_output.show()
@@ -344,31 +344,44 @@ class Picture:
 
         cr = self.apply_filters(cr)
 
-        path = os.path.join(self.base_folder, self.file_name)
+        png = self.png
 
-        if cropped:
-            path += "-cropped"
+        overwrite = False
 
-        if scaled:
-            path += "-scaled"
+        if path is None:
+            path = os.path.join(self.base_folder, self.file_name)
 
-        ext = '.jpg'
-        if self.png:
-            ext = '.png'
+            if cropped:
+                path += "-cropped"
+
+            if scaled:
+                path += "-scaled"
+
+            ext = '.jpg'
+            if png:
+                ext = '.png'
+
+        else:
+            if path.lower().endswith(".png"):
+                png = True
+            else:
+                png = False
+            overwrite = True
 
         extra = ""
 
-        if os.path.isfile(path + ext):
-            i = 0
-            while True:
-                i += 1
-                extra = f"({str(i)})"
-                if not os.path.isfile(path + extra + ext):
-                    break
+        if not overwrite:
+            if os.path.isfile(path + ext):
+                i = 0
+                while True:
+                    i += 1
+                    extra = f"({str(i)})"
+                    if not os.path.isfile(path + extra + ext):
+                        break
 
-        path = path + extra + ext
+            path = path + extra + ext
 
-        if self.png:
+        if png:
             cr.save(path, "PNG")
         else:
 
@@ -497,7 +510,7 @@ class Window(Gtk.Window):
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
         pn = Gtk.CheckButton()
-        pn.set_label("Save as PNG")
+        pn.set_label("Export as PNG")
         pn.connect("toggled", self.toggle_menu_setting, "png")
         vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
 
@@ -518,6 +531,11 @@ class Window(Gtk.Window):
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
         vbox2 = vbox
+
+
+        m1 = Gtk.ModelButton(label="Export As")
+        m1.connect("clicked", self.export_as)
+        vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
 
         m1 = Gtk.ModelButton(label="About")
         m1.connect("clicked", self.show_about)
@@ -652,6 +670,22 @@ class Window(Gtk.Window):
     def show_about(self, button):
         self.about.run()
         self.about.hide()
+
+    def export_as(self, button):
+
+        dialog = Gtk.FileChooserNative(title="Please choose where to save to", action=Gtk.FileChooserAction.SAVE)
+        f = Gtk.FileFilter()
+        f.set_name("Image files")
+        f.add_mime_type("image/jpeg")
+        f.add_mime_type("image/png")
+        dialog.add_filter(f)
+
+        dialog.run()
+        filename = dialog.get_filename()
+        dialog.destroy()
+
+        picture.export(filename)
+        print(filename)
 
     def toggle_menu_setting2(self, button, name):
 
