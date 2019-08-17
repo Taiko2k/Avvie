@@ -388,7 +388,8 @@ class Picture:
             cr = cr.convert("RGB")
             cr.save(path, "JPEG", quality=95)
 
-        notify.show()
+        if not overwrite:
+            notify.show()
 
 
 picture = Picture()
