@@ -684,12 +684,13 @@ class Window(Gtk.Window):
         f.add_mime_type("image/png")
         dialog.add_filter(f)
 
-        dialog.run()
+        choice = dialog.run()
         filename = dialog.get_filename()
         dialog.destroy()
 
-        picture.export(filename)
-        print(filename)
+        if choice == Gtk.ResponseType.ACCEPT:
+            picture.export(filename)
+
 
     def toggle_menu_setting2(self, button, name):
 
