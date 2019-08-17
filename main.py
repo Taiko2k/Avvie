@@ -110,6 +110,7 @@ class Picture:
         self.rotation = 0
         self.flip_hoz = False
         self.flip_vert = False
+        self.gray = False
 
         self.corner_hot_area = 40
 
@@ -159,6 +160,10 @@ class Picture:
         im = self.source_image
         if not im:
             return
+
+        if self.gray:
+            im = im.convert("L")
+            im = im.convert("RGB")
 
         if self.flip_hoz:
             im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
@@ -306,6 +311,11 @@ class Picture:
         if not im:
             return
 
+        if self.gray:
+            im = im.convert("L")
+            im = im.convert("RGB")
+
+
         if self.flip_hoz:
             im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
         if self.flip_vert:
@@ -391,6 +401,7 @@ class Window(Gtk.Window):
         self.about = Gtk.AboutDialog()
 
         self.rotate_reset_button = Gtk.Button(label="Reset rotation")
+        self.preview_circle_check = Gtk.CheckButton()
         self.rot = Gtk.Scale.new_with_range(orientation=0, min=-180, max=180, step=4)
 
         self.setup_window()
@@ -447,29 +458,39 @@ class Window(Gtk.Window):
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         button.add(image)
         button.connect("clicked", self.save)
+        button.set_sensitive(False)
+        self.open_button = button
 
         hb.pack_end(button)
+        hb.pack_end(Gtk.Separator())
 
         popover = Gtk.Popover()
+
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(15)
 
-        #vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
-        label = Gtk.Label(label="Maximum output size:")
-        vbox.pack_start(child=label, expand=True, fill=False, padding=4)
-
-        opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "1:1")
+        opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "No Downscale")
         opt1.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox.pack_start(child=opt1, expand=True, fill=False, padding=4)
 
-        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "184x184")
+        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "184")
         opt2.connect("toggled", self.toggle_menu_setting, "184")
         vbox.pack_start(child=opt2, expand=True, fill=False, padding=4)
-        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "500x500")
+        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "500")
         opt3.connect("toggled", self.toggle_menu_setting, "500")
         vbox.pack_start(child=opt3, expand=True, fill=False, padding=4)
-        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "1000x1000")
+
+        # opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "750")
+        # opt3.connect("toggled", self.toggle_menu_setting, "750")
+        # vbox.pack_start(child=opt3, expand=True, fill=False, padding=4)
+
+        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "1000")
+        opt4.connect("toggled", self.toggle_menu_setting, "1000")
+        vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
+
+        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt4, "1500")
         opt4.connect("toggled", self.toggle_menu_setting, "1000")
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
@@ -485,17 +506,26 @@ class Window(Gtk.Window):
         sh.connect("toggled", self.toggle_menu_setting, "sharpen")
         vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
 
+        sh = Gtk.CheckButton()
+        sh.set_label("Grayscale")
+        sh.connect("toggled", self.toggle_menu_setting, "grayscale")
+        vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
+
+        self.preview_circle_check.set_label("Circle (Preview Only)")
+        self.preview_circle_check.connect("toggled", self.toggle_menu_setting, "circle")
+        vbox.pack_start(child=self.preview_circle_check, expand=True, fill=False, padding=4)
+
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
-        about_button = Gtk.Button(label="About")
-        about_button.connect("clicked", self.show_about)
-        vbox.pack_start(child=about_button, expand=True, fill=False, padding=4)
+        vbox2 = vbox
 
-        popover.add(vbox)
-        vbox.show_all()
+        m1 = Gtk.ModelButton(label="About")
+        m1.connect("clicked", self.show_about)
+        vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
 
         menu = Gtk.MenuButton()
         icon = Gio.ThemedIcon(name="open-menu-symbolic")
+        menu.set_tooltip_text("Options Menu")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         menu.add(image)
         menu.set_popover(popover)
@@ -503,24 +533,21 @@ class Window(Gtk.Window):
         hb.pack_end(menu)
 
         # CROP MENU ----------------------------------------------------------
-        menu = Gtk.MenuButton()
-        icon = Gio.ThemedIcon(name="insert-image-symbolic")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-        menu.add(image)
+        popover = Gtk.PopoverMenu()
 
-        popover = Gtk.Popover()
+
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(13)
 
         opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Crop")
         opt.connect("toggled", self.toggle_menu_setting2, "none")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Square Crop")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Square")
         opt.connect("toggled", self.toggle_menu_setting2, "square")
         opt.set_active(True)
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Free Rectangle")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Rectangle")
         opt.connect("toggled", self.toggle_menu_setting2, "rect")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
@@ -552,15 +579,17 @@ class Window(Gtk.Window):
         flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
         vbox.pack_start(child=flip_hoz_button, expand=True, fill=False, padding=2)
 
-        popover.add(vbox)
+        hbox.pack_start(child=vbox, expand=True, fill=False, padding=4)
+        hbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+        hbox.pack_start(child=vbox2, expand=True, fill=False, padding=4)
+
+        popover.add(hbox)
+        vbox.show_all()
+        vbox2.show_all()
+        hbox.show_all()
+
         menu.set_popover(popover)
         vbox.show_all()
-
-        hb.pack_start(Gtk.Separator())
-        hb.pack_start(menu)
-
-        # hb.pack_start(Gtk.Separator())
-        # hb.pack_start(self.rot)
 
         self.about.set_authors(["Taiko2k"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
@@ -631,6 +660,7 @@ class Window(Gtk.Window):
         if name == "rect":
             picture.crop = True
             picture.lock_ratio = False
+            self.preview_circle_check.set_active(False)
 
         if name == "square":
             picture.crop = True
@@ -644,13 +674,18 @@ class Window(Gtk.Window):
                 picture.rec_w = 2560
                 picture.rec_h = 1080
 
+            self.preview_circle_check.set_active(False)
+
         if name == '16:9':
             picture.crop = True
             picture.crop_ratio = (16, 9)
+            self.preview_circle_check.set_active(False)
 
         if name == '16:10':
             picture.crop = True
             picture.crop_ratio = (16, 10)
+            picture.circle = False
+            self.preview_circle_check.set_active(False)
 
         if name == 'none':
             picture.crop_ratio = (1, 1)
@@ -661,6 +696,14 @@ class Window(Gtk.Window):
         self.queue_draw()
 
     def toggle_menu_setting(self, button, name):
+
+        if name == 'circle':
+            picture.circle ^= True
+            self.queue_draw()
+
+        if name == 'grayscale':
+            picture.gray ^= True
+            self.queue_draw()
 
         if name == 'sharpen':
             picture.sharpen = button.get_active()
@@ -677,8 +720,14 @@ class Window(Gtk.Window):
         if name == "500" and button.get_active():
             picture.export_constrain = 500
 
+        if name == "750" and button.get_active():
+            picture.export_constrain = 750
+
         if name == "1000" and button.get_active():
             picture.export_constrain = 1000
+
+        if name == "1500" and button.get_active():
+            picture.export_constrain = 1500
 
         picture.gen_thumb_184(hq=True)
         self.queue_draw()
@@ -704,6 +753,8 @@ class Window(Gtk.Window):
         if filename:
             print("File selected: " + filename)
             picture.load(filename, self.get_size())
+            self.open_button.set_sensitive(True)
+
 
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
 
@@ -716,6 +767,7 @@ class Window(Gtk.Window):
             path = urllib.parse.unquote(uri[7:])
             if os.path.isfile(path):
                 picture.load(path, self.get_size())
+                self.open_button.set_sensitive(True)
             self.queue_draw()
 
     def click(self, draw, event):
@@ -726,6 +778,9 @@ class Window(Gtk.Window):
             if w - 200 < event.x < w - 200 + 184:
                 if h - 200 < event.y < h - 200 + 184:
                     picture.circle ^= True
+
+                    self.preview_circle_check.set_active(picture.circle)
+
                     self.queue_draw()
 
             if not picture.source_image or not picture.crop:
@@ -1004,9 +1059,7 @@ class Window(Gtk.Window):
                 c.set_font_size(13)
                 c.move_to(w - 200, h - 205)
 
-
                 c.set_source_rgba(0.4, 0.4, 0.4, 1)
-
                 c.show_text(f"{ex_w} x {ex_h}")
 
 

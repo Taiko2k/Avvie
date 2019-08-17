@@ -14,7 +14,6 @@
 
   <description>
     <p>A tool for quickly cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers. Export in one click to your Downloads folder.</p>
-
   </description>
 
   <screenshots>
@@ -29,7 +28,7 @@
   </categories>
 
   <releases>
-    <release version="1.0" date="2019-08-12"/>
+    <release version="1.0" date="2019-08-17"/>
   </releases>
 
   <translation type="gettext">avvie</translation>
