@@ -673,6 +673,9 @@ class Window(Gtk.Window):
 
     def export_as(self, button):
 
+        if not picture.ready:
+            return
+
         dialog = Gtk.FileChooserNative(title="Please choose where to save to", action=Gtk.FileChooserAction.SAVE)
         f = Gtk.FileFilter()
         f.set_name("Image files")
