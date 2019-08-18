@@ -614,6 +614,7 @@ class Window(Gtk.Window):
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
         self.about.set_license_type(Gtk.License(3))
         self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
+        self.about.set_website_label("Github")
         self.about.set_destroy_with_parent(True)
         self.about.set_version(version)
         self.about.set_logo_icon_name(app_id)
@@ -956,7 +957,10 @@ class Window(Gtk.Window):
                     rw = round(picture.original_drag_size[0] + offset)
                     rh = round(picture.original_drag_size[1] + offset)
 
-
+            if rw < 30:
+                rw = 30
+            if rh < 30:
+                rh = 30
 
             picture.save_display_rect(rx, ry, rw, rh)
 
