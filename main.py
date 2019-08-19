@@ -621,6 +621,7 @@ class Window(Gtk.Window):
 
         for item in sys.argv:
             if not item.endswith(".py") and os.path.isfile(item):
+                self.open_button.set_sensitive(True)
                 picture.load(item, self.get_size())
                 break
 
@@ -792,8 +793,9 @@ class Window(Gtk.Window):
 
         if filename:
             print("File selected: " + filename)
-            picture.load(filename, self.get_size())
             self.open_button.set_sensitive(True)
+            picture.load(filename, self.get_size())
+
 
 
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
@@ -805,9 +807,10 @@ class Window(Gtk.Window):
             if not uri.startswith("file://"):
                 return
             path = urllib.parse.unquote(uri[7:])
+            self.open_button.set_sensitive(True)
             if os.path.isfile(path):
                 picture.load(path, self.get_size())
-                self.open_button.set_sensitive(True)
+
             self.queue_draw()
 
     def click(self, draw, event):
