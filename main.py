@@ -725,7 +725,6 @@ class Window(Gtk.Window):
         if name == '16:10':
             picture.crop = True
             picture.crop_ratio = (16, 10)
-            picture.circle = False
             self.preview_circle_check.set_active(False)
 
         if name == 'none':
