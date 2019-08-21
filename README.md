@@ -27,4 +27,4 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
 
 ## Download and setup
 
-Beta version: See Flatpak bundle package in releases tab
+<a href='https://flathub.org/apps/details/com.github.taiko2k.avvie'><img width='240' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-i-en.png'/></a>
