@@ -20,11 +20,11 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
 
 ## Usage tips
 
- - You can import by drag and drop
+ - You can import by drag and drop from your Pictures folder
  - The thumbnail preview shows the output exactly as it would be at 184x184
- - Hold <kdb>Ctrl</kbd> to move the selection rectangle slowly
+ - Hold <kbd>Ctrl</kbd> to move the selection rectangle slowly
  - Click the preview to toggle between ***square*** and ***circle*** (The final output will always be square)
 
-## Download and setup
+## Install
 
 <a href='https://flathub.org/apps/details/com.github.taiko2k.avvie'><img width='240' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-i-en.png'/></a>
