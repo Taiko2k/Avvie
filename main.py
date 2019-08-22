@@ -287,6 +287,7 @@ class Picture:
         self.bounds = bounds
         self.source_image = Image.open(path)
         self.reload()
+        self.gen_thumb_184(hq=True)
 
     def get_display_rect(self):
 
