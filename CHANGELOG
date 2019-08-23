@@ -1,0 +1,7 @@
+
+
+v1.1
+
+ - Tweaked selection rectangle to not slide when resizing past border
+ - Fixed preview not refreshing on image load
+ - Fixed unnecessary redrawing on mouse motion

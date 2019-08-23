@@ -929,6 +929,33 @@ class Window(Gtk.Window):
                     rw = round(picture.original_drag_size[0] + offset_x)
                     rh = round(picture.original_drag_size[1] + offset_y)
 
+                if ry < 0:
+                    offset = ry * -1
+                    ry += offset
+                    rh -= offset
+
+                if rx < 0:
+                    offset = rx * -1
+                    rx += offset
+                    rw -= offset
+
+                if rx + rw > picture.display_w:
+                    offset = picture.display_w - (rx + rw)
+                    offset *= -1
+                    rw -= offset
+
+                    if picture.dragging_tr or picture.dragging_br:
+                        rx += offset
+
+                if ry + rh > picture.display_h:
+                    offset = picture.display_h - (ry + rh)
+                    offset *= -1
+                    rh -= offset
+
+                    if picture.dragging_tl or picture.dragging_bl:
+                        ry += offset
+
+
             else:
 
                 if picture.dragging_tr:
@@ -961,6 +988,42 @@ class Window(Gtk.Window):
 
                     rw = round(picture.original_drag_size[0] + offset)
                     rh = round(picture.original_drag_size[1] + offset)
+
+                # Don't allow resising past boundary
+                if rx + rw > picture.display_w:
+                    ratio = rw / rh
+                    if picture.dragging_tr:
+                        ry += rx + rw - picture.display_w
+                    rw = picture.display_w - rx
+                    rh = rw * ratio
+
+                if ry + rh > picture.display_h:
+                    ratio = rw / rh
+                    if picture.dragging_bl:
+                        rx += ry + rh - picture.display_h
+                    rh = picture.display_h - ry
+                    rw = rh * ratio
+
+                if rx < 0:
+                    offset = rx * -1
+                    ratio = rw / rh
+                    rx += offset
+                    if picture.dragging_tl:
+                        ry += offset
+                    rw -= offset
+                    rh = rw * ratio
+
+                if ry < 0:
+                    offset = ry * -1
+                    ratio = rw / rh
+                    ry += offset
+                    if picture.dragging_tl:
+                        rx += offset
+                    rh -= offset
+                    rw = rh * ratio
+
+                rw = round(rw)
+                rh = round(rh)
 
             if rw < 30:
                 rw = 30
