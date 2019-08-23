@@ -287,6 +287,7 @@ class Picture:
         self.bounds = bounds
         self.source_image = Image.open(path)
         self.reload()
+        self.gen_thumb_184(hq=True)
 
     def get_display_rect(self):
 
@@ -863,7 +864,7 @@ class Window(Gtk.Window):
         self.get_window().set_cursor(self.arrow_cursor)
 
     def confine(self):
-        
+
         picture.confine()
 
     def mouse_motion(self, draw, event):
@@ -883,10 +884,12 @@ class Window(Gtk.Window):
             offset_x = event.x - picture.drag_start_position[0]
             offset_y = event.y - picture.drag_start_position[1]
 
-            if picture.dragging_center and not (picture.dragging_tl or
-                                                picture.dragging_bl or
-                                                picture.dragging_br or
-                                                picture.dragging_tr):
+            dragging_corners = bool(picture.dragging_tl or
+                                    picture.dragging_bl or
+                                    picture.dragging_br or
+                                    picture.dragging_tr)
+
+            if picture.dragging_center and not dragging_corners:
 
                 # Drag mask rectangle relative to original click position
                 x_offset = event.x - picture.drag_start_position[0]
@@ -968,9 +971,10 @@ class Window(Gtk.Window):
 
             picture.corner_hot_area = min(rh * 0.2, 40)
 
-            self.confine()
-            picture.gen_thumb_184()
-            self.queue_draw()
+            if picture.dragging_center or dragging_corners:
+                self.confine()
+                picture.gen_thumb_184()
+                self.queue_draw()
 
         else:
             picture.dragging_center = False
