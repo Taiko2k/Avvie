@@ -32,7 +32,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.0"
+version = "1.1"
 
 try:
     settings = Gtk.Settings.get_default()
@@ -954,7 +954,6 @@ class Window(Gtk.Window):
 
                     if picture.dragging_tl or picture.dragging_bl:
                         ry += offset
-
 
             else:
 
