@@ -29,10 +29,9 @@ gi.require_foreign("cairo")
 gi.require_version('Notify', '0.7')
 from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
-
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.1"
+version = "1.2"
 
 try:
     settings = Gtk.Settings.get_default()
@@ -52,14 +51,12 @@ TARGET_TYPE_URI_LIST = 80
 def open_encode_out(notification, action, data):
     subprocess.call(["xdg-open", picture.base_folder])
 
-
 notify.add_action(
     "action_click",
     "Open output folder",
     open_encode_out,
     None
 )
-
 
 def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -231,6 +228,7 @@ class Picture:
 
         by = im.tobytes("raw", "BGRa")
         arr = bytearray(by)
+
         self.surface = cairo.ImageSurface.create_for_data(
             arr, cairo.FORMAT_ARGB32, self.display_w, self.display_h
         )
@@ -315,7 +313,6 @@ class Picture:
         if self.gray:
             im = im.convert("L")
             im = im.convert("RGB")
-
 
         if self.flip_hoz:
             im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
@@ -485,7 +482,6 @@ class Window(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(15)
 
-
         opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "No Downscale")
         opt1.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox.pack_start(child=opt1, expand=True, fill=False, padding=4)
@@ -505,8 +501,8 @@ class Window(Gtk.Window):
         opt4.connect("toggled", self.toggle_menu_setting, "1000")
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
-        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt4, "1500")
-        opt4.connect("toggled", self.toggle_menu_setting, "1000")
+        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt4, "1920")
+        opt4.connect("toggled", self.toggle_menu_setting, "1020")
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
@@ -767,8 +763,8 @@ class Window(Gtk.Window):
         if name == "1000" and button.get_active():
             picture.export_constrain = 1000
 
-        if name == "1500" and button.get_active():
-            picture.export_constrain = 1500
+        if name == "1920" and button.get_active():
+            picture.export_constrain = 1920
 
         picture.gen_thumb_184(hq=True)
         self.queue_draw()
@@ -796,8 +792,6 @@ class Window(Gtk.Window):
             self.open_button.set_sensitive(True)
             picture.load(filename, self.get_size())
 
-
-
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
 
         if target_type == TARGET_TYPE_URI_LIST:
@@ -820,10 +814,7 @@ class Window(Gtk.Window):
             w, h = self.get_size()
             if w - 200 < event.x < w - 200 + 184:
                 if h - 200 < event.y < h - 200 + 184:
-                    picture.circle ^= True
-
-                    self.preview_circle_check.set_active(picture.circle)
-
+                    self.preview_circle_check.set_active(picture.circle ^ True)
                     self.queue_draw()
 
             if not picture.source_image or not picture.crop:

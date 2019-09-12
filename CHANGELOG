@@ -1,4 +1,8 @@
 
+v1.2
+
+ - Fixed click preview to switch to circle not working on first click
+ - Fixed and changed 1500 downscale value to 1920
 
 v1.1
 
