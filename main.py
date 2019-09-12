@@ -502,7 +502,7 @@ class Window(Gtk.Window):
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
         opt4 = Gtk.RadioButton.new_with_label_from_widget(opt4, "1920")
-        opt4.connect("toggled", self.toggle_menu_setting, "1020")
+        opt4.connect("toggled", self.toggle_menu_setting, "1920")
         vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
