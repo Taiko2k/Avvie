@@ -51,12 +51,14 @@ TARGET_TYPE_URI_LIST = 80
 def open_encode_out(notification, action, data):
     subprocess.call(["xdg-open", picture.base_folder])
 
+
 notify.add_action(
     "action_click",
     "Open output folder",
     open_encode_out,
     None
 )
+
 
 def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -530,7 +532,6 @@ class Window(Gtk.Window):
 
         vbox2 = vbox
 
-
         m1 = Gtk.ModelButton(label="Export As")
         m1.connect("clicked", self.export_as)
         vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
@@ -550,7 +551,6 @@ class Window(Gtk.Window):
 
         # CROP MENU ----------------------------------------------------------
         popover = Gtk.PopoverMenu()
-
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(13)
@@ -608,6 +608,7 @@ class Window(Gtk.Window):
         vbox.show_all()
 
         self.about.set_authors(["Taiko2k"])
+        # self.about.set_artists(["Test"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
         self.about.set_license_type(Gtk.License(3))
         self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
