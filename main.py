@@ -31,7 +31,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.2"
+version = "1.3"
 
 try:
     settings = Gtk.Settings.get_default()
@@ -484,28 +484,42 @@ class Window(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(15)
 
-        opt1 = Gtk.RadioButton.new_with_label_from_widget(None, "No Downscale")
-        opt1.connect("toggled", self.toggle_menu_setting, "1:1")
-        vbox.pack_start(child=opt1, expand=True, fill=False, padding=4)
+        opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Downscale")
+        opt.connect("toggled", self.toggle_menu_setting, "1:1")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt2 = Gtk.RadioButton.new_with_label_from_widget(opt1, "184")
-        opt2.connect("toggled", self.toggle_menu_setting, "184")
-        vbox.pack_start(child=opt2, expand=True, fill=False, padding=4)
-        opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "500")
-        opt3.connect("toggled", self.toggle_menu_setting, "500")
-        vbox.pack_start(child=opt3, expand=True, fill=False, padding=4)
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "184")
+        opt.connect("toggled", self.toggle_menu_setting, "184")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        
+        # opt = Gtk.RadioButton.new_with_label_from_widget(opt, "500")
+        # opt.connect("toggled", self.toggle_menu_setting, "500")
+        # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        # opt3 = Gtk.RadioButton.new_with_label_from_widget(opt2, "750")
-        # opt3.connect("toggled", self.toggle_menu_setting, "750")
-        # vbox.pack_start(child=opt3, expand=True, fill=False, padding=4)
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "1000")
+        opt.connect("toggled", self.toggle_menu_setting, "1000")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt3, "1000")
-        opt4.connect("toggled", self.toggle_menu_setting, "1000")
-        vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "1920")
+        opt.connect("toggled", self.toggle_menu_setting, "1920")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt4 = Gtk.RadioButton.new_with_label_from_widget(opt4, "1920")
-        opt4.connect("toggled", self.toggle_menu_setting, "1920")
-        vbox.pack_start(child=opt4, expand=True, fill=False, padding=4)
+        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        self.custom_resize_radio = Gtk.RadioButton.new_with_label_from_widget(opt, "Custom")
+        self.custom_resize_radio.connect("toggled", self.toggle_menu_setting, "custom")
+        inline_box.pack_start(child=self.custom_resize_radio, expand=True, fill=False, padding=0)
+
+        self.custom_resize_adjustment = Gtk.Adjustment(value=500, lower=2, upper=10000, step_increment=50)
+        self.custom_resize_adjustment.connect("value-changed", self.set_custom_resize)
+
+        spinbutton = Gtk.SpinButton()
+        spinbutton.set_numeric(True)
+        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
+        spinbutton.set_adjustment(self.custom_resize_adjustment)
+        inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
+
+        vbox.pack_start(child=inline_box, expand=True, fill=False, padding=0)
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
@@ -647,6 +661,11 @@ class Window(Gtk.Window):
             picture.gen_thumb_184(hq=True)
         self.rotate_reset_button.set_sensitive(False)
 
+    def set_custom_resize(self, adjustment):
+
+        if self.custom_resize_radio.get_active():
+            picture.export_constrain = int(adjustment.get_value())
+
     def rotate(self, scale):
 
         picture.rotation = scale.get_value()
@@ -766,6 +785,10 @@ class Window(Gtk.Window):
 
         if name == "1920" and button.get_active():
             picture.export_constrain = 1920
+
+        if name == "custom" and button.get_active():
+            picture.export_constrain = int(self.custom_resize_adjustment.get_value())
+
 
         picture.gen_thumb_184(hq=True)
         self.queue_draw()
