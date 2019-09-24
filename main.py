@@ -622,7 +622,7 @@ class Window(Gtk.Window):
         vbox.show_all()
 
         self.about.set_authors(["Taiko2k"])
-        # self.about.set_artists(["Test"])
+        self.about.set_artists(["Tobias Bernard"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
         self.about.set_license_type(Gtk.License(3))
         self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
