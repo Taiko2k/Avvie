@@ -1,10 +1,8 @@
 
-v1.3
-
- - Added custom downscale entry
-
 v1.2
 
+ - Added new app icon
+ - Added custom downscale entry
  - Fixed click preview to switch to circle not working on first click
  - Fixed and changed 1500 downscale value to 1920
 
