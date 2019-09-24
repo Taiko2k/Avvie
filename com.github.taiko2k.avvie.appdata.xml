@@ -10,7 +10,7 @@
   <project_license>GPL-3.0+</project_license>
   <url type="homepage">https://github.com/Taiko2k/avvie</url>
   <url type="bugtracker">https://github.com/Taiko2k/avvie/issues</url>
-  <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/62344593-bcb5a280-b542-11e9-8efb-5a074ba367bb.png</icon>
+  <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/65506667-343ef700-df20-11e9-8590-14bfa569c3c2.png</icon>
 
   <description>
     <p>A simple tool cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers. Export in one click to your Downloads folder.</p>
