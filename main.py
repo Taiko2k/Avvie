@@ -31,7 +31,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.3"
+version = "1.2"
 
 try:
     settings = Gtk.Settings.get_default()
