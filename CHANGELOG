@@ -1,4 +1,9 @@
 
+v1.3
+
+ - Moved crop toggle to header bar switch
+ - Fixed export dimension indicator when crop disabled
+
 v1.2
 
  - Added new app icon

@@ -31,7 +31,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.2"
+version = "1.3"
 
 try:
     settings = Gtk.Settings.get_default()
@@ -418,6 +418,8 @@ class Window(Gtk.Window):
         self.preview_circle_check = Gtk.CheckButton()
         self.rot = Gtk.Scale.new_with_range(orientation=0, min=-180, max=180, step=4)
 
+        self.crop_mode_radios = []
+
         self.setup_window()
 
     def setup_window(self):
@@ -561,7 +563,17 @@ class Window(Gtk.Window):
         menu.add(image)
         menu.set_popover(popover)
 
+        switch = Gtk.Switch()
+        switch.connect("notify::active", self.crop_switch)
+        switch.set_active(True)
+        switch.set_tooltip_text("Enable Crop")
+        self.crop_switch_button = switch
+
         hb.pack_end(menu)
+
+        hb.pack_end(switch)
+
+
 
         # CROP MENU ----------------------------------------------------------
         popover = Gtk.PopoverMenu()
@@ -569,25 +581,34 @@ class Window(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(13)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Crop")
-        opt.connect("toggled", self.toggle_menu_setting2, "none")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Square")
+        # opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Crop")
+        # self.crop_mode_radios.append(opt)
+        # opt.connect("toggled", self.toggle_menu_setting2, "none")
+        # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+
+        opt = Gtk.RadioButton.new_with_label_from_widget(None, "Square")
+        self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "square")
         opt.set_active(True)
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
         opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Rectangle")
+        self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "rect")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
         opt = Gtk.RadioButton.new_with_label_from_widget(opt, "16:10")
+        self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "16:10")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+
         opt = Gtk.RadioButton.new_with_label_from_widget(opt, "16:9")
+        self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "16:9")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+
         opt = Gtk.RadioButton.new_with_label_from_widget(opt, "21:9")
+        self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "21:9")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
@@ -710,23 +731,37 @@ class Window(Gtk.Window):
         if choice == Gtk.ResponseType.ACCEPT:
             picture.export(filename)
 
+    def crop_switch(self, switch, param):
+
+        if switch.get_active():
+            picture.crop = True
+        else:
+            picture.crop = False
+
+        for button in self.crop_mode_radios:
+            button.set_sensitive(picture.crop)
+
+        self.confine()
+        picture.gen_thumb_184(hq=True)
+        self.queue_draw()
+
 
     def toggle_menu_setting2(self, button, name):
 
         picture.lock_ratio = True
 
         if name == "rect":
-            picture.crop = True
+            #picture.crop = True
             picture.lock_ratio = False
             self.preview_circle_check.set_active(False)
 
         if name == "square":
-            picture.crop = True
+            #picture.crop = True
             picture.crop_ratio = (1, 1)
             picture.rec_w = picture.rec_h
 
         if name == '21:9':
-            picture.crop = True
+            #picture.crop = True
             picture.crop_ratio = (21, 9)
             if picture.source_w >= 2560:
                 picture.rec_w = 2560
@@ -735,18 +770,18 @@ class Window(Gtk.Window):
             self.preview_circle_check.set_active(False)
 
         if name == '16:9':
-            picture.crop = True
+            #picture.crop = True
             picture.crop_ratio = (16, 9)
             self.preview_circle_check.set_active(False)
 
         if name == '16:10':
-            picture.crop = True
+            #picture.crop = True
             picture.crop_ratio = (16, 10)
             self.preview_circle_check.set_active(False)
 
-        if name == 'none':
-            picture.crop_ratio = (1, 1)
-            picture.crop = False
+        # if name == 'none':
+        #     picture.crop_ratio = (1, 1)
+        #     picture.crop = False
 
         self.confine()
         picture.gen_thumb_184(hq=True)
@@ -1155,6 +1190,11 @@ class Window(Gtk.Window):
 
             ex_w = picture.rec_w
             ex_h = picture.rec_h
+
+            if not picture.crop:
+                ex_w = picture.source_w
+                ex_h = picture.source_h
+
             ratio = ex_h / ex_w
 
             if picture.export_constrain:
