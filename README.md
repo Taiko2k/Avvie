@@ -1,5 +1,5 @@
 
-<img src="https://user-images.githubusercontent.com/17271572/62006477-0134ed00-b195-11e9-9f0e-a9d32d7e7ebc.png" align="left" height="157px" hspace="0px" vspace="20px">
+<img src="https://user-images.githubusercontent.com/17271572/65824200-63a78800-e2c1-11e9-84c9-d2ad8cc97526.png" align="left" height="157px" hspace="0px" vspace="20px">
 
 ## Avvie!
 
