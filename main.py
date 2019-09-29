@@ -22,6 +22,7 @@ import gi
 import cairo
 import urllib.parse
 import subprocess
+import piexif
 from PIL import Image, ImageFilter
 
 gi.require_version("Gtk", "3.0")
@@ -101,7 +102,7 @@ class Picture:
         self.base_folder = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
         self.sharpen = False
         self.export_constrain = None
-        self.crop_ratio = None
+        self.crop_ratio = (1, 1)
         self.png = False
         self.crop = True
         self.slow_drag = False
@@ -110,6 +111,8 @@ class Picture:
         self.flip_hoz = False
         self.flip_vert = False
         self.gray = False
+        self.discard_exif = False
+        self.exif = None
 
         self.corner_hot_area = 40
 
@@ -286,8 +289,15 @@ class Picture:
         self.file_name = os.path.splitext(os.path.basename(path))[0]
         self.bounds = bounds
         self.source_image = Image.open(path)
+
+        self.exif = None
+        info = self.source_image.info
+        if "exif" in info:
+            self.exif = piexif.load(info["exif"])
+
         self.reload()
         self.gen_thumb_184(hq=True)
+
 
     def get_display_rect(self):
 
@@ -386,7 +396,19 @@ class Picture:
         else:
 
             cr = cr.convert("RGB")
-            cr.save(path, "JPEG", quality=95)
+
+            if self.exif is not None and not self.discard_exif:
+                w, h = cr.size
+                self.exif["0th"][piexif.ImageIFD.XResolution] = (w, 1)
+                self.exif["0th"][piexif.ImageIFD.YResolution] = (h, 1)
+                exif_bytes = piexif.dump(self.exif)
+                cr.save(path, "JPEG", quality=95, exif=exif_bytes)
+            else:
+
+                cr.save(path, "JPEG", quality=95)
+
+
+
 
         if not overwrite:
             notify.show()
@@ -528,6 +550,11 @@ class Window(Gtk.Window):
         pn = Gtk.CheckButton()
         pn.set_label("Export as PNG")
         pn.connect("toggled", self.toggle_menu_setting, "png")
+        vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
+
+        pn = Gtk.CheckButton()
+        pn.set_label("Discard EXIF")
+        pn.connect("toggled", self.toggle_menu_setting, "exif")
         vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
 
         sh = Gtk.CheckButton()
@@ -802,6 +829,9 @@ class Window(Gtk.Window):
 
         if name == "png":
             picture.png = button.get_active()
+
+        if name == "exif":
+            picture.discard_exif = button.get_active()
 
         if name == "1:1" and button.get_active():
             picture.export_constrain = None
@@ -1228,6 +1258,11 @@ class Window(Gtk.Window):
                 c.set_source_rgba(0.4, 0.4, 0.4, 1)
                 c.show_text(f"{ex_w} x {ex_h}")
 
+                if picture.exif and not picture.discard_exif and picture.png is False:
+                    c.move_to(w - 48, h - 205)
+
+                    c.set_source_rgba(0.4, 0.6, 0.3, 1)
+                    c.show_text(f"EXIF")
 
 win = Window()
 win.connect("destroy", Gtk.main_quit)
