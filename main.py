@@ -588,6 +588,7 @@ class Window(Gtk.Window):
         icon = Gio.ThemedIcon(name="open-menu-symbolic")
         menu.set_tooltip_text("Options Menu")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+
         menu.add(image)
         menu.set_popover(popover)
 
@@ -595,12 +596,22 @@ class Window(Gtk.Window):
         switch.connect("notify::active", self.crop_switch)
         switch.set_active(True)
         switch.set_tooltip_text("Enable Crop")
+
         self.crop_switch_button = switch
 
         hb.pack_end(menu)
 
-        hb.pack_end(switch)
+        #hb.pack_end(switch)
 
+        icon = Gio.ThemedIcon(name="image-crop")
+        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+        image.set_opacity(0.8)
+
+        box = Gtk.Box()
+        box.pack_end(child=switch, expand=True, fill=False, padding=7)
+        box.pack_start(child=image, expand=True, fill=False, padding=0)
+
+        hb.pack_end(box)
 
 
         # CROP MENU ----------------------------------------------------------
