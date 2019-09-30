@@ -555,6 +555,7 @@ class Window(Gtk.Window):
         pn = Gtk.CheckButton()
         pn.set_label("Discard EXIF")
         pn.connect("toggled", self.toggle_menu_setting, "exif")
+        self.discard_exif_button = pn
         vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
 
         sh = Gtk.CheckButton()
@@ -579,7 +580,7 @@ class Window(Gtk.Window):
         m1.connect("clicked", self.export_as)
         vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
 
-        m1 = Gtk.ModelButton(label="About")
+        m1 = Gtk.ModelButton(label="About " + app_title)
         m1.connect("clicked", self.show_about)
         vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
 
@@ -619,7 +620,7 @@ class Window(Gtk.Window):
         opt.set_active(True)
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Rectangle")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Free Rectangle")
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "rect")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
@@ -683,6 +684,9 @@ class Window(Gtk.Window):
             if not item.endswith(".py") and os.path.isfile(item):
                 self.open_button.set_sensitive(True)
                 picture.load(item, self.get_size())
+                self.discard_exif_button.set_sensitive(picture.exif and True)
+
+
                 break
 
     def toggle_flip_vert(self, button):
@@ -880,6 +884,7 @@ class Window(Gtk.Window):
             print("File selected: " + filename)
             self.open_button.set_sensitive(True)
             picture.load(filename, self.get_size())
+            self.discard_exif_button.set_sensitive(picture.exif and True)
 
     def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
 
@@ -893,6 +898,7 @@ class Window(Gtk.Window):
             self.open_button.set_sensitive(True)
             if os.path.isfile(path):
                 picture.load(path, self.get_size())
+                self.discard_exif_button.set_sensitive(picture.exif and True)
 
             self.queue_draw()
 
