@@ -601,18 +601,14 @@ class Window(Gtk.Window):
 
         hb.pack_end(menu)
 
-        #hb.pack_end(switch)
-
         icon = Gio.ThemedIcon(name="image-crop")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-        image.set_opacity(0.85)
 
         box = Gtk.Box()
         box.pack_end(child=switch, expand=True, fill=False, padding=7)
         box.pack_start(child=image, expand=True, fill=False, padding=0)
 
         hb.pack_end(box)
-
 
         # CROP MENU ----------------------------------------------------------
         popover = Gtk.PopoverMenu()
