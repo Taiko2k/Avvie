@@ -2,7 +2,7 @@
 v1.3
 
  - Added "Discard EXIF" option
- - Added crop toggle to header bar switch
+ - Added crop toggle to header bar
  - Fixed export dimension indicator when crop disabled
 
 v1.2

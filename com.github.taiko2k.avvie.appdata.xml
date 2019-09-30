@@ -13,7 +13,7 @@
   <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/65506667-343ef700-df20-11e9-8590-14bfa569c3c2.png</icon>
 
   <description>
-    <p>A simple tool cropping images. Suitable for avatars or cropping photos for use as desktop wallpapers. Export in one click to your Downloads folder.</p>
+    <p>A simple tool cropping and downsizing images. Suitable for avatars or cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in one click to your Downloads folder.</p>
   </description>
 
   <screenshots>
@@ -28,6 +28,14 @@
   </categories>
 
   <releases>
+    <release version="1.3" date="2019-09-30">
+      <description>
+        <ul>
+          <li>Added option to keep or discard EXIF metadata</li>
+          <li>Added header bar switch for toggling crop</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.2" date="2019-09-24"/>
     <release version="1.1" date="2019-08-29"/>
     <release version="1.0" date="2019-08-19"/>
