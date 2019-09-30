@@ -605,7 +605,7 @@ class Window(Gtk.Window):
 
         icon = Gio.ThemedIcon(name="image-crop")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-        image.set_opacity(0.8)
+        image.set_opacity(0.85)
 
         box = Gtk.Box()
         box.pack_end(child=switch, expand=True, fill=False, padding=7)
