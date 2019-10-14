@@ -23,6 +23,7 @@ import cairo
 import urllib.parse
 import subprocess
 import piexif
+import json
 from PIL import Image, ImageFilter
 
 gi.require_version("Gtk", "3.0")
@@ -34,21 +35,33 @@ app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
 version = "1.3"
 
+# Set dark GTK theme
 try:
     settings = Gtk.Settings.get_default()
     settings.set_property("gtk-application-prefer-dark-theme", True)
 except AttributeError:
     print("Failed to get GTK settings")
 
+# App background colour
 background_color = (0.15, 0.15, 0.15)
 
+# Load json config file
+config_file = os.path.join(GLib.get_user_config_dir(), "avvie.json")
+config = {}
+if os.path.isfile(config_file):
+    with open(config_file) as f:
+        config = json.load(f)
+
+# Add
 Notify.init(app_title)
 notify = Notify.Notification.new(app_title, "Image file exported to Downloads.")
 notify_invalid_output = Notify.Notification.new(app_title, "Could not locate output Downloads folder!")
 
+# Is this defined somewhere in Gtk?
 TARGET_TYPE_URI_LIST = 80
 
 
+# Add open file action to notification
 def open_encode_out(notification, action, data):
     subprocess.call(["xdg-open", picture.base_folder])
 
@@ -61,6 +74,7 @@ notify.add_action(
 )
 
 
+# Get distance between two points (pythagoras)
 def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
@@ -116,6 +130,21 @@ class Picture:
 
         self.corner_hot_area = 40
 
+        self.thumbs = [184]
+
+        # Load thumbnail sizes from saved config
+        if "thumbs" in config:
+            try:
+                thumbs = config["thumbs"]
+                for size in thumbs:
+                    assert type(size) is int
+                self.thumbs = thumbs
+            except:
+                print("Error reading config")
+                raise
+
+        self.thumb_surfaces = {}
+
     def test_br(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
         return point_prox(x, y, picture.display_x + rx + rw, picture.display_y + ry + rh) < self.corner_hot_area
@@ -154,7 +183,7 @@ class Picture:
 
         return im
 
-    def gen_thumb_184(self, hq=False):
+    def gen_thumbnails(self, hq=False):
 
         if self.rotation and not hq:
             return
@@ -181,23 +210,26 @@ class Picture:
             cr = im.copy()
 
         cr.load()
-        if not hq:
-            cr.thumbnail((184, 184), Image.NEAREST)  # BILINEAR
-        else:
-            cr.thumbnail((184, 184), Image.ANTIALIAS)
 
-        w, h = cr.size
+        for size in self.thumbs:
+            if not hq:
+                cr.thumbnail((size, size), Image.NEAREST)  # BILINEAR
+            else:
+                cr.thumbnail((size, size), Image.ANTIALIAS)
 
-        if "A" not in cr.getbands():
-            cr.putalpha(int(1 * 256.0))
+            w, h = cr.size
 
-        cr = self.apply_filters(cr)
+            if "A" not in cr.getbands():
+                cr.putalpha(int(1 * 256.0))
 
-        by = cr.tobytes("raw", "BGRa")
-        arr = bytearray(by)
-        self.surface184 = cairo.ImageSurface.create_for_data(
-            arr, cairo.FORMAT_ARGB32, w, h
-        )
+            cr = self.apply_filters(cr)
+
+            by = cr.tobytes("raw", "BGRa")
+            arr = bytearray(by)
+            self.thumb_surfaces[size] = cairo.ImageSurface.create_for_data(
+                arr, cairo.FORMAT_ARGB32, w, h
+            )
+
 
     def reload(self, keep_rect=False):
 
@@ -296,7 +328,7 @@ class Picture:
             self.exif = piexif.load(info["exif"])
 
         self.reload()
-        self.gen_thumb_184(hq=True)
+        self.gen_thumbnails(hq=True)
 
 
     def get_display_rect(self):
@@ -601,6 +633,7 @@ class Window(Gtk.Window):
 
         hb.pack_end(menu)
 
+
         icon = Gio.ThemedIcon(name="image-crop")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
 
@@ -665,6 +698,34 @@ class Window(Gtk.Window):
         flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
         vbox.pack_start(child=flip_hoz_button, expand=True, fill=False, padding=2)
 
+
+
+        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+
+        l = Gtk.Label()
+        l.set_text("Thumbnail Previews")
+        vbox.pack_start(child=l, expand=True, fill=False, padding=4)
+
+        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        b = Gtk.Button(label="Add")
+        b.connect("clicked", self.add_preview)
+        inline_box.pack_start(child=b, expand=True, fill=False, padding=0)
+
+        spinbutton = Gtk.SpinButton()
+        spinbutton.set_numeric(True)
+        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
+
+        self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
+        spinbutton.set_adjustment(self.add_preview_adjustment)
+
+        inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
+
+        vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
+        b = Gtk.Button(label="Remove All")
+        b.connect("clicked", self.default_thumbnail)
+        vbox.pack_start(child=b, expand=True, fill=False, padding=2)
+
+
         hbox.pack_start(child=vbox, expand=True, fill=False, padding=4)
         hbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
         hbox.pack_start(child=vbox2, expand=True, fill=False, padding=4)
@@ -677,6 +738,7 @@ class Window(Gtk.Window):
         menu.set_popover(popover)
         vbox.show_all()
 
+        # About ---
         self.about.set_authors(["Taiko2k"])
         self.about.set_artists(["Tobias Bernard"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
@@ -692,23 +754,49 @@ class Window(Gtk.Window):
                 self.open_button.set_sensitive(True)
                 picture.load(item, self.get_size())
                 self.discard_exif_button.set_sensitive(picture.exif and True)
-
-
                 break
+
+        self.connect("destroy", self.on_exit)
+
+    def on_exit(self, window):
+
+        # Save configuration to json file
+        config['thumbs'] = picture.thumbs
+        with open(config_file, 'w') as f:
+            json.dump(config, f)
+
+    def default_thumbnail(self, button):
+
+        picture.thumbs.clear()
+        #picture.thumbs.append(184)
+        self.add_preview_adjustment.set_value(184)
+        picture.thumb_surfaces.clear()
+        picture.gen_thumbnails(hq=True)
+        self.queue_draw()
+
+    def add_preview(self, button):
+
+        size = int(self.add_preview_adjustment.get_value())
+        if size not in picture.thumbs:
+            picture.thumbs.append(size)
+            picture.thumbs.sort(reverse=True)
+            picture.thumb_surfaces.clear()
+            picture.gen_thumbnails(hq=True)
+            self.queue_draw()
 
     def toggle_flip_vert(self, button):
         picture.flip_vert ^= True
         if picture.source_image:
             picture.reload(keep_rect=True)
             self.queue_draw()
-            picture.gen_thumb_184(hq=True)
+            picture.gen_thumbnails(hq=True)
 
     def toggle_flip_hoz(self, button):
         picture.flip_hoz ^= True
         if picture.source_image:
             picture.reload(keep_rect=True)
             self.queue_draw()
-            picture.gen_thumb_184(hq=True)
+            picture.gen_thumbnails(hq=True)
 
     def rotate_reset(self, button):
 
@@ -717,7 +805,7 @@ class Window(Gtk.Window):
         if picture.source_image:
             picture.reload(keep_rect=True)
             self.queue_draw()
-            picture.gen_thumb_184(hq=True)
+            picture.gen_thumbnails(hq=True)
         self.rotate_reset_button.set_sensitive(False)
 
     def set_custom_resize(self, adjustment):
@@ -780,7 +868,7 @@ class Window(Gtk.Window):
             button.set_sensitive(picture.crop)
 
         self.confine()
-        picture.gen_thumb_184(hq=True)
+        picture.gen_thumbnails(hq=True)
         self.queue_draw()
 
 
@@ -822,7 +910,7 @@ class Window(Gtk.Window):
         #     picture.crop = False
 
         self.confine()
-        picture.gen_thumb_184(hq=True)
+        picture.gen_thumbnails(hq=True)
         self.queue_draw()
 
     def toggle_menu_setting(self, button, name):
@@ -866,7 +954,7 @@ class Window(Gtk.Window):
             picture.export_constrain = int(self.custom_resize_adjustment.get_value())
 
 
-        picture.gen_thumb_184(hq=True)
+        picture.gen_thumbnails(hq=True)
         self.queue_draw()
 
     def save(self, widget):
@@ -911,16 +999,32 @@ class Window(Gtk.Window):
 
     def click(self, draw, event):
 
-        if event.button == 1:
+        if not picture.source_image or not picture.crop:
+            return
 
-            w, h = self.get_size()
-            if w - 200 < event.x < w - 200 + 184:
-                if h - 200 < event.y < h - 200 + 184:
+        # Thumbnails
+        w, h = self.get_size()
+        right = w - 16
+        bottom = h - 16
+        for i, size in enumerate(picture.thumbs):
+
+            if right - size < event.x < right and bottom - size < event.y < bottom:
+                if event.button == 1:
                     self.preview_circle_check.set_active(picture.circle ^ True)
                     self.queue_draw()
+                if event.button == 2:
+                    picture.thumbs.remove(size)
+                    picture.thumb_surfaces.clear()
+                    if not picture.thumbs:
+                        picture.thumbs.append(184)
+                    picture.gen_thumbnails(hq=True)
+                    self.queue_draw()
+                    break
 
-            if not picture.source_image or not picture.crop:
-                return
+            right -= 16 + size
+
+
+        if event.button == 1:
 
             rx, ry, rw, rh = picture.get_display_rect()
 
@@ -948,7 +1052,7 @@ class Window(Gtk.Window):
             picture.dragging_br = False
             picture.dragging_bl = False
             picture.dragging_tr = False
-            picture.gen_thumb_184(hq=True)
+            picture.gen_thumbnails(hq=True)
 
         self.queue_draw()
 
@@ -1128,7 +1232,7 @@ class Window(Gtk.Window):
 
             if picture.dragging_center or dragging_corners:
                 self.confine()
-                picture.gen_thumb_184()
+                picture.gen_thumbnails()
                 self.queue_draw()
 
         else:
@@ -1248,34 +1352,49 @@ class Window(Gtk.Window):
                     ex_h = picture.export_constrain
                     ex_w = int(ex_w * ratio)
 
-            if not picture.surface184:
-                picture.gen_thumb_184(hq=True)
-            if picture.surface184:
+            # if not picture.surface184:
+            #     picture.gen_thumb_184(hq=True)
+            if picture.thumb_surfaces:
                 c.move_to(0, 0)
 
-                if picture.circle:
-                    c.save()
-                    c.arc(w - 200 + (184 // 2), h - 200 + (184 // 2), 184 // 2, 0, 2 * math.pi)
-                    c.clip()
-                    c.set_source_surface(picture.surface184, w - 200, h - 200)
-                    c.paint()
-                    c.restore()
-                else:
-                    c.set_source_surface(picture.surface184, w - 200, h - 200)
-                    c.paint()
+                right = w - 16
+                bottom = h - 16
 
-                c.select_font_face("Sans")
-                c.set_font_size(13)
-                c.move_to(w - 200, h - 205)
+                for i, size in enumerate(picture.thumbs):
+                    if size not in picture.thumb_surfaces:
+                        picture.gen_thumbnails(hq=True)
 
-                c.set_source_rgba(0.4, 0.4, 0.4, 1)
-                c.show_text(f"{ex_w} x {ex_h}")
 
-                if picture.exif and not picture.discard_exif and picture.png is False:
-                    c.move_to(w - 48, h - 205)
+                    if picture.circle:
+                        c.save()
+                        #c.arc(w - 200 + (184 // 2), h - 200 + (184 // 2), 184 // 2, 0, 2 * math.pi)
+                        c.arc(right - size // 2, bottom - size // 2, size // 2, 0, 2 * math.pi)
+                        c.clip()
+                        #c.set_source_surface(picture.surface184, w - 200, h - 200)
+                        c.set_source_surface(picture.thumb_surfaces[size], right - size, bottom - size)
+                        c.paint()
+                        c.restore()
+                    else:
+                        #c.set_source_surface(picture.surface184, w - 200, h - 200)
+                        c.set_source_surface(picture.thumb_surfaces[size], right - size, bottom - size)
+                        c.paint()
 
-                    c.set_source_rgba(0.4, 0.6, 0.3, 1)
-                    c.show_text(f"EXIF")
+                    if i == 0:
+                        c.select_font_face("Sans")
+                        c.set_font_size(13)
+                        c.move_to(right - size, bottom - (size + 5))
+
+                        c.set_source_rgba(0.4, 0.4, 0.4, 1)
+                        c.show_text(f"{ex_w} x {ex_h}")
+
+                    if i == 0 and picture.exif and not picture.discard_exif and picture.png is False:
+                        c.move_to(right - 32, bottom - (size + 5))
+
+                        c.set_source_rgba(0.4, 0.6, 0.3, 1)
+                        c.show_text(f"EXIF")
+
+                    right -= size + 16
+
 
 win = Window()
 win.connect("destroy", Gtk.main_quit)
