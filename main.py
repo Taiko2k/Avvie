@@ -33,7 +33,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.3"
+version = "1.4"
 
 # Set dark GTK theme
 try:
@@ -132,6 +132,10 @@ class Picture:
 
         self.thumbs = [184]
 
+        self.thumb_cache_key = ()
+        self.thumb_cache_img = None
+
+
         # Load thumbnail sizes from saved config
         if "thumbs" in config:
             try:
@@ -185,24 +189,32 @@ class Picture:
 
     def gen_thumbnails(self, hq=False):
 
-        if self.rotation and not hq:
-            return
+        # if self.rotation and not hq:
+        #     return
 
-        im = self.source_image
-        if not im:
-            return
+        key = (self.source_image, self.gray, self.flip_hoz, self.flip_vert, self.rotation)
+        if self.source_image and self.thumb_cache_key == key:
+            im = self.thumb_cache_img
+        else:
+            self.thumb_cache_key = key
 
-        if self.gray:
-            im = im.convert("L")
-            im = im.convert("RGB")
+            im = self.source_image
+            if not im:
+                return
 
-        if self.flip_hoz:
-            im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
-        if self.flip_vert:
-            im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
+            if self.gray:
+                im = im.convert("L")
+                im = im.convert("RGB")
 
-        if self.rotation:
-            im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
+            if self.flip_hoz:
+                im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
+            if self.flip_vert:
+                im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
+
+            if self.rotation:
+                im = im.rotate(self.rotation, expand=True, resample=Image.BICUBIC)
+
+            self.thumb_cache_img = im
 
         if self.crop:
             cr = im.crop((self.rec_x, self.rec_y, self.rec_x + self.rec_w, self.rec_y + self.rec_h))
@@ -242,7 +254,7 @@ class Picture:
             im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
 
         if self.rotation:
-            im = im.rotate(self.rotation, expand=True, resample=0)
+            im = im.rotate(self.rotation, expand=True, resample=Image.NEAREST) #, resample=0)
 
         w, h = im.size
         self.source_w, self.source_h = w, h
@@ -470,7 +482,7 @@ class Window(Gtk.Window):
 
         self.rotate_reset_button = Gtk.Button(label="Reset rotation")
         self.preview_circle_check = Gtk.CheckButton()
-        self.rot = Gtk.Scale.new_with_range(orientation=0, min=-180, max=180, step=4)
+        self.rot = Gtk.Scale.new_with_range(orientation=0, min=-90, max=90, step=2)
 
         self.crop_mode_radios = []
 
@@ -815,7 +827,7 @@ class Window(Gtk.Window):
 
     def rotate(self, scale):
 
-        picture.rotation = scale.get_value()
+        picture.rotation = scale.get_value() * -1
         self.rotate_reset_button.set_sensitive(True)
         if picture.source_image:
             picture.reload(keep_rect=True)
@@ -1288,8 +1300,13 @@ class Window(Gtk.Window):
             w = picture.display_w
             h = picture.display_h
 
+            # c.save()
+            # c.translate(0 + w // 2, 0 + h // 2)
+            # c.rotate(math.radians(picture.rotation))
+            # c.translate(w // 2 * -1, h // 2 * -1)
             c.set_source_surface(picture.surface, x, y)
             c.paint()
+            # c.restore()
 
             c.set_source_rgba(0, 0, 0, 0.8)
 

@@ -1,7 +1,11 @@
 
 v1.4
 
- - Add settings for multiple thumbnail previews
+ - Added settings for multiple thumbnail previews
+ - Improved rotation
+   - Thumbnail now updates when dragging
+   - Fixed slider direction
+   - Restricted to 180 degree range (Full rotation is redundant)
 
 v1.3
 
