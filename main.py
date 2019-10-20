@@ -136,7 +136,7 @@ class Picture:
 
         self.corner_hot_area = 40
 
-        self.thumbs = [184, 32]
+        self.thumbs = [184, 64, 32]
 
         self.thumb_cache_key = ()
         self.thumb_cache_img = None

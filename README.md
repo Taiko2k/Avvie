@@ -22,7 +22,8 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
 
  - You can import by drag and drop from your Pictures folder
  - The thumbnail preview shows the output exactly as it would be at 184x184
- - Hold <kbd>Ctrl</kbd> to move the selection rectangle slowly
+ - Hold <kbd>Shift</kbd> to move the selection rectangle slowly
+ - Tap <kbd>Ctrl</kbd> to enter free rectangle mode
  - Click the preview to toggle between ***square*** and ***circle*** (The final output will always be square)
 
 ## Install
