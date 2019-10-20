@@ -1,11 +1,14 @@
 
 v1.4
 
- - Added settings for multiple thumbnail previews
+ - Added multiple preview functionality
+ - Added keyboard shortcut to enable free rectangle mode (Ctrl)
+ - Moved circle preview toggle to context menu
+ - Moved slow drag key from Ctrl to Shift
  - Improved rotation
    - Thumbnail now updates when dragging
    - Fixed slider direction
-   - Restricted to 180 degree range (Full rotation is redundant)
+   - Restricted to 180 degree range
 
 v1.3
 

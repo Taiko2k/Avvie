@@ -46,11 +46,17 @@ except AttributeError:
 background_color = (0.15, 0.15, 0.15)
 
 # Load json config file
-config_file = os.path.join(GLib.get_user_config_dir(), "avvie.json")
+config_folder = os.path.join(GLib.get_user_config_dir(), app_id)
+config_file = os.path.join(config_folder, "avvie.json")
+
+if not os.path.exists(config_folder):
+    os.makedirs(config_folder)
+
 config = {}
 if os.path.isfile(config_file):
     with open(config_file) as f:
         config = json.load(f)
+        print(f"Loaded config {config_file}")
 
 # Add
 Notify.init(app_title)
@@ -130,7 +136,7 @@ class Picture:
 
         self.corner_hot_area = 40
 
-        self.thumbs = [184]
+        self.thumbs = [184, 32]
 
         self.thumb_cache_key = ()
         self.thumb_cache_img = None
@@ -481,7 +487,7 @@ class Window(Gtk.Window):
         self.about = Gtk.AboutDialog()
 
         self.rotate_reset_button = Gtk.Button(label="Reset rotation")
-        self.preview_circle_check = Gtk.CheckButton()
+        #self.preview_circle_check = Gtk.CheckButton()
         self.rot = Gtk.Scale.new_with_range(orientation=0, min=-90, max=90, step=2)
 
         self.crop_mode_radios = []
@@ -598,6 +604,7 @@ class Window(Gtk.Window):
 
         pn = Gtk.CheckButton()
         pn.set_label("Discard EXIF")
+        pn.set_sensitive(False)
         pn.connect("toggled", self.toggle_menu_setting, "exif")
         self.discard_exif_button = pn
         vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
@@ -612,9 +619,9 @@ class Window(Gtk.Window):
         sh.connect("toggled", self.toggle_menu_setting, "grayscale")
         vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
 
-        self.preview_circle_check.set_label("Circle (Preview Only)")
-        self.preview_circle_check.connect("toggled", self.toggle_menu_setting, "circle")
-        vbox.pack_start(child=self.preview_circle_check, expand=True, fill=False, padding=4)
+        #self.preview_circle_check.set_label("Circle (Preview Only)")
+        #self.preview_circle_check.connect("toggled", self.toggle_menu_setting, "circle")
+        #vbox.pack_start(child=self.preview_circle_check, expand=True, fill=False, padding=4)
 
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
@@ -656,7 +663,8 @@ class Window(Gtk.Window):
         hb.pack_end(box)
 
         # CROP MENU ----------------------------------------------------------
-        popover = Gtk.PopoverMenu()
+        #popover = Gtk.PopoverMenu()
+
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_border_width(13)
@@ -674,6 +682,7 @@ class Window(Gtk.Window):
 
         opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Free Rectangle")
         self.crop_mode_radios.append(opt)
+        self.free_rectangle_radio = opt
         opt.connect("toggled", self.toggle_menu_setting2, "rect")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
@@ -715,7 +724,7 @@ class Window(Gtk.Window):
         vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
         l = Gtk.Label()
-        l.set_text("Thumbnail Previews")
+        l.set_text("Add Preview")
         vbox.pack_start(child=l, expand=True, fill=False, padding=4)
 
         inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -733,9 +742,9 @@ class Window(Gtk.Window):
         inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
 
         vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
-        b = Gtk.Button(label="Remove All")
-        b.connect("clicked", self.default_thumbnail)
-        vbox.pack_start(child=b, expand=True, fill=False, padding=2)
+        # b = Gtk.Button(label="Remove All")
+        # b.connect("clicked", self.default_thumbnail)
+        # vbox.pack_start(child=b, expand=True, fill=False, padding=2)
 
 
         hbox.pack_start(child=vbox, expand=True, fill=False, padding=4)
@@ -749,6 +758,23 @@ class Window(Gtk.Window):
 
         menu.set_popover(popover)
         vbox.show_all()
+
+
+        self.thumb_menu = Gtk.Menu.new()
+        # item = Gtk.MenuItem.new_with_label('Add 64x64')
+        # item = Gtk.MenuItem.new_with_label('Add 32x32')
+        # self.thumb_menu.append(item)
+        # self.thumb_menu.append(Gtk.SeparatorMenuItem.new())
+        item = Gtk.MenuItem.new_with_label('Toggle Circle')
+        item.connect("activate", self.click_thumb_menu, "circle")
+        self.thumb_menu.append(item)
+        self.circle_menu_item = item
+        item = Gtk.MenuItem.new_with_label('Remove')
+        item.connect("activate", self.click_thumb_menu, "remove")
+        self.thumb_menu_remove = item
+        self.thumb_menu.append(item)
+        self.thumb_menu.show_all()
+        self.thumb_remove_item = None
 
         # About ---
         self.about.set_authors(["Taiko2k"])
@@ -769,6 +795,19 @@ class Window(Gtk.Window):
                 break
 
         self.connect("destroy", self.on_exit)
+
+    def click_thumb_menu(self, item, reference):
+
+        if reference == "circle":
+            picture.circle ^= True
+
+        if reference == "remove":
+            picture.thumbs.remove(self.thumb_remove_item)
+            picture.thumb_surfaces.clear()
+            # if not picture.thumbs:
+            #     picture.thumbs.append(184)
+            picture.gen_thumbnails(hq=True)
+        self.queue_draw()
 
     def on_exit(self, window):
 
@@ -836,13 +875,16 @@ class Window(Gtk.Window):
 
     def on_key_press_event(self, widget, event):
 
-        if event.keyval == Gdk.KEY_Control_L or event.keyval == Gdk.KEY_Control_R:
+        if event.keyval == Gdk.KEY_Shift_L or event.keyval == Gdk.KEY_Shift_R:
             picture.slow_drag = True
             picture.drag_start_position = None
 
+        if event.keyval == Gdk.KEY_Control_L and not self.free_rectangle_radio.get_active():
+            self.free_rectangle_radio.set_active(True)
+
     def on_key_release_event(self, widget, event):
 
-        if event.keyval == Gdk.KEY_Control_L or event.keyval == Gdk.KEY_Control_R:
+        if event.keyval == Gdk.KEY_Shift_L or event.keyval == Gdk.KEY_Shift_R:
             picture.slow_drag = False
             picture.drag_start_position = None
 
@@ -891,7 +933,8 @@ class Window(Gtk.Window):
         if name == "rect":
             #picture.crop = True
             picture.lock_ratio = False
-            self.preview_circle_check.set_active(False)
+            #self.preview_circle_check.set_active(False)
+            picture.circle = False
 
         if name == "square":
             #picture.crop = True
@@ -1009,6 +1052,7 @@ class Window(Gtk.Window):
 
             self.queue_draw()
 
+
     def click(self, draw, event):
 
         if not picture.source_image or not picture.crop:
@@ -1022,7 +1066,8 @@ class Window(Gtk.Window):
 
             if right - size < event.x < right and bottom - size < event.y < bottom:
                 if event.button == 1:
-                    self.preview_circle_check.set_active(picture.circle ^ True)
+                    picture.circle ^= True
+
                     self.queue_draw()
                 if event.button == 2:
                     picture.thumbs.remove(size)
@@ -1032,6 +1077,15 @@ class Window(Gtk.Window):
                     picture.gen_thumbnails(hq=True)
                     self.queue_draw()
                     break
+
+                if event.button == 3:
+                    self.thumb_remove_item = size
+                    self.thumb_menu_remove.set_label(f"Remove {size}x{size}")
+                    if picture.circle:
+                        self.circle_menu_item.set_label("Square Preview")
+                    else:
+                        self.circle_menu_item.set_label("Circle Preview")
+                    self.thumb_menu.popup_at_pointer()
 
             right -= 16 + size
 
