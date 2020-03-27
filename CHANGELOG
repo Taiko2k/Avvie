@@ -1,4 +1,10 @@
 
+v1.5
+
+ - Added setting for "quick export" to Pictures or Overwrite
+ - Moved "add thumbnail" setting to new preferences dialog
+ - Removed grayscale filter
+
 v1.4
 
  - Added multiple preview functionality

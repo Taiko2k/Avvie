@@ -33,7 +33,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.4"
+version = "1.5"
 
 # Set dark GTK theme
 try:
@@ -61,7 +61,7 @@ if os.path.isfile(config_file):
 # Add
 Notify.init(app_title)
 notify = Notify.Notification.new(app_title, "Image file exported to Downloads.")
-notify_invalid_output = Notify.Notification.new(app_title, "Could not locate output Downloads folder!")
+notify_invalid_output = Notify.Notification.new(app_title, "Could not locate output folder!")
 
 # Is this defined somewhere in Gtk?
 TARGET_TYPE_URI_LIST = 80
@@ -69,7 +69,7 @@ TARGET_TYPE_URI_LIST = 80
 
 # Add open file action to notification
 def open_encode_out(notification, action, data):
-    subprocess.call(["xdg-open", picture.base_folder])
+    subprocess.call(["xdg-open", picture.last_saved_location])
 
 
 notify.add_action(
@@ -119,7 +119,14 @@ class Picture:
         self.surface184 = None
 
         self.file_name = ""
-        self.base_folder = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
+        self.loaded_fullpath = ""
+        self.download_folder = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
+        self.pictures_folder = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES)
+        self.export_setting = "pictures"
+        if "output-mode" in config:
+            self.export_setting = config["output-mode"]
+        self.last_saved_location = ""
+
         self.sharpen = False
         self.export_constrain = None
         self.crop_ratio = (1, 1)
@@ -336,6 +343,7 @@ class Picture:
 
     def load(self, path, bounds):
 
+        self.loaded_fullpath = path
         self.file_name = os.path.splitext(os.path.basename(path))[0]
         self.bounds = bounds
         self.source_image = Image.open(path)
@@ -365,7 +373,25 @@ class Picture:
 
     def export(self, path=None):
 
-        if not os.path.isdir(self.base_folder):
+        show_notice = True
+        if path is not None:
+            show_notice = False
+            base_folder = os.path.dirname(path)
+        else:
+            if self.export_setting == "pictures":
+                base_folder = self.pictures_folder
+            elif self.export_setting == "download":
+                base_folder = self.download_folder
+            elif self.export_setting == "overwrite":
+                base_folder = os.path.dirname(self.loaded_fullpath)
+                path = self.loaded_fullpath
+            else:
+                print("Export setting error")
+                return
+
+        print(f"Target folder is: {base_folder}")
+
+        if not os.path.isdir(base_folder):
             notify_invalid_output.show()
 
         im = self.source_image
@@ -409,7 +435,8 @@ class Picture:
         overwrite = False
 
         if path is None:
-            path = os.path.join(self.base_folder, self.file_name)
+
+            path = os.path.join(base_folder, self.file_name)
 
             if cropped:
                 path += "-cropped"
@@ -457,14 +484,81 @@ class Picture:
 
                 cr.save(path, "JPEG", quality=95)
 
+        self.last_saved_location = os.path.dirname(path)
 
 
-
-        if not overwrite:
+        if show_notice:
             notify.show()
 
 
 picture = Picture()
+
+
+class SettingsDialog(Gtk.Dialog):
+
+    def toggle_menu_setting_export(self, button, name):
+        picture.export_setting = name
+        self.parent.set_export_text()
+        config["output-mode"] = name
+
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, "Preferences", parent, 0, None)
+
+        self.set_default_size(150, 100)
+        self.parent = parent
+        box = self.get_content_area()
+
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.set_border_width(13)
+
+        l = Gtk.Label()
+        l.set_text("Set quick export function")
+        vbox.pack_start(child=l, expand=True, fill=False, padding=4)
+
+        opt = Gtk.RadioButton.new_with_label_from_widget(None, "Export to Downloads")
+        opt.connect("toggled", self.toggle_menu_setting_export, "download")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        if picture.export_setting == "download":
+            opt.set_active(True)
+
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Export to Pictures")
+        opt.connect("toggled", self.toggle_menu_setting_export, "pictures")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        if picture.export_setting == "pictures":
+            opt.set_active(True)
+
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Overwrite Source File")
+        opt.connect("toggled", self.toggle_menu_setting_export, "overwrite")
+        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        if picture.export_setting == "overwrite":
+            opt.set_active(True)
+
+        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+
+        l = Gtk.Label()
+        l.set_text("Add Preview")
+        vbox.pack_start(child=l, expand=True, fill=False, padding=4)
+
+        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        b = Gtk.Button(label="Add")
+        b.connect("clicked", parent.add_preview)
+        inline_box.pack_start(child=b, expand=True, fill=False, padding=0)
+
+        spinbutton = Gtk.SpinButton()
+        spinbutton.set_numeric(True)
+        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
+
+        parent.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
+        spinbutton.set_adjustment(parent.add_preview_adjustment)
+
+        inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
+
+        vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
+
+        box.add(vbox)
+
+
+        self.show_all()
 
 
 class Window(Gtk.Window):
@@ -493,6 +587,20 @@ class Window(Gtk.Window):
         self.crop_mode_radios = []
 
         self.setup_window()
+
+        self.set_export_text()
+
+    def set_export_text(self):
+        setting = picture.export_setting
+        if setting == "download":
+            self.quick_export_button.set_tooltip_text("Export to Downloads folder")
+            notify.update(app_title, "Image file exported to Downloads.")
+        if setting == "pictures":
+            self.quick_export_button.set_tooltip_text("Export to Pictures folder")
+            notify.update(app_title, "Image file exported to Pictures.")
+        if setting == "overwrite":
+            self.quick_export_button.set_tooltip_text("Overwrite Image")
+            notify.update(app_title, "Image file overwritten.")
 
     def setup_window(self):
 
@@ -539,15 +647,17 @@ class Window(Gtk.Window):
         button.add(image)
         hb.pack_start(button)
         button.connect("clicked", self.open_file)
+        # self.open_button = button
 
         button = Gtk.Button()
-        button.set_tooltip_text("Export to Downloads folder")
+        #button.set_tooltip_text("Export to Downloads folder")
         icon = Gio.ThemedIcon(name="document-save-symbolic")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         button.add(image)
         button.connect("clicked", self.save)
         button.set_sensitive(False)
-        self.open_button = button
+        self.quick_export_button = button
+
 
         hb.pack_end(button)
         hb.pack_end(Gtk.Separator())
@@ -562,7 +672,7 @@ class Window(Gtk.Window):
         opt.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "184")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 184x184")
         opt.connect("toggled", self.toggle_menu_setting, "184")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
         
@@ -570,11 +680,11 @@ class Window(Gtk.Window):
         # opt.connect("toggled", self.toggle_menu_setting, "500")
         # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "1000")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 1000x1000")
         opt.connect("toggled", self.toggle_menu_setting, "1000")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "1920")
+        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 1920x1920")
         opt.connect("toggled", self.toggle_menu_setting, "1920")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
@@ -614,10 +724,10 @@ class Window(Gtk.Window):
         sh.connect("toggled", self.toggle_menu_setting, "sharpen")
         vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
 
-        sh = Gtk.CheckButton()
-        sh.set_label("Grayscale")
-        sh.connect("toggled", self.toggle_menu_setting, "grayscale")
-        vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
+        # sh = Gtk.CheckButton()
+        # sh.set_label("Grayscale")
+        # sh.connect("toggled", self.toggle_menu_setting, "grayscale")
+        # vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
 
         #self.preview_circle_check.set_label("Circle (Preview Only)")
         #self.preview_circle_check.connect("toggled", self.toggle_menu_setting, "circle")
@@ -629,6 +739,10 @@ class Window(Gtk.Window):
 
         m1 = Gtk.ModelButton(label="Export As")
         m1.connect("clicked", self.export_as)
+        vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
+
+        m1 = Gtk.ModelButton(label="Preferences")
+        m1.connect("clicked", self.open_pref)
         vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
 
         m1 = Gtk.ModelButton(label="About " + app_title)
@@ -721,27 +835,27 @@ class Window(Gtk.Window):
 
 
 
-        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+        #vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
 
-        l = Gtk.Label()
-        l.set_text("Add Preview")
-        vbox.pack_start(child=l, expand=True, fill=False, padding=4)
-
-        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        b = Gtk.Button(label="Add")
-        b.connect("clicked", self.add_preview)
-        inline_box.pack_start(child=b, expand=True, fill=False, padding=0)
-
-        spinbutton = Gtk.SpinButton()
-        spinbutton.set_numeric(True)
-        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
-
-        self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
-        spinbutton.set_adjustment(self.add_preview_adjustment)
-
-        inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
-
-        vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
+        # l = Gtk.Label()
+        # l.set_text("Add Preview")
+        # vbox.pack_start(child=l, expand=True, fill=False, padding=4)
+        #
+        # inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        # b = Gtk.Button(label="Add")
+        # b.connect("clicked", self.add_preview)
+        # inline_box.pack_start(child=b, expand=True, fill=False, padding=0)
+        #
+        # spinbutton = Gtk.SpinButton()
+        # spinbutton.set_numeric(True)
+        # spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
+        #
+        # self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
+        # spinbutton.set_adjustment(self.add_preview_adjustment)
+        #
+        # inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
+        #
+        # vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
         # b = Gtk.Button(label="Remove All")
         # b.connect("clicked", self.default_thumbnail)
         # vbox.pack_start(child=b, expand=True, fill=False, padding=2)
@@ -789,7 +903,7 @@ class Window(Gtk.Window):
 
         for item in sys.argv:
             if not item.endswith(".py") and os.path.isfile(item):
-                self.open_button.set_sensitive(True)
+                self.quick_export_button.set_sensitive(True)
                 picture.load(item, self.get_size())
                 self.discard_exif_button.set_sensitive(picture.exif and True)
                 break
@@ -892,6 +1006,12 @@ class Window(Gtk.Window):
         self.about.run()
         self.about.hide()
 
+    def open_pref(self, button):
+
+        dialog = SettingsDialog(self)
+        dialog.run()
+        dialog.destroy()
+
     def export_as(self, button):
 
         if not picture.ready:
@@ -948,17 +1068,17 @@ class Window(Gtk.Window):
                 picture.rec_w = 2560
                 picture.rec_h = 1080
 
-            self.preview_circle_check.set_active(False)
+            #self.preview_circle_check.set_active(False)
 
         if name == '16:9':
             #picture.crop = True
             picture.crop_ratio = (16, 9)
-            self.preview_circle_check.set_active(False)
+            #self.preview_circle_check.set_active(False)
 
         if name == '16:10':
             #picture.crop = True
             picture.crop_ratio = (16, 10)
-            self.preview_circle_check.set_active(False)
+            #self.preview_circle_check.set_active(False)
 
         # if name == 'none':
         #     picture.crop_ratio = (1, 1)
@@ -1032,7 +1152,7 @@ class Window(Gtk.Window):
 
         if filename:
             print("File selected: " + filename)
-            self.open_button.set_sensitive(True)
+            self.quick_export_button.set_sensitive(True)
             picture.load(filename, self.get_size())
             self.discard_exif_button.set_sensitive(picture.exif and True)
 
@@ -1045,7 +1165,7 @@ class Window(Gtk.Window):
             if not uri.startswith("file://"):
                 return
             path = urllib.parse.unquote(uri[7:])
-            self.open_button.set_sensitive(True)
+            self.quick_export_button.set_sensitive(True)
             if os.path.isfile(path):
                 picture.load(path, self.get_size())
                 self.discard_exif_button.set_sensitive(picture.exif and True)

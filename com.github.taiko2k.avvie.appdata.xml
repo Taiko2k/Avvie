@@ -28,11 +28,10 @@
   </categories>
 
   <releases>
-    <release version="1.4" date="2019-10-20">
+    <release version="1.5" date="2020-03-27">
       <description>
         <ul>
-          <li>Added custom thumbnail preview sizes</li>
-          <li>Fixed rotated preview updating</li>
+          <li>Quick export can now also be set to Pictures or to overwrite</li>
         </ul>
       </description>
     </release>
