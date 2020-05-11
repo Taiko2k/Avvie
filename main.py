@@ -33,7 +33,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.5"
+version = "1.6"
 
 # Set dark GTK theme
 try:
@@ -79,6 +79,8 @@ notify.add_action(
     None
 )
 
+def point_in_rect(rx, ry, rw, rh, px, py):
+    return ry < py < ry + rh and rx < px < rx + rw
 
 # Get distance between two points (pythagoras)
 def point_prox(x1, y1, x2, y2):
@@ -141,7 +143,8 @@ class Picture:
         self.discard_exif = False
         self.exif = None
 
-        self.corner_hot_area = 40
+        self.corner_hot_area = 60
+        self.all_drag_min = 400
 
         self.thumbs = [184, 64, 32]
 
@@ -164,34 +167,93 @@ class Picture:
 
     def test_br(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
-        return point_prox(x, y, picture.display_x + rx + rw, picture.display_y + ry + rh) < self.corner_hot_area
+
+        tx = rx + rw
+        ty = ry + rh
+        tw = self.corner_hot_area
+        th = self.corner_hot_area
+
+        tx -= self.corner_hot_area // 2
+        ty -= self.corner_hot_area // 2
+
+        if tx < rx + (rw // 3):
+            tx = rx + (rw // 3)
+
+        if ty < ry + (rh // 3):
+            ty = ry + (rh // 3)
+
+        return point_in_rect(picture.display_x + tx, picture.display_y + ty, tw, th, x, y)
 
     def test_tl(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
-        return point_prox(x, y, picture.display_x + rx, picture.display_y + ry) < self.corner_hot_area
+
+        tx = rx
+        ty = ry
+        tw = self.corner_hot_area
+        th = self.corner_hot_area
+
+        tx -= self.corner_hot_area // 2
+        ty -= self.corner_hot_area // 2
+
+        if ty + th > ry + rh // 3:
+            ty = (ry + rh // 3) - th
+
+        if tx + tw > rx + (rw // 3):
+            tx = (rx + (rw // 3)) - tw
+
+        return point_in_rect(picture.display_x + tx, picture.display_y + ty, tw, th, x, y)
 
     def test_bl(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
-        return point_prox(x, y, picture.display_x + rx, picture.display_y + ry + rh) < self.corner_hot_area
+        tx = rx
+        ty = ry + rh
+        tw = self.corner_hot_area
+        th = self.corner_hot_area
+
+        tx -= self.corner_hot_area // 2
+        ty -= self.corner_hot_area // 2
+
+        if ty < ry + (rh // 3):
+            ty = ry + (rh // 3)
+
+        if tx + tw > rx + (rw // 3):
+            tx = (rx + (rw // 3)) - tw
+
+        return point_in_rect(picture.display_x + tx, picture.display_y + ty, tw, th, x, y)
 
     def test_tr(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
-        return point_prox(x, y, picture.display_x + rx + rw, picture.display_y + ry) < self.corner_hot_area
+        tx = rx + rw
+        ty = ry
+        tw = self.corner_hot_area
+        th = self.corner_hot_area
+
+        tx -= self.corner_hot_area // 2
+        ty -= self.corner_hot_area // 2
+
+        if ty + th > ry + rh // 3:
+            ty = (ry + rh // 3) - th
+
+        if tx < rx + (rw // 3):
+            tx = rx + (rw // 3)
+
+        return point_in_rect(picture.display_x + tx, picture.display_y + ty, tw, th, x, y)
 
     def test_center_start_drag(self, x, y):
 
         rx, ry, rw, rh = self.get_display_rect()
 
-        border = self.corner_hot_area / 2
-        if x < self.display_x + rx + border:
-            return False
-        if y < self.display_y + ry + border:
-            return False
-        if x > self.display_x + rx + rw - border:
-            return False
-        if y > self.display_y + ry + rh - border:
-            return False
-        return True
+        return point_in_rect(picture.display_x + rx, picture.display_y + ry, rw, rh, x, y)
+        # border = self.corner_hot_area / 2
+        # if x < self.display_x + rx + border:
+        #     return False
+        # if y < self.display_y + ry + border:
+        #     return False
+        # if x > self.display_x + rx + rw - border:
+        #     return False
+        # if y > self.display_y + ry + rh - border:
+        #     return False
+        # return True
 
     def apply_filters(self, im):
 
@@ -356,6 +418,8 @@ class Picture:
         self.reload()
         self.gen_thumbnails(hq=True)
 
+    def get_display_rect_hw(self):
+        return round(self.rec_h + self.rec_w)
 
     def get_display_rect(self):
 
@@ -1214,16 +1278,20 @@ class Window(Gtk.Window):
 
             rx, ry, rw, rh = picture.get_display_rect()
 
-            if picture.test_tl(event.x, event.y):
+            if picture.get_display_rect_hw() < picture.all_drag_min and \
+                    picture.test_center_start_drag(event.x, event.y):
+                picture.dragging_center = True
+
+            elif picture.test_tl(event.x, event.y):
                 picture.dragging_tl = True
-            if picture.test_br(event.x, event.y):
+            elif picture.test_br(event.x, event.y):
                 picture.dragging_br = True
-            if picture.test_tr(event.x, event.y):
+            elif picture.test_tr(event.x, event.y):
                 picture.dragging_tr = True
-            if picture.test_bl(event.x, event.y):
+            elif picture.test_bl(event.x, event.y):
                 picture.dragging_bl = True
 
-            if picture.test_center_start_drag(event.x, event.y):
+            elif picture.test_center_start_drag(event.x, event.y):
                 picture.dragging_center = True
 
             picture.drag_start_position = (event.x, event.y)
@@ -1407,14 +1475,14 @@ class Window(Gtk.Window):
                 rw = round(rw)
                 rh = round(rh)
 
-            if rw < 30:
-                rw = 30
-            if rh < 30:
-                rh = 30
+            if rw < 1:
+                rw = 1
+            if rh < 1:
+                rh = 1
 
             picture.save_display_rect(rx, ry, rw, rh)
 
-            picture.corner_hot_area = min(rh * 0.2, 40)
+            # picture.corner_hot_area = min(rh * 0.2, 40)
 
             if picture.dragging_center or dragging_corners:
                 self.confine()
@@ -1427,7 +1495,12 @@ class Window(Gtk.Window):
         gdk_window = self.get_window()
 
         if picture.crop:
-            if picture.test_br(event.x, event.y):
+
+            if picture.get_display_rect_hw() < picture.all_drag_min and \
+                    picture.test_center_start_drag(event.x, event.y):
+                gdk_window.set_cursor(self.drag_cursor)
+
+            elif picture.test_br(event.x, event.y):
                 gdk_window.set_cursor(self.br_cursor)
             elif picture.test_tr(event.x, event.y):
                 gdk_window.set_cursor(self.tr_cursor)

@@ -28,10 +28,10 @@
   </categories>
 
   <releases>
-    <release version="1.5" date="2020-03-27">
+    <release version="1.6" date="2020-05-12">
       <description>
         <ul>
-          <li>Quick export can now also be set to Pictures or to overwrite</li>
+          <li>Improved region selection for small crops</li>
         </ul>
       </description>
     </release>
