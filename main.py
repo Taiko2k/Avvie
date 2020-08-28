@@ -1241,11 +1241,12 @@ class Window(Gtk.Window):
         f.add_mime_type("image/png")
         dialog.add_filter(f)
 
-        dialog.run()
+
+        choice = dialog.run()
         filename = dialog.get_filename()
         dialog.destroy()
 
-        if filename:
+        if filename and choice == Gtk.ResponseType.ACCEPT:
             print("File selected: " + filename)
             self.quick_export_button.set_sensitive(True)
             picture.load(filename, self.get_size())
