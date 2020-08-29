@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Avvie!
 
 # Copyright 2019 Taiko2k captain(dot)gxj(at)gmail.com
@@ -33,7 +35,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Notify, GdkPixbuf
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
-version = "1.6"
+version = "1.7"
 
 # Set dark GTK theme
 try:

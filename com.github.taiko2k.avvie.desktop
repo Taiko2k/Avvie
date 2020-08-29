@@ -1,6 +1,6 @@
 [Desktop Entry]
 Comment=
-Exec=run.sh %U
+Exec=main.py %U
 GenericName=Image Cropper
 Icon=com.github.taiko2k.avvie
 MimeType=image/jpeg;image/png
