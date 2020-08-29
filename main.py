@@ -29,7 +29,7 @@ from PIL import Image, ImageFilter
 gi.require_version("Gtk", "3.0")
 gi.require_foreign("cairo")
 gi.require_version('Notify', '0.7')
-from gi.repository import Gtk, Gdk, Gio, GLib, Notify
+from gi.repository import Gtk, Gdk, Gio, GLib, Notify, GdkPixbuf
 
 app_title = "Avvie"
 app_id = "com.github.taiko2k.avvie"
@@ -86,6 +86,30 @@ def point_in_rect(rx, ry, rw, rh, px, py):
 def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+class FileChooserWithImagePreview(Gtk.FileChooserNative):
+    resize_to = (256, 256)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+        self.preview_widget = Gtk.Image()
+        self.set_preview_widget(self.preview_widget)
+        self.connect(
+            "update-preview",
+            self.update_preview,
+            self.preview_widget
+        )
+    
+    def update_preview(self, dialog, preview_widget):
+        filename = self.get_preview_filename()
+        try:
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filename, *self.resize_to)
+            preview_widget.set_from_pixbuf(pixbuf)
+            have_preview = True
+        except:
+            have_preview = False
+
+        self.set_preview_widget_active(have_preview)
 
 class Picture:
     def __init__(self):
@@ -1081,7 +1105,11 @@ class Window(Gtk.Window):
         if not picture.ready:
             return
 
-        dialog = Gtk.FileChooserNative(title="Please choose where to save to", action=Gtk.FileChooserAction.SAVE)
+        dialog = FileChooserWithImagePreview(
+            title="Please choose where to save to",
+            action=Gtk.FileChooserAction.SAVE
+        )
+        
         f = Gtk.FileFilter()
         f.set_name("Image files")
         f.add_mime_type("image/jpeg")
@@ -1202,19 +1230,23 @@ class Window(Gtk.Window):
 
     def open_file(self, widget):
 
-        dialog = Gtk.FileChooserNative(title="Please choose a file", action=Gtk.FileChooserAction.OPEN)
-
+        dialog = FileChooserWithImagePreview(
+            title="Please choose a file",
+            action=Gtk.FileChooserAction.OPEN
+        )
+        
         f = Gtk.FileFilter()
         f.set_name("Image files")
         f.add_mime_type("image/jpeg")
         f.add_mime_type("image/png")
         dialog.add_filter(f)
 
-        dialog.run()
+
+        choice = dialog.run()
         filename = dialog.get_filename()
         dialog.destroy()
 
-        if filename:
+        if filename and choice == Gtk.ResponseType.ACCEPT:
             print("File selected: " + filename)
             self.quick_export_button.set_sensitive(True)
             picture.load(filename, self.get_size())
