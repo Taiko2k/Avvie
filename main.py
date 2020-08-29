@@ -774,9 +774,9 @@ class Window(Gtk.Window):
         opt.connect("toggled", self.toggle_menu_setting, "1000")
         vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 1920x1920")
-        opt.connect("toggled", self.toggle_menu_setting, "1920")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        # opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 1920x1920")
+        # opt.connect("toggled", self.toggle_menu_setting, "1920")
+        # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
 
         inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
@@ -784,7 +784,7 @@ class Window(Gtk.Window):
         self.custom_resize_radio.connect("toggled", self.toggle_menu_setting, "custom")
         inline_box.pack_start(child=self.custom_resize_radio, expand=True, fill=False, padding=0)
 
-        self.custom_resize_adjustment = Gtk.Adjustment(value=500, lower=2, upper=10000, step_increment=50)
+        self.custom_resize_adjustment = Gtk.Adjustment(value=1920, lower=2, upper=10000, step_increment=50)
         self.custom_resize_adjustment.connect("value-changed", self.set_custom_resize)
 
         spinbutton = Gtk.SpinButton()
@@ -814,10 +814,10 @@ class Window(Gtk.Window):
         sh.connect("toggled", self.toggle_menu_setting, "sharpen")
         vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
 
-        # sh = Gtk.CheckButton()
-        # sh.set_label("Grayscale")
-        # sh.connect("toggled", self.toggle_menu_setting, "grayscale")
-        # vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
+        sh = Gtk.CheckButton()
+        sh.set_label("Grayscale")
+        sh.connect("toggled", self.toggle_menu_setting, "grayscale")
+        vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
 
         #self.preview_circle_check.set_label("Circle (Preview Only)")
         #self.preview_circle_check.connect("toggled", self.toggle_menu_setting, "circle")
@@ -1085,6 +1085,27 @@ class Window(Gtk.Window):
 
         if event.keyval == Gdk.KEY_Control_L and not self.free_rectangle_radio.get_active():
             self.free_rectangle_radio.set_active(True)
+
+        if event.keyval == Gdk.KEY_Right:
+            picture.rec_x += 1
+            picture.gen_thumbnails(hq=True)
+            self.queue_draw()
+
+        if event.keyval == Gdk.KEY_Left:
+            picture.rec_x -= 1
+            picture.gen_thumbnails(hq=True)
+            self.queue_draw()
+
+        if event.keyval == Gdk.KEY_Up:
+            picture.rec_y -= 1
+            picture.gen_thumbnails(hq=True)
+            self.queue_draw()
+
+        if event.keyval == Gdk.KEY_Down:
+            picture.rec_y += 1
+            picture.gen_thumbnails(hq=True)
+            self.queue_draw()
+
 
     def on_key_release_event(self, widget, event):
 

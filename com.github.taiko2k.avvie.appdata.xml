@@ -28,10 +28,11 @@
   </categories>
 
   <releases>
-    <release version="1.6" date="2020-05-12">
+    <release version="1.7" date="2020-08-30">
       <description>
         <ul>
-          <li>Improved region selection for small crops</li>
+          <li>Added image preview to file chooser dialog</li>
+          <li>Added find adjustment control using arrow keys</li>
         </ul>
       </description>
     </release>

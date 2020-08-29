@@ -1,4 +1,10 @@
 
+v1.7
+
+ - Added image preview to file chooser (thanks @Sierra410)
+ - Added rectangle position adjustment using arrow keys
+ - Restored grayscale filter option
+
 v1.6
 
  - Improved small crop region selection
