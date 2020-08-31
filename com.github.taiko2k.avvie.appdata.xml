@@ -28,7 +28,7 @@
   </categories>
 
   <releases>
-    <release version="1.7" date="2020-08-30">
+    <release version="1.7" date="2020-08-31">
       <description>
         <ul>
           <li>Added image preview to file chooser dialog</li>
