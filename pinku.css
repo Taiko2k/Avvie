@@ -1,0 +1,15 @@
+
+
+@define-color accent_color black;
+
+@define-color accent_bg_color #dda7fa;
+@define-color accent_fg_color black;
+
+
+headerbar {
+    background: linear-gradient(to right, #ffd1ea, #ffd4d4);
+}
+
+contents {
+    background: #fcfaff;
+}

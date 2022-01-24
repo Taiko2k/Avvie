@@ -28,11 +28,10 @@
   </categories>
 
   <releases>
-    <release version="1.7" date="2020-08-31">
+    <release version="2.0" date="2022-01-25">
       <description>
         <ul>
-          <li>Added image preview to file chooser dialog</li>
-          <li>Added find adjustment control using arrow keys</li>
+          <li>Upgraded to GTK4</li>
         </ul>
       </description>
     </release>

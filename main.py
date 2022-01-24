@@ -1,22 +1,10 @@
-#!/usr/bin/env python3
 
-# Avvie!
-
-# Copyright 2019 Taiko2k captain(dot)gxj(at)gmail.com
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+# Load Gtk
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
+gi.require_version('Notify', '0.7')
+from gi.repository import Gtk, Gdk, Gio, Adw, GLib, Notify
 import os
 import sys
 import math
@@ -28,21 +16,9 @@ import piexif
 import json
 from PIL import Image, ImageFilter
 
-gi.require_version("Gtk", "3.0")
-gi.require_foreign("cairo")
-gi.require_version('Notify', '0.7')
-from gi.repository import Gtk, Gdk, Gio, GLib, Notify, GdkPixbuf
-
-app_title = "Avvie"
+app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
-version = "1.7"
-
-# Set dark GTK theme
-try:
-    settings = Gtk.Settings.get_default()
-    settings.set_property("gtk-application-prefer-dark-theme", True)
-except AttributeError:
-    print("Failed to get GTK settings")
+version = "2.0"
 
 # App background colour
 background_color = (0.15, 0.15, 0.15)
@@ -81,37 +57,41 @@ notify.add_action(
     None
 )
 
+
 def point_in_rect(rx, ry, rw, rh, px, py):
     return ry < py < ry + rh and rx < px < rx + rw
+
 
 # Get distance between two points (pythagoras)
 def point_prox(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-class FileChooserWithImagePreview(Gtk.FileChooserNative):
-    resize_to = (256, 256)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-    
-        self.preview_widget = Gtk.Image()
-        self.set_preview_widget(self.preview_widget)
-        self.connect(
-            "update-preview",
-            self.update_preview,
-            self.preview_widget
-        )
-    
-    def update_preview(self, dialog, preview_widget):
-        filename = self.get_preview_filename()
-        try:
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filename, *self.resize_to)
-            preview_widget.set_from_pixbuf(pixbuf)
-            have_preview = True
-        except:
-            have_preview = False
+# class FileChooserWithImagePreview(Gtk.FileChooserNative):
+#     resize_to = (256, 256)
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         self.preview_widget = Gtk.Image()
+#         self.set_preview_widget(self.preview_widget)
+#         self.connect(
+#             "update-preview",
+#             self.update_preview,
+#             self.preview_widget
+#         )
+#
+#     def update_preview(self, dialog, preview_widget):
+#         filename = self.get_preview_filename()
+#         try:
+#             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filename, *self.resize_to)
+#             preview_widget.set_from_pixbuf(pixbuf)
+#             have_preview = True
+#         except:
+#             have_preview = False
+#
+#         self.set_preview_widget_active(have_preview)
 
-        self.set_preview_widget_active(have_preview)
 
 class Picture:
     def __init__(self):
@@ -176,7 +156,6 @@ class Picture:
 
         self.thumb_cache_key = ()
         self.thumb_cache_img = None
-
 
         # Load thumbnail sizes from saved config
         if "thumbs" in config:
@@ -343,7 +322,6 @@ class Picture:
                 arr, cairo.FORMAT_ARGB32, w, h
             )
 
-
     def reload(self, keep_rect=False):
 
         im = self.source_image.copy()
@@ -355,7 +333,7 @@ class Picture:
             im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
 
         if self.rotation:
-            im = im.rotate(self.rotation, expand=True, resample=Image.NEAREST) #, resample=0)
+            im = im.rotate(self.rotation, expand=True, resample=Image.NEAREST)  # , resample=0)
 
         w, h = im.size
         self.source_w, self.source_h = w, h
@@ -576,7 +554,6 @@ class Picture:
 
         self.last_saved_location = os.path.dirname(path)
 
-
         if show_notice:
             notify.show()
 
@@ -588,95 +565,241 @@ class SettingsDialog(Gtk.Dialog):
 
     def toggle_menu_setting_export(self, button, name):
         picture.export_setting = name
-        self.parent.set_export_text()
+        self.avvie.set_export_text()
         config["output-mode"] = name
 
-    def __init__(self, parent):
-        Gtk.Dialog.__init__(self, "Preferences", parent, 0, None)
+    def __init__(self, parent, avvie):
+        Gtk.Dialog.__init__(self)
 
-        self.set_default_size(150, 100)
-        self.parent = parent
+        self.set_default_size(170, 120)
+        self.set_title("Preferences")
+        self.set_transient_for(parent)
+        self.avvie = avvie
         box = self.get_content_area()
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vbox.set_border_width(13)
+        vbox.set_spacing(6)
+        vbox.set_margin_start(17)
+        vbox.set_margin_end(17)
+        vbox.set_margin_top(8)
+        vbox.set_margin_bottom(8)
 
         l = Gtk.Label()
         l.set_text("Set quick export function")
-        vbox.pack_start(child=l, expand=True, fill=False, padding=4)
+        vbox.append(l)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(None, "Export to Downloads")
+        opt = Gtk.CheckButton.new_with_label("Export to Downloads")
         opt.connect("toggled", self.toggle_menu_setting_export, "download")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        vbox.append(opt)
         if picture.export_setting == "download":
             opt.set_active(True)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Export to Pictures")
+        opt = Gtk.CheckButton.new_with_label("Export to Pictures")
         opt.connect("toggled", self.toggle_menu_setting_export, "pictures")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        vbox.append(opt)
         if picture.export_setting == "pictures":
             opt.set_active(True)
 
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Overwrite Source File")
+        opt = Gtk.CheckButton.new_with_label("Overwrite Source File")
         opt.connect("toggled", self.toggle_menu_setting_export, "overwrite")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
+        vbox.append(opt)
         if picture.export_setting == "overwrite":
             opt.set_active(True)
 
-        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
+        vbox.append(Gtk.Separator())
 
         l = Gtk.Label()
         l.set_text("Add Preview")
-        vbox.pack_start(child=l, expand=True, fill=False, padding=4)
+        vbox.append(l)
 
         inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        inline_box.set_spacing(7)
         b = Gtk.Button(label="Add")
-        b.connect("clicked", parent.add_preview)
-        inline_box.pack_start(child=b, expand=True, fill=False, padding=0)
+        b.connect("clicked", avvie.add_preview)
+        inline_box.append(b)
 
         spinbutton = Gtk.SpinButton()
         spinbutton.set_numeric(True)
         spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
 
-        parent.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
-        spinbutton.set_adjustment(parent.add_preview_adjustment)
+        spinbutton.set_adjustment(avvie.add_preview_adjustment)
 
-        inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
+        inline_box.append(spinbutton)
 
-        vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
+        vbox.append(inline_box)
 
-        box.add(vbox)
-
-
-        self.show_all()
+        box.append(vbox)
 
 
-class Window(Gtk.Window):
+class Avvie:
     def __init__(self):
-        Gtk.Window.__init__(self, title=app_title)
+        self.win = None
+        self.app = Adw.Application(application_id=app_id)
+        self.app.connect('activate', self.on_activate)
 
         GLib.set_application_name(app_title)
-        GLib.set_prgname(app_id)
-
-        # self.set_border_width(10)
-        self.set_default_size(1200, 760)
-
-        self.arrow_cursor = Gdk.Cursor(Gdk.CursorType.LEFT_PTR)
-        self.drag_cursor = Gdk.Cursor(Gdk.CursorType.FLEUR)
-        self.br_cursor = Gdk.Cursor(Gdk.CursorType.BOTTOM_RIGHT_CORNER)
-        self.tr_cursor = Gdk.Cursor(Gdk.CursorType.TOP_RIGHT_CORNER)
-        self.bl_cursor = Gdk.Cursor(Gdk.CursorType.BOTTOM_LEFT_CORNER)
-        self.tl_cursor = Gdk.Cursor(Gdk.CursorType.TOP_LEFT_CORNER)
-
-        self.about = Gtk.AboutDialog()
-
-        self.rotate_reset_button = Gtk.Button(label="Reset rotation")
-        #self.preview_circle_check = Gtk.CheckButton()
-        self.rot = Gtk.Scale.new_with_range(orientation=0, min=-90, max=90, step=2)
 
         self.crop_mode_radios = []
 
-        self.setup_window()
+    def run(self):
+        self.app.run(None)
+
+    def on_activate(self, app):
+
+        sm = app.get_style_manager()
+        #sm.set_color_scheme(Adw.ColorScheme.PREFER_DARK)
+
+        self.win = Gtk.ApplicationWindow(application=app)
+        self.dw = Gtk.DrawingArea()
+        self.about = Gtk.AboutDialog.new()
+        self.about.set_transient_for(self.win)
+
+        if not sm.get_dark():
+            css = Gtk.CssProvider.new()
+            css.load_from_file(Gio.File.new_for_path("pinku.css"))
+            Gtk.StyleContext.add_provider_for_display(self.win.get_display(), css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+
+
+
+        self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
+
+
+        self.save_dialog = Gtk.FileChooserNative.new(title="Choose where to save",
+                                            parent=self.win, action=Gtk.FileChooserAction.SAVE)
+
+        f = Gtk.FileFilter()
+        f.set_name("Image files")
+        f.add_mime_type("image/jpeg")
+        f.add_mime_type("image/png")
+
+        self.save_dialog.connect("response", self.save_response)
+        self.save_dialog.add_filter(f)
+
+        self.open_dialog = Gtk.FileChooserNative.new(title="Choose an image file",
+                                            parent=self.win, action=Gtk.FileChooserAction.OPEN)
+
+
+        self.open_dialog.add_filter(f)
+        self.open_dialog.connect("response", self.open_response)
+
+        self.win.set_title(app_title)
+        self.win.set_default_size(1100, 700)
+
+        evk = Gtk.GestureClick.new()
+        evk.connect("pressed", self.click)
+        evk.connect("released", self.click_up)
+        evk.set_button(0)
+        self.dw.add_controller(evk)
+
+        evk = Gtk.EventControllerMotion.new()
+        evk.connect("motion", self.mouse_motion)
+        evk.connect("leave", self.mouse_leave)
+        self.dw.add_controller(evk)
+
+        evk = Gtk.EventControllerKey.new()
+        evk.connect("key-pressed", self.on_key_press_event)
+        evk.connect("key-released", self.on_key_release_event)
+        self.win.add_controller(evk)
+
+        # self.connect("key-press-event", self.on_key_press_event)
+        # self.connect("key-release-event", self.on_key_release_event)
+
+        dt = Gtk.DropTarget.new(Gio.File, Gdk.DragAction.COPY)
+        dt.connect("drop", self.drag_drop_file)
+        self.dw.add_controller(dt)
+
+        self.arrow_cursor = Gdk.Cursor.new_from_name("default")
+
+        self.drag_cursor = Gdk.Cursor.new_from_name("move")
+        self.br_cursor = Gdk.Cursor.new_from_name("se-resize")
+        self.tr_cursor = Gdk.Cursor.new_from_name("ne-resize")
+        self.bl_cursor = Gdk.Cursor.new_from_name("sw-resize")
+        self.tl_cursor = Gdk.Cursor.new_from_name("nw-resize")
+
+
+        # Header bar
+        hb = Gtk.HeaderBar()
+        self.win.set_titlebar(hb)
+
+        # Hb Open file
+        button = Gtk.Button()
+        button.set_tooltip_text("Open image file")
+        button.set_icon_name("document-open-symbolic")
+        hb.pack_start(button)
+        button.connect("clicked", self.open_file)
+
+        # Hb export image
+        button = Gtk.Button()
+        button.set_icon_name("document-save-symbolic")
+        button.set_sensitive(False)
+        button.set_margin_end(10)
+        button.connect("clicked", self.save)
+        self.quick_export_button = button
+        hb.pack_end(button)
+        hb.pack_end(Gtk.Separator())
+
+        # hb main menu
+        menu = Gtk.MenuButton()
+        menu.set_icon_name("open-menu-symbolic")
+        menu.set_tooltip_text("Options Menu")
+        hb.pack_end(menu)
+
+        # Hb crop switch
+        switch = Gtk.Switch()
+        switch.connect("notify::active", self.crop_switch)
+        switch.set_active(True)
+        switch.set_tooltip_text("Enable Crop")
+        switch.set_margin_end(10)
+        self.crop_switch_button = switch
+        image = Gtk.Image.new_from_file("image-crop.svg")
+        image.set_margin_end(7)
+        box = Gtk.Box()
+        box.append(image)
+        box.append(switch)
+        hb.pack_end(box)
+
+        self.popover = self.gen_main_popover()
+        menu.set_popover(self.popover)
+
+        # Thumb menu -----
+
+        menu = Gio.Menu.new()
+
+        action = Gio.SimpleAction.new("toggle-circle", None)
+        action.connect("activate", self.click_thumb_menu)
+        self.win.add_action(action)
+        menu.append("Toggle Circle", "win.toggle-circle")
+
+        action = Gio.SimpleAction.new("remove-thumb", None)
+        action.connect("activate", self.click_thumb_menu)
+        self.win.add_action(action)
+        menu.append("Remove Preview", "win.remove-thumb")
+
+        self.thumb_remove_item = None
+        self.thumb_menu = Gtk.PopoverMenu()
+        self.thumb_menu.set_menu_model(menu)
+        self.thumb_menu.set_parent(self.dw)
+
+        # win drawing area
+        self.dw.set_draw_func(self.draw, None)
+        self.win.set_child(self.dw)
+
+
+        # About ---
+        self.about.set_authors(["Taiko2k"])
+        self.about.set_artists(["Tobias Bernard"])
+        self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
+        self.about.set_license_type(Gtk.License(3))
+        self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
+        self.about.set_website_label("Github")
+        self.about.set_destroy_with_parent(True)
+        self.about.set_version(version)
+        self.about.set_logo_icon_name(app_id)
+
+        self.win.present()
+
+        self.win.connect("destroy", self.on_exit)
 
         self.set_export_text()
 
@@ -692,670 +815,79 @@ class Window(Gtk.Window):
             self.quick_export_button.set_tooltip_text("Overwrite Image")
             notify.update(app_title, "Image file overwritten.")
 
-    def setup_window(self):
+    def open_file(self, button):
+        self.open_dialog.show()
 
-        draw = Gtk.DrawingArea()
-        self.add(draw)
+    def click(self,  gesture, data, x, y):
 
-        draw.set_events(
-            draw.get_events()
-            | Gdk.EventMask.LEAVE_NOTIFY_MASK
-            | Gdk.EventMask.BUTTON_PRESS_MASK
-            | Gdk.EventMask.BUTTON_RELEASE_MASK
-            | Gdk.EventMask.POINTER_MOTION_MASK
-            | Gdk.EventMask.POINTER_MOTION_HINT_MASK
-        )
-
-        self.set_events(self.get_events() | Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
-
-        draw.connect("button-press-event", self.click)
-        draw.connect("button-release-event", self.click_up)
-        draw.connect("motion-notify-event", self.mouse_motion)
-        draw.connect("leave-notify-event", self.mouse_leave)
-        self.connect("key-press-event", self.on_key_press_event)
-        self.connect("key-release-event", self.on_key_release_event)
-
-        draw.connect("draw", self.draw)
-        self.connect("drag_data_received", self.drag_drop_file)
-        self.drag_dest_set(
-            Gtk.DestDefaults.MOTION
-            | Gtk.DestDefaults.HIGHLIGHT
-            | Gtk.DestDefaults.DROP,
-            [Gtk.TargetEntry.new("text/uri-list", 0, 80)],
-            Gdk.DragAction.COPY,
-        )
-
-        hb = Gtk.HeaderBar()
-        hb.set_show_close_button(True)
-        hb.props.title = app_title
-        self.set_titlebar(hb)
-
-        button = Gtk.Button()
-        button.set_tooltip_text("Open image file")
-        icon = Gio.ThemedIcon(name="document-open-symbolic")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-        button.add(image)
-        hb.pack_start(button)
-        button.connect("clicked", self.open_file)
-        # self.open_button = button
-
-        button = Gtk.Button()
-        #button.set_tooltip_text("Export to Downloads folder")
-        icon = Gio.ThemedIcon(name="document-save-symbolic")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-        button.add(image)
-        button.connect("clicked", self.save)
-        button.set_sensitive(False)
-        self.quick_export_button = button
-
-
-        hb.pack_end(button)
-        hb.pack_end(Gtk.Separator())
-
-        popover = Gtk.Popover()
-
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vbox.set_border_width(15)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Downscale")
-        opt.connect("toggled", self.toggle_menu_setting, "1:1")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 184x184")
-        opt.connect("toggled", self.toggle_menu_setting, "184")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-        
-        # opt = Gtk.RadioButton.new_with_label_from_widget(opt, "500")
-        # opt.connect("toggled", self.toggle_menu_setting, "500")
-        # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 1000x1000")
-        opt.connect("toggled", self.toggle_menu_setting, "1000")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        # opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Max 1920x1920")
-        # opt.connect("toggled", self.toggle_menu_setting, "1920")
-        # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-
-        self.custom_resize_radio = Gtk.RadioButton.new_with_label_from_widget(opt, "Custom")
-        self.custom_resize_radio.connect("toggled", self.toggle_menu_setting, "custom")
-        inline_box.pack_start(child=self.custom_resize_radio, expand=True, fill=False, padding=0)
-
-        self.custom_resize_adjustment = Gtk.Adjustment(value=1920, lower=2, upper=10000, step_increment=50)
-        self.custom_resize_adjustment.connect("value-changed", self.set_custom_resize)
-
-        spinbutton = Gtk.SpinButton()
-        spinbutton.set_numeric(True)
-        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
-        spinbutton.set_adjustment(self.custom_resize_adjustment)
-        inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
-
-        vbox.pack_start(child=inline_box, expand=True, fill=False, padding=0)
-
-        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
-
-        pn = Gtk.CheckButton()
-        pn.set_label("Export as PNG")
-        pn.connect("toggled", self.toggle_menu_setting, "png")
-        vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
-
-        pn = Gtk.CheckButton()
-        pn.set_label("Discard EXIF")
-        pn.set_sensitive(False)
-        pn.connect("toggled", self.toggle_menu_setting, "exif")
-        self.discard_exif_button = pn
-        vbox.pack_start(child=pn, expand=True, fill=False, padding=4)
-
-        sh = Gtk.CheckButton()
-        sh.set_label("Sharpen")
-        sh.connect("toggled", self.toggle_menu_setting, "sharpen")
-        vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
-
-        sh = Gtk.CheckButton()
-        sh.set_label("Grayscale")
-        sh.connect("toggled", self.toggle_menu_setting, "grayscale")
-        vbox.pack_start(child=sh, expand=True, fill=False, padding=4)
-
-        #self.preview_circle_check.set_label("Circle (Preview Only)")
-        #self.preview_circle_check.connect("toggled", self.toggle_menu_setting, "circle")
-        #vbox.pack_start(child=self.preview_circle_check, expand=True, fill=False, padding=4)
-
-        vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
-
-        vbox2 = vbox
-
-        m1 = Gtk.ModelButton(label="Export As")
-        m1.connect("clicked", self.export_as)
-        vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
-
-        m1 = Gtk.ModelButton(label="Preferences")
-        m1.connect("clicked", self.open_pref)
-        vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
-
-        m1 = Gtk.ModelButton(label="About " + app_title)
-        m1.connect("clicked", self.show_about)
-        vbox.pack_start(child=m1, expand=True, fill=False, padding=4)
-
-        menu = Gtk.MenuButton()
-        icon = Gio.ThemedIcon(name="open-menu-symbolic")
-        menu.set_tooltip_text("Options Menu")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-
-        menu.add(image)
-        menu.set_popover(popover)
-
-        switch = Gtk.Switch()
-        switch.connect("notify::active", self.crop_switch)
-        switch.set_active(True)
-        switch.set_tooltip_text("Enable Crop")
-
-        self.crop_switch_button = switch
-
-        hb.pack_end(menu)
-
-
-        icon = Gio.ThemedIcon(name="image-crop")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
-
-        box = Gtk.Box()
-        box.pack_end(child=switch, expand=True, fill=False, padding=7)
-        box.pack_start(child=image, expand=True, fill=False, padding=0)
-
-        hb.pack_end(box)
-
-        # CROP MENU ----------------------------------------------------------
-        #popover = Gtk.PopoverMenu()
-
-
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vbox.set_border_width(13)
-
-        # opt = Gtk.RadioButton.new_with_label_from_widget(None, "No Crop")
-        # self.crop_mode_radios.append(opt)
-        # opt.connect("toggled", self.toggle_menu_setting2, "none")
-        # vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(None, "Square")
-        self.crop_mode_radios.append(opt)
-        opt.connect("toggled", self.toggle_menu_setting2, "square")
-        opt.set_active(True)
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "Free Rectangle")
-        self.crop_mode_radios.append(opt)
-        self.free_rectangle_radio = opt
-        opt.connect("toggled", self.toggle_menu_setting2, "rect")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "16:10")
-        self.crop_mode_radios.append(opt)
-        opt.connect("toggled", self.toggle_menu_setting2, "16:10")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "16:9")
-        self.crop_mode_radios.append(opt)
-        opt.connect("toggled", self.toggle_menu_setting2, "16:9")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        opt = Gtk.RadioButton.new_with_label_from_widget(opt, "21:9")
-        self.crop_mode_radios.append(opt)
-        opt.connect("toggled", self.toggle_menu_setting2, "21:9")
-        vbox.pack_start(child=opt, expand=True, fill=False, padding=4)
-
-        self.rotate_reset_button.connect("clicked", self.rotate_reset)
-        self.rotate_reset_button.set_sensitive(False)
-
-        self.rot.set_value(0)
-        self.rot.set_size_request(180, -1)
-        self.rot.set_draw_value(False)
-        self.rot.set_has_origin(False)
-        self.rot.connect("value-changed", self.rotate)
-        vbox.pack_start(child=self.rot, expand=True, fill=False, padding=7)
-        vbox.pack_start(child=self.rotate_reset_button, expand=True, fill=False, padding=7)
-
-        flip_vert_button = Gtk.Button(label="Flip Vertical")
-        flip_vert_button.connect("clicked", self.toggle_flip_vert)
-        vbox.pack_start(child=flip_vert_button, expand=True, fill=False, padding=2)
-        flip_hoz_button = Gtk.Button(label="Flip Horizontal")
-        flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
-        vbox.pack_start(child=flip_hoz_button, expand=True, fill=False, padding=2)
-
-
-
-        #vbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
-
-        # l = Gtk.Label()
-        # l.set_text("Add Preview")
-        # vbox.pack_start(child=l, expand=True, fill=False, padding=4)
-        #
-        # inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        # b = Gtk.Button(label="Add")
-        # b.connect("clicked", self.add_preview)
-        # inline_box.pack_start(child=b, expand=True, fill=False, padding=0)
-        #
-        # spinbutton = Gtk.SpinButton()
-        # spinbutton.set_numeric(True)
-        # spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
-        #
-        # self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
-        # spinbutton.set_adjustment(self.add_preview_adjustment)
-        #
-        # inline_box.pack_start(child=spinbutton, expand=True, fill=False, padding=4)
-        #
-        # vbox.pack_start(child=inline_box, expand=True, fill=False, padding=2)
-        # b = Gtk.Button(label="Remove All")
-        # b.connect("clicked", self.default_thumbnail)
-        # vbox.pack_start(child=b, expand=True, fill=False, padding=2)
-
-
-        hbox.pack_start(child=vbox, expand=True, fill=False, padding=4)
-        hbox.pack_start(child=Gtk.Separator(), expand=True, fill=False, padding=4)
-        hbox.pack_start(child=vbox2, expand=True, fill=False, padding=4)
-
-        popover.add(hbox)
-        vbox.show_all()
-        vbox2.show_all()
-        hbox.show_all()
-
-        menu.set_popover(popover)
-        vbox.show_all()
-
-
-        self.thumb_menu = Gtk.Menu.new()
-        # item = Gtk.MenuItem.new_with_label('Add 64x64')
-        # item = Gtk.MenuItem.new_with_label('Add 32x32')
-        # self.thumb_menu.append(item)
-        # self.thumb_menu.append(Gtk.SeparatorMenuItem.new())
-        item = Gtk.MenuItem.new_with_label('Toggle Circle')
-        item.connect("activate", self.click_thumb_menu, "circle")
-        self.thumb_menu.append(item)
-        self.circle_menu_item = item
-        item = Gtk.MenuItem.new_with_label('Remove')
-        item.connect("activate", self.click_thumb_menu, "remove")
-        self.thumb_menu_remove = item
-        self.thumb_menu.append(item)
-        self.thumb_menu.show_all()
-        self.thumb_remove_item = None
-
-        # About ---
-        self.about.set_authors(["Taiko2k"])
-        self.about.set_artists(["Tobias Bernard"])
-        self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
-        self.about.set_license_type(Gtk.License(3))
-        self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
-        self.about.set_website_label("Github")
-        self.about.set_destroy_with_parent(True)
-        self.about.set_version(version)
-        self.about.set_logo_icon_name(app_id)
-
-        for item in sys.argv:
-            if not item.endswith(".py") and os.path.isfile(item):
-                self.quick_export_button.set_sensitive(True)
-                picture.load(item, self.get_size())
-                self.discard_exif_button.set_sensitive(picture.exif and True)
-                break
-
-        self.connect("destroy", self.on_exit)
-
-    def click_thumb_menu(self, item, reference):
-
-        if reference == "circle":
-            picture.circle ^= True
-
-        if reference == "remove":
-            picture.thumbs.remove(self.thumb_remove_item)
-            picture.thumb_surfaces.clear()
-            # if not picture.thumbs:
-            #     picture.thumbs.append(184)
-            picture.gen_thumbnails(hq=True)
-        self.queue_draw()
-
-    def on_exit(self, window):
-
-        # Save configuration to json file
-        config['thumbs'] = picture.thumbs
-        with open(config_file, 'w') as f:
-            json.dump(config, f)
-
-    def default_thumbnail(self, button):
-
-        picture.thumbs.clear()
-        #picture.thumbs.append(184)
-        self.add_preview_adjustment.set_value(184)
-        picture.thumb_surfaces.clear()
-        picture.gen_thumbnails(hq=True)
-        self.queue_draw()
-
-    def add_preview(self, button):
-
-        size = int(self.add_preview_adjustment.get_value())
-        if size not in picture.thumbs:
-            picture.thumbs.append(size)
-            picture.thumbs.sort(reverse=True)
-            picture.thumb_surfaces.clear()
-            picture.gen_thumbnails(hq=True)
-            self.queue_draw()
-
-    def toggle_flip_vert(self, button):
-        picture.flip_vert ^= True
-        if picture.source_image:
-            picture.reload(keep_rect=True)
-            self.queue_draw()
-            picture.gen_thumbnails(hq=True)
-
-    def toggle_flip_hoz(self, button):
-        picture.flip_hoz ^= True
-        if picture.source_image:
-            picture.reload(keep_rect=True)
-            self.queue_draw()
-            picture.gen_thumbnails(hq=True)
-
-    def rotate_reset(self, button):
-
-        picture.rotation = 0
-        self.rot.set_value(0)
-        if picture.source_image:
-            picture.reload(keep_rect=True)
-            self.queue_draw()
-            picture.gen_thumbnails(hq=True)
-        self.rotate_reset_button.set_sensitive(False)
-
-    def set_custom_resize(self, adjustment):
-
-        if self.custom_resize_radio.get_active():
-            picture.export_constrain = int(adjustment.get_value())
-
-    def rotate(self, scale):
-
-        picture.rotation = scale.get_value() * -1
-        self.rotate_reset_button.set_sensitive(True)
-        if picture.source_image:
-            picture.reload(keep_rect=True)
-            self.queue_draw()
-            #picture.gen_thumb_184(hq=True)
-
-    def on_key_press_event(self, widget, event):
-
-        if event.keyval == Gdk.KEY_Shift_L or event.keyval == Gdk.KEY_Shift_R:
-            picture.slow_drag = True
-            picture.drag_start_position = None
-
-        if event.keyval == Gdk.KEY_Control_L and not self.free_rectangle_radio.get_active():
-            self.free_rectangle_radio.set_active(True)
-
-        if event.keyval == Gdk.KEY_Right:
-            picture.rec_x += 1
-            picture.gen_thumbnails(hq=True)
-            self.queue_draw()
-
-        if event.keyval == Gdk.KEY_Left:
-            picture.rec_x -= 1
-            picture.gen_thumbnails(hq=True)
-            self.queue_draw()
-
-        if event.keyval == Gdk.KEY_Up:
-            picture.rec_y -= 1
-            picture.gen_thumbnails(hq=True)
-            self.queue_draw()
-
-        if event.keyval == Gdk.KEY_Down:
-            picture.rec_y += 1
-            picture.gen_thumbnails(hq=True)
-            self.queue_draw()
-
-
-    def on_key_release_event(self, widget, event):
-
-        if event.keyval == Gdk.KEY_Shift_L or event.keyval == Gdk.KEY_Shift_R:
-            picture.slow_drag = False
-            picture.drag_start_position = None
-
-    def show_about(self, button):
-        self.about.run()
-        self.about.hide()
-
-    def open_pref(self, button):
-
-        dialog = SettingsDialog(self)
-        dialog.run()
-        dialog.destroy()
-
-    def export_as(self, button):
-
-        if not picture.ready:
-            return
-
-        dialog = FileChooserWithImagePreview(
-            title="Please choose where to save to",
-            action=Gtk.FileChooserAction.SAVE
-        )
-        
-        f = Gtk.FileFilter()
-        f.set_name("Image files")
-        f.add_mime_type("image/jpeg")
-        f.add_mime_type("image/png")
-        dialog.add_filter(f)
-
-        choice = dialog.run()
-        filename = dialog.get_filename()
-        dialog.destroy()
-
-        if choice == Gtk.ResponseType.ACCEPT:
-            picture.export(filename)
-
-    def crop_switch(self, switch, param):
-
-        if switch.get_active():
-            picture.crop = True
-        else:
-            picture.crop = False
-
-        for button in self.crop_mode_radios:
-            button.set_sensitive(picture.crop)
-
-        self.confine()
-        picture.gen_thumbnails(hq=True)
-        self.queue_draw()
-
-
-    def toggle_menu_setting2(self, button, name):
-
-        picture.lock_ratio = True
-
-        if name == "rect":
-            #picture.crop = True
-            picture.lock_ratio = False
-            #self.preview_circle_check.set_active(False)
-            picture.circle = False
-
-        if name == "square":
-            #picture.crop = True
-            picture.crop_ratio = (1, 1)
-            picture.rec_w = picture.rec_h
-
-        if name == '21:9':
-            #picture.crop = True
-            picture.crop_ratio = (21, 9)
-            if picture.source_w >= 2560:
-                picture.rec_w = 2560
-                picture.rec_h = 1080
-
-            #self.preview_circle_check.set_active(False)
-
-        if name == '16:9':
-            #picture.crop = True
-            picture.crop_ratio = (16, 9)
-            #self.preview_circle_check.set_active(False)
-
-        if name == '16:10':
-            #picture.crop = True
-            picture.crop_ratio = (16, 10)
-            #self.preview_circle_check.set_active(False)
-
-        # if name == 'none':
-        #     picture.crop_ratio = (1, 1)
-        #     picture.crop = False
-
-        self.confine()
-        picture.gen_thumbnails(hq=True)
-        self.queue_draw()
-
-    def toggle_menu_setting(self, button, name):
-
-        if name == 'circle':
-            picture.circle ^= True
-            self.queue_draw()
-
-        if name == 'grayscale':
-            picture.gray ^= True
-            self.queue_draw()
-
-        if name == 'sharpen':
-            picture.sharpen = button.get_active()
-
-        if name == "png":
-            picture.png = button.get_active()
-
-        if name == "exif":
-            picture.discard_exif = button.get_active()
-
-        if name == "1:1" and button.get_active():
-            picture.export_constrain = None
-
-        if name == "184" and button.get_active():
-            picture.export_constrain = 184
-
-        if name == "500" and button.get_active():
-            picture.export_constrain = 500
-
-        if name == "750" and button.get_active():
-            picture.export_constrain = 750
-
-        if name == "1000" and button.get_active():
-            picture.export_constrain = 1000
-
-        if name == "1920" and button.get_active():
-            picture.export_constrain = 1920
-
-        if name == "custom" and button.get_active():
-            picture.export_constrain = int(self.custom_resize_adjustment.get_value())
-
-
-        picture.gen_thumbnails(hq=True)
-        self.queue_draw()
-
-    def save(self, widget):
-
-        picture.export()
-
-    def open_file(self, widget):
-
-        dialog = FileChooserWithImagePreview(
-            title="Please choose a file",
-            action=Gtk.FileChooserAction.OPEN
-        )
-        
-        f = Gtk.FileFilter()
-        f.set_name("Image files")
-        f.add_mime_type("image/jpeg")
-        f.add_mime_type("image/png")
-        dialog.add_filter(f)
-
-
-        choice = dialog.run()
-        filename = dialog.get_filename()
-        dialog.destroy()
-
-        if filename and choice == Gtk.ResponseType.ACCEPT:
-            print("File selected: " + filename)
-            self.quick_export_button.set_sensitive(True)
-            picture.load(filename, self.get_size())
-            self.discard_exif_button.set_sensitive(picture.exif and True)
-
-    def drag_drop_file(self, widget, context, x, y, selection, target_type, timestamp):
-
-        if target_type == TARGET_TYPE_URI_LIST:
-            uris = selection.get_data().strip()
-            uri = uris.decode().splitlines()[0]
-
-            if not uri.startswith("file://"):
-                return
-            path = urllib.parse.unquote(uri[7:])
-            self.quick_export_button.set_sensitive(True)
-            if os.path.isfile(path):
-                picture.load(path, self.get_size())
-                self.discard_exif_button.set_sensitive(picture.exif and True)
-
-            self.queue_draw()
-
-
-    def click(self, draw, event):
+        button = gesture.get_current_button()
 
         if not picture.source_image or not picture.crop:
             return
 
+
         # Thumbnails
-        w, h = self.get_size()
+        w, h = (self.dw.get_width(), self.dw.get_height())
         right = w - 16
         bottom = h - 16
         for i, size in enumerate(picture.thumbs):
 
-            if right - size < event.x < right and bottom - size < event.y < bottom:
-                if event.button == 1:
+            if right - size < x < right and bottom - size < y < bottom:
+                if button == 1:
                     picture.circle ^= True
 
-                    self.queue_draw()
-                if event.button == 2:
+                    self.dw.queue_draw()
+                if button == 2:
                     picture.thumbs.remove(size)
                     picture.thumb_surfaces.clear()
                     if not picture.thumbs:
                         picture.thumbs.append(184)
                     picture.gen_thumbnails(hq=True)
-                    self.queue_draw()
+                    self.dw.queue_draw()
                     break
 
-                if event.button == 3:
+                if button == 3:
+                    rect = Gdk.Rectangle()
+                    rect.x = right - size // 2
+                    rect.y = bottom - size
+                    rect.w = 0
+                    rect.h = 0
+                    self.thumb_menu.set_pointing_to(rect)
+                    self.thumb_menu.set_position(Gtk.PositionType.TOP)
                     self.thumb_remove_item = size
-                    self.thumb_menu_remove.set_label(f"Remove {size}x{size}")
-                    if picture.circle:
-                        self.circle_menu_item.set_label("Square Preview")
-                    else:
-                        self.circle_menu_item.set_label("Circle Preview")
-                    self.thumb_menu.popup_at_pointer()
+                    self.thumb_menu.popup()
 
             right -= 16 + size
 
 
-        if event.button == 1:
+        if button == 1:
 
             rx, ry, rw, rh = picture.get_display_rect()
 
             if picture.get_display_rect_hw() < picture.all_drag_min and \
-                    picture.test_center_start_drag(event.x, event.y):
+                    picture.test_center_start_drag(x, y):
                 picture.dragging_center = True
 
-            elif picture.test_tl(event.x, event.y):
+            elif picture.test_tl(x, y):
                 picture.dragging_tl = True
-            elif picture.test_br(event.x, event.y):
+            elif picture.test_br(x, y):
                 picture.dragging_br = True
-            elif picture.test_tr(event.x, event.y):
+            elif picture.test_tr(x, y):
                 picture.dragging_tr = True
-            elif picture.test_bl(event.x, event.y):
+            elif picture.test_bl(x, y):
                 picture.dragging_bl = True
 
-            elif picture.test_center_start_drag(event.x, event.y):
+            elif picture.test_center_start_drag(x, y):
                 picture.dragging_center = True
 
-            picture.drag_start_position = (event.x, event.y)
+            picture.drag_start_position = (x, y)
             picture.original_position = (rx, ry)
             picture.original_drag_size = (rw, rh)
 
-    def click_up(self, draw, event):
+    def click_up(self, gesture, data, x, y):
+        button = gesture.get_current_button()
 
-        if event.button == 1:
+        if button == 1:
             picture.dragging_center = False
             picture.dragging_tl = False
             picture.dragging_br = False
@@ -1363,32 +895,28 @@ class Window(Gtk.Window):
             picture.dragging_tr = False
             picture.gen_thumbnails(hq=True)
 
-        self.queue_draw()
+        self.dw.queue_draw()
 
-    def mouse_leave(self, draw, event):
+    def mouse_leave(self, event):
+        pass
+        #self.win.set_cursor(self.win.arrow_cursor)
 
-        self.get_window().set_cursor(self.arrow_cursor)
-
-    def confine(self):
-
-        picture.confine()
-
-    def mouse_motion(self, draw, event):
+    def mouse_motion(self, motion, x, y):
 
         if not picture.source_image:
             return
 
-        if event.state & Gdk.ModifierType.BUTTON1_MASK and picture.crop:
+        if motion.get_current_event_state() & Gdk.ModifierType.BUTTON1_MASK and picture.crop:
 
             rx, ry, rw, rh = picture.get_display_rect()
 
             if picture.drag_start_position is None:
-                picture.drag_start_position = (event.x, event.y)
+                picture.drag_start_position = (x, y)
                 picture.original_position = (rx, ry)
                 picture.original_drag_size = (rw, rh)
 
-            offset_x = event.x - picture.drag_start_position[0]
-            offset_y = event.y - picture.drag_start_position[1]
+            offset_x = x - picture.drag_start_position[0]
+            offset_y = y - picture.drag_start_position[1]
 
             dragging_corners = bool(picture.dragging_tl or
                                     picture.dragging_bl or
@@ -1398,8 +926,8 @@ class Window(Gtk.Window):
             if picture.dragging_center and not dragging_corners:
 
                 # Drag mask rectangle relative to original click position
-                x_offset = event.x - picture.drag_start_position[0]
-                y_offset = event.y - picture.drag_start_position[1]
+                x_offset = x - picture.drag_start_position[0]
+                y_offset = y - picture.drag_start_position[1]
 
                 if picture.slow_drag:
                     x_offset = x_offset // 10
@@ -1542,43 +1070,42 @@ class Window(Gtk.Window):
             if picture.dragging_center or dragging_corners:
                 self.confine()
                 picture.gen_thumbnails()
-                self.queue_draw()
+                self.dw.queue_draw()
 
         else:
             picture.dragging_center = False
 
-        gdk_window = self.get_window()
 
         if picture.crop:
 
             if picture.get_display_rect_hw() < picture.all_drag_min and \
-                    picture.test_center_start_drag(event.x, event.y):
-                gdk_window.set_cursor(self.drag_cursor)
+                    picture.test_center_start_drag(x, y):
+                self.dw.set_cursor(self.drag_cursor)
 
-            elif picture.test_br(event.x, event.y):
-                gdk_window.set_cursor(self.br_cursor)
-            elif picture.test_tr(event.x, event.y):
-                gdk_window.set_cursor(self.tr_cursor)
-            elif picture.test_bl(event.x, event.y):
-                gdk_window.set_cursor(self.bl_cursor)
-            elif picture.test_tl(event.x, event.y):
-                gdk_window.set_cursor(self.tl_cursor)
-            elif picture.test_center_start_drag(event.x, event.y) or picture.dragging_center:
-                gdk_window.set_cursor(self.drag_cursor)
+            elif picture.test_br(x, y):
+                self.dw.set_cursor(self.br_cursor)
+            elif picture.test_tr(x, y):
+                self.dw.set_cursor(self.tr_cursor)
+            elif picture.test_bl(x, y):
+                self.dw.set_cursor(self.bl_cursor)
+            elif picture.test_tl(x, y):
+                self.dw.set_cursor(self.tl_cursor)
+            elif picture.test_center_start_drag(x, y) or picture.dragging_center:
+                self.dw.set_cursor(self.drag_cursor)
             else:
-                gdk_window.set_cursor(self.arrow_cursor)
+                self.dw.set_cursor(self.arrow_cursor)
 
-    def draw(self, wid, c):
 
-        w, h = self.get_size()
+    def draw(self, area, c, w, h, data):
 
-        # Draw background colour
+        background_color = (0.13, 0.13, 0.13)
         c.set_source_rgb(background_color[0], background_color[1], background_color[2])
         c.paint()
 
         # Draw background grid
         c.set_source_rgb(0.3, 0.3, 0.3)
         c.set_line_width(1)
+
 
         size = 8
         for y in range(0, h + 20, 100):
@@ -1651,8 +1178,8 @@ class Window(Gtk.Window):
 
                 c.show_text(f"{picture.rec_w} x {picture.rec_h}")
 
-            w, h = self.get_size()
-
+            w = self.dw.get_width()
+            h = self.dw.get_height()
 
             ex_w = picture.rec_w
             ex_h = picture.rec_h
@@ -1673,6 +1200,8 @@ class Window(Gtk.Window):
 
             # if not picture.surface184:
             #     picture.gen_thumb_184(hq=True)
+
+
             if picture.thumb_surfaces:
                 c.move_to(0, 0)
 
@@ -1714,10 +1243,416 @@ class Window(Gtk.Window):
 
                     right -= size + 16
 
+    def drag_drop_file(self, drop_target, file, x, y):
 
-win = Window()
-win.connect("destroy", Gtk.main_quit)
-win.show_all()
-Gtk.main()
-notify.close()
-notify_invalid_output.close()
+        path = file.get_path()
+
+        self.quick_export_button.set_sensitive(True)
+        if os.path.isfile(path):
+            picture.load(path, (self.dw.get_width(), self.dw.get_height()))
+            self.discard_exif_button.set_sensitive(picture.exif and True)
+
+        self.dw.queue_draw()
+
+    def click_thumb_menu(self, action, data):
+        name = action.get_name()
+        if name == "toggle-circle":
+            picture.circle ^= True
+
+        if name == "remove-thumb":
+            picture.thumbs.remove(self.thumb_remove_item)
+            picture.thumb_surfaces.clear()
+            # if not picture.thumbs:
+            #     picture.thumbs.append(184)
+            picture.gen_thumbnails(hq=True)
+        self.dw.queue_draw()
+
+    def on_exit(self, window):
+
+        # Save configuration to json file
+        config['thumbs'] = picture.thumbs
+        with open(config_file, 'w') as f:
+            json.dump(config, f)
+
+    def toggle_menu_setting2(self, button, name):
+        picture.lock_ratio = True
+
+        if name == "rect":
+            #picture.crop = True
+            picture.lock_ratio = False
+            #self.preview_circle_check.set_active(False)
+            picture.circle = False
+
+        if name == "square":
+            #picture.crop = True
+            picture.crop_ratio = (1, 1)
+            picture.rec_w = picture.rec_h
+
+        if name == '21:9':
+            #picture.crop = True
+            picture.crop_ratio = (21, 9)
+            if picture.source_w >= 2560:
+                picture.rec_w = 2560
+                picture.rec_h = 1080
+
+            #self.preview_circle_check.set_active(False)
+
+        if name == '16:9':
+            #picture.crop = True
+            picture.crop_ratio = (16, 9)
+            #self.preview_circle_check.set_active(False)
+
+        if name == '16:10':
+            #picture.crop = True
+            picture.crop_ratio = (16, 10)
+            #self.preview_circle_check.set_active(False)
+
+        # if name == 'none':
+        #     picture.crop_ratio = (1, 1)
+        #     picture.crop = False
+
+        self.confine()
+        picture.gen_thumbnails(hq=True)
+        self.dw.queue_draw()
+
+
+    def toggle_flip_vert(self, button):
+        picture.flip_vert ^= True
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.dw.queue_draw()
+            picture.gen_thumbnails(hq=True)
+
+    def toggle_flip_hoz(self, button):
+        picture.flip_hoz ^= True
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.dw.queue_draw()
+            picture.gen_thumbnails(hq=True)
+
+    def rotate_reset(self, button):
+
+        picture.rotation = 0
+        self.rot.set_value(0)
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.dw.queue_draw()
+            picture.gen_thumbnails(hq=True)
+        self.rotate_reset_button.set_sensitive(False)
+
+    def rotate(self, scale):
+
+        picture.rotation = scale.get_value() * -1
+        self.rotate_reset_button.set_sensitive(True)
+        if picture.source_image:
+            picture.reload(keep_rect=True)
+            self.dw.queue_draw()
+            #picture.gen_thumb_184(hq=True)
+
+    def toggle_menu_setting(self, button, name):
+
+        if name == 'circle':
+            picture.circle ^= True
+            self.dw.queue_draw()
+
+        if name == 'grayscale':
+            picture.gray ^= True
+            self.dw.queue_draw()
+
+        if name == 'sharpen':
+            picture.sharpen = button.get_active()
+
+        if name == "png":
+            picture.png = button.get_active()
+
+        if name == "exif":
+            picture.discard_exif = button.get_active()
+
+        if name == "1:1" and button.get_active():
+            picture.export_constrain = None
+
+        if name == "184" and button.get_active():
+            picture.export_constrain = 184
+
+        if name == "500" and button.get_active():
+            picture.export_constrain = 500
+
+        if name == "750" and button.get_active():
+            picture.export_constrain = 750
+
+        if name == "1000" and button.get_active():
+            picture.export_constrain = 1000
+
+        if name == "1920" and button.get_active():
+            picture.export_constrain = 1920
+
+        if name == "custom" and button.get_active():
+            picture.export_constrain = int(self.custom_resize_adjustment.get_value())
+
+        picture.gen_thumbnails(hq=True)
+        self.dw.queue_draw()
+
+    def save(self, widget):
+        picture.export()
+
+    def set_custom_resize(self, adjustment):
+        if self.custom_resize_radio.get_active():
+            picture.export_constrain = int(adjustment.get_value())
+
+    def gen_main_popover(self):
+
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.set_spacing(5)
+        vbox.set_margin_start(15)
+        vbox.set_margin_end(15)
+        vbox.set_margin_top(15)
+        vbox.set_margin_bottom(15)
+
+        opt = Gtk.CheckButton.new_with_label("Square")
+        opt.connect("toggled", self.toggle_menu_setting2, "square")
+        opt.set_active(True)
+        vbox.append(opt)
+        opt2 = opt
+
+        opt = Gtk.CheckButton.new_with_label("Free Rectangle")
+        self.free_rectangle_radio = opt
+        self.crop_mode_radios.append(opt)
+        opt.connect("toggled", self.toggle_menu_setting2, "rect")
+        opt.set_group(opt2)
+        vbox.append(opt)
+
+        opt = Gtk.CheckButton.new_with_label("16:10")
+        opt.set_group(opt2)
+        self.crop_mode_radios.append(opt)
+        opt.connect("toggled", self.toggle_menu_setting2, "16:10")
+        vbox.append(opt)
+
+        opt = Gtk.CheckButton.new_with_label("16:9")
+        opt.set_group(opt2)
+        self.crop_mode_radios.append(opt)
+        opt.connect("toggled", self.toggle_menu_setting2, "16:9")
+        vbox.append(opt)
+
+        opt = Gtk.CheckButton.new_with_label("21:9")
+        opt.set_group(opt2)
+        self.crop_mode_radios.append(opt)
+        opt.connect("toggled", self.toggle_menu_setting2, "21:9")
+        vbox.append(opt)
+
+        self.rotate_reset_button = Gtk.Button(label="Reset rotation")
+        self.rot = Gtk.Scale.new_with_range(orientation=0, min=-90, max=90, step=2)
+        self.rotate_reset_button.connect("clicked", self.rotate_reset)
+        self.rotate_reset_button.set_sensitive(False)
+        self.rot.set_value(0)
+        self.rot.set_size_request(180, -1)
+        self.rot.set_draw_value(False)
+        self.rot.set_has_origin(False)
+        self.rot.connect("value-changed", self.rotate)
+        vbox.append(self.rot)
+        vbox.append(self.rotate_reset_button)
+
+        flip_vert_button = Gtk.Button(label="Flip Vertical")
+        flip_vert_button.connect("clicked", self.toggle_flip_vert)
+        vbox.append(flip_vert_button)
+        flip_hoz_button = Gtk.Button(label="Flip Horizontal")
+        flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
+        vbox.append(flip_hoz_button)
+
+
+
+        vbox2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox2.set_spacing(5)
+        vbox2.set_margin_start(15)
+        vbox2.set_margin_end(15)
+        vbox2.set_margin_top(15)
+        vbox2.set_margin_bottom(15)
+
+        opt = Gtk.CheckButton.new_with_label("No Downscale")
+        opt.connect("toggled", self.toggle_menu_setting, "1:1")
+        vbox2.append(opt)
+        opt2 = opt
+
+        opt = Gtk.CheckButton.new_with_label("Max 184x184")
+        opt.connect("toggled", self.toggle_menu_setting, "184")
+        opt.set_group(opt2)
+        vbox2.append(opt)
+
+        opt = Gtk.CheckButton.new_with_label("Max 1000x1000")
+        opt.connect("toggled", self.toggle_menu_setting, "1000")
+        opt.set_group(opt2)
+        vbox2.append(opt)
+
+        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.custom_resize_radio = Gtk.CheckButton.new_with_label("Custom")
+        self.custom_resize_radio.connect("toggled", self.toggle_menu_setting, "custom")
+        self.custom_resize_radio.set_group(opt2)
+        inline_box.append(self.custom_resize_radio)
+
+        self.custom_resize_adjustment = Gtk.Adjustment(value=1920, lower=2, upper=10000, step_increment=50)
+        self.custom_resize_adjustment.connect("value-changed", self.set_custom_resize)
+
+        spinbutton = Gtk.SpinButton()
+        spinbutton.set_numeric(True)
+        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
+        spinbutton.set_adjustment(self.custom_resize_adjustment)
+        inline_box.append(spinbutton)
+
+        vbox2.append(inline_box)
+
+        vbox2.append(Gtk.Separator())
+
+        pn = Gtk.CheckButton()
+        pn.set_label("Export as PNG")
+        pn.connect("toggled", self.toggle_menu_setting, "png")
+        vbox2.append(pn)
+
+        pn = Gtk.CheckButton()
+        pn.set_label("Discard EXIF")
+        pn.set_sensitive(False)
+        pn.connect("toggled", self.toggle_menu_setting, "exif")
+        self.discard_exif_button = pn
+        vbox2.append(pn)
+
+        sh = Gtk.CheckButton()
+        sh.set_label("Sharpen")
+        sh.connect("toggled", self.toggle_menu_setting, "sharpen")
+        vbox2.append(sh)
+
+        sh = Gtk.CheckButton()
+        sh.set_label("Grayscale")
+        sh.connect("toggled", self.toggle_menu_setting, "grayscale")
+        vbox2.append(sh)
+
+        vbox2.append(Gtk.Separator())
+
+        m1 = Gtk.Button(label="Export As")
+        m1.connect("clicked", self.export_as)
+        vbox2.append(m1)
+
+        m1 = Gtk.Button(label="Preferences")
+        m1.connect("clicked", self.open_pref)
+        vbox2.append(m1)
+
+
+        m1 = Gtk.Button(label="About " + app_title)
+        m1.connect("clicked", self.show_about)
+        vbox2.append(m1)
+
+
+
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox.append(vbox)
+        hbox.append(Gtk.Separator())
+        hbox.append(vbox2)
+
+        popover = Gtk.Popover()
+
+        popover.set_child(hbox)
+
+        return popover
+
+    def confine(self):
+        picture.confine()
+
+    def crop_switch(self, switch, param):
+
+        if switch.get_active():
+            picture.crop = True
+        else:
+            picture.crop = False
+
+        for button in self.crop_mode_radios:
+            button.set_sensitive(picture.crop)
+
+        self.confine()
+        picture.gen_thumbnails(hq=True)
+        self.dw.queue_draw()
+
+    def on_key_press_event(self, event, keyval, keycode, state):
+
+        if keyval == Gdk.KEY_Shift_L or keyval == Gdk.KEY_Shift_R:
+            picture.slow_drag = True
+            picture.drag_start_position = None
+
+        if keyval == Gdk.KEY_Control_L and not self.free_rectangle_radio.get_active():
+            self.free_rectangle_radio.set_active(True)
+
+        if keyval == Gdk.KEY_Right:
+            picture.rec_x += 1
+            picture.gen_thumbnails(hq=True)
+            self.dw.queue_draw()
+
+        if keyval == Gdk.KEY_Left:
+            picture.rec_x -= 1
+            picture.gen_thumbnails(hq=True)
+            self.dw.queue_draw()
+
+        if keyval == Gdk.KEY_Up:
+            picture.rec_y -= 1
+            picture.gen_thumbnails(hq=True)
+            self.dw.queue_draw()
+
+        if keyval == Gdk.KEY_Down:
+            picture.rec_y += 1
+            picture.gen_thumbnails(hq=True)
+            self.dw.queue_draw()
+
+
+    def on_key_release_event(self,  event, keyval, keycode, state):
+
+        if keyval == Gdk.KEY_Shift_L or keyval == Gdk.KEY_Shift_R:
+            picture.slow_drag = False
+            picture.drag_start_position = None
+
+    def open_response(self, dialog, response):
+
+        if response == Gtk.ResponseType.ACCEPT:
+            file = dialog.get_file()
+            filename = file.get_path()
+            print("File selected: " + filename)
+            self.quick_export_button.set_sensitive(True)
+            picture.load(filename, (self.dw.get_width(), self.dw.get_height()))
+            self.dw.queue_draw()
+            self.discard_exif_button.set_sensitive(picture.exif and True)
+
+    def show_about(self, button):
+        self.about.present()
+        self.popover.hide()
+        #self.about.hide()
+        # self.about.run()
+        # self.about.hide()
+
+    def open_pref(self, button):
+
+        dialog = SettingsDialog(self.win, self)
+        dialog.show()
+        self.popover.hide()
+
+    def add_preview(self, button):
+
+        size = int(self.add_preview_adjustment.get_value())
+        if size not in picture.thumbs:
+            picture.thumbs.append(size)
+            picture.thumbs.sort(reverse=True)
+            picture.thumb_surfaces.clear()
+            picture.gen_thumbnails(hq=True)
+            self.dw.queue_draw()
+
+    def export_as(self, button):
+
+        if not picture.ready:
+            return
+
+        self.save_dialog.show()
+        self.popover.hide()
+
+    def save_response(self, dialog, response):
+        if response == Gtk.ResponseType.ACCEPT:
+            file = dialog.get_file()
+            filename = file.get_path()
+            picture.export(filename)
+
+# Create a new application
+avvie = Avvie()
+avvie.run()
+

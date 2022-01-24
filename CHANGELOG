@@ -1,4 +1,8 @@
 
+v2.0
+
+ - Ported to GTK4
+
 v1.7
 
  - Added image preview to file chooser (thanks @Sierra410)
