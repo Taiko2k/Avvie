@@ -568,6 +568,12 @@ class SettingsDialog(Gtk.Dialog):
         self.avvie.set_export_text()
         config["output-mode"] = name
 
+    def toggle_pink(self, button, name):
+        if button.get_active():
+            config["theme"] = "pink"
+        else:
+            config["theme"] = "default"
+
     def __init__(self, parent, avvie):
         Gtk.Dialog.__init__(self)
 
@@ -593,8 +599,10 @@ class SettingsDialog(Gtk.Dialog):
         vbox.append(opt)
         if picture.export_setting == "download":
             opt.set_active(True)
+        opt2 = opt
 
         opt = Gtk.CheckButton.new_with_label("Export to Pictures")
+        opt.set_group(opt2)
         opt.connect("toggled", self.toggle_menu_setting_export, "pictures")
         vbox.append(opt)
         if picture.export_setting == "pictures":
@@ -602,6 +610,8 @@ class SettingsDialog(Gtk.Dialog):
 
         opt = Gtk.CheckButton.new_with_label("Overwrite Source File")
         opt.connect("toggled", self.toggle_menu_setting_export, "overwrite")
+        opt.set_group(opt2)
+
         vbox.append(opt)
         if picture.export_setting == "overwrite":
             opt.set_active(True)
@@ -627,6 +637,13 @@ class SettingsDialog(Gtk.Dialog):
         inline_box.append(spinbutton)
 
         vbox.append(inline_box)
+
+        vbox.append(Gtk.Separator())
+        opt = Gtk.CheckButton.new_with_label("Pinku?")
+        opt.connect("toggled", self.toggle_pink, "pink")
+        if config.get("theme", "pink") == 'pink':
+            opt.set_active(True)
+        vbox.append(opt)
 
         box.append(vbox)
 
@@ -654,7 +671,9 @@ class Avvie:
         self.about = Gtk.AboutDialog.new()
         self.about.set_transient_for(self.win)
 
-        if not sm.get_dark():
+        if config.get("theme", "pink") == "pink":
+            sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+
             css = Gtk.CssProvider.new()
             css.load_from_file(Gio.File.new_for_path("pinku.css"))
             Gtk.StyleContext.add_provider_for_display(self.win.get_display(), css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
@@ -798,8 +817,6 @@ class Avvie:
         self.about.set_logo_icon_name(app_id)
 
         self.win.present()
-
-        self.win.connect("destroy", self.on_exit)
 
         self.set_export_text()
 
@@ -1267,12 +1284,6 @@ class Avvie:
             picture.gen_thumbnails(hq=True)
         self.dw.queue_draw()
 
-    def on_exit(self, window):
-
-        # Save configuration to json file
-        config['thumbs'] = picture.thumbs
-        with open(config_file, 'w') as f:
-            json.dump(config, f)
 
     def toggle_menu_setting2(self, button, name):
         picture.lock_ratio = True
@@ -1656,3 +1667,8 @@ class Avvie:
 avvie = Avvie()
 avvie.run()
 
+
+# Save configuration to json file
+config['thumbs'] = picture.thumbs
+with open(config_file, 'w') as f:
+    json.dump(config, f)
