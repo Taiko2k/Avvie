@@ -2,6 +2,9 @@
 v2.0
 
  - Ported to GTK4
+ - Enabled Libadwaita
+ - Added new theme "Pinku"
+ - Added theme selector in settings
 
 v1.7
 

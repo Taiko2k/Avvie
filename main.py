@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 # Load Gtk
 import gi
@@ -569,11 +568,19 @@ class SettingsDialog(Gtk.Dialog):
         self.avvie.set_export_text()
         config["output-mode"] = name
 
-    def toggle_pink(self, button, name):
+    def toggle_theme(self, button, name):
         if button.get_active():
-            config["theme"] = "pink"
-        else:
-            config["theme"] = "default"
+            if name == "pink":
+                config["theme"] = "pink"
+                self.avvie.set_pink_theme()
+
+            elif name == "default":
+                config["theme"] = "default"
+                self.avvie.reset_theme()
+
+            elif name == "dark":
+                config["theme"] = "dark"
+                self.avvie.set_dark_theme()
 
     def __init__(self, parent, avvie):
         Gtk.Dialog.__init__(self)
@@ -640,10 +647,25 @@ class SettingsDialog(Gtk.Dialog):
         vbox.append(inline_box)
 
         vbox.append(Gtk.Separator())
-        opt = Gtk.CheckButton.new_with_label("Pinku?")
-        opt.connect("toggled", self.toggle_pink, "pink")
+        opt = Gtk.CheckButton.new_with_label("Default Theme")
+        opt.connect("toggled", self.toggle_theme, "default")
+        if config.get("theme", "pink") == 'default':
+            opt.set_active(True)
+        vbox.append(opt)
+        opt2 = opt
+
+        opt = Gtk.CheckButton.new_with_label("Dark Theme")
+        opt.connect("toggled", self.toggle_theme, "dark")
+        if config.get("theme", "pink") == 'dark':
+            opt.set_active(True)
+        opt.set_group(opt2)
+        vbox.append(opt)
+
+        opt = Gtk.CheckButton.new_with_label("Pinku")
+        opt.connect("toggled", self.toggle_theme, "pink")
         if config.get("theme", "pink") == 'pink':
             opt.set_active(True)
+        opt.set_group(opt2)
         vbox.append(opt)
 
         box.append(vbox)
@@ -662,9 +684,23 @@ class Avvie:
     def run(self):
         self.app.run(None)
 
+    def reset_theme(self):
+        self.sc.remove_provider_for_display(self.win.get_display(), self.css)
+        self.sm.set_color_scheme(Adw.ColorScheme.DEFAULT)
+
+    def set_dark_theme(self):
+        self.reset_theme()
+        self.sm.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+
+    def set_pink_theme(self):
+        self.reset_theme()
+        self.sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+        self.css.load_from_file(Gio.File.new_for_path("pinku.css"))
+        self.sc.add_provider_for_display(self.win.get_display(), self.css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
     def on_activate(self, app):
 
-        sm = app.get_style_manager()
+
         #sm.set_color_scheme(Adw.ColorScheme.PREFER_DARK)
 
         self.win = Gtk.ApplicationWindow(application=app)
@@ -672,14 +708,14 @@ class Avvie:
         self.about = Gtk.AboutDialog.new()
         self.about.set_transient_for(self.win)
 
+        self.sc = self.win.get_style_context()
+        self.sm = app.get_style_manager()
+        self.css = Gtk.CssProvider.new()
+
         if config.get("theme", "pink") == "pink":
-            sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
-
-            css = Gtk.CssProvider.new()
-            css.load_from_file(Gio.File.new_for_path("pinku.css"))
-            Gtk.StyleContext.add_provider_for_display(self.win.get_display(), css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-
-
+            self.set_pink_theme()
+        if config.get("theme", "pink") == "dark":
+            self.set_dark_theme()
 
 
         self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
