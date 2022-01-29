@@ -2,15 +2,12 @@
 # Load Gtk
 import gi
 gi.require_version('Gtk', '4.0')
+gi.require_version('Gdk', '4.0')
 gi.require_version('Adw', '1')
 gi.require_version('Notify', '0.7')
-from gi.repository import Gtk, Gdk, Gio, Adw, GLib, Notify
+from gi.repository import Gtk, Gdk, Gio, Adw, GLib, Notify, GdkPixbuf, Graphene, Gsk, Pango
 import os
-import sys
 import math
-import gi
-import cairo
-import urllib.parse
 import subprocess
 import piexif
 import json
@@ -91,6 +88,171 @@ def point_prox(x1, y1, x2, y2):
 #             have_preview = False
 #
 #         self.set_preview_widget_active(have_preview)
+
+
+class CustomDraw(Gtk.Widget):
+    def __init__(self, avvie):
+        super().__init__()
+        self.avvie = avvie
+
+        self.rect = Graphene.Rect()
+        self.point = Graphene.Point()
+        self.colour = Gdk.RGBA()
+        self.r_rect = Gsk.RoundedRect()
+        self.p_context = self.get_pango_context()
+        self.pango = Pango.Layout(self.p_context)
+        self.font = Pango.FontDescription.new()
+        self.font.set_family("Sans")
+        self.font.set_size(10 * Pango.SCALE)
+        self.pango.set_font_description(self.font)
+
+
+    def set_color(self, r, g, b, a=1.0):
+        self.colour.red = r
+        self.colour.green = g
+        self.colour.blue = b
+        self.colour.alpha = a
+
+    def set_rect(self, x, y, w, h):
+        self.rect.init(x, y, w, h)
+
+    def set_r_rect(self, x, y, w, h, c=0):
+        self.set_rect(x, y, w, h)
+        self.r_rect.init_from_rect(self.rect, c)
+
+    def text(self, text, x, y, s):
+        self.point.x = x
+        self.point.y = y
+        s.save()
+        s.translate(self.point)
+        self.pango.set_text(text)
+        s.append_layout(self.pango, self.colour)
+        s.restore()
+
+    def do_snapshot(self, s):
+
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
+        self.set_color(*background_color)
+        self.set_rect(0, 0, w, h)
+        s.append_color(self.colour, self.rect)
+
+        self.set_color(.3, .3, .3)
+
+        size = 16
+        for y in range(0, h + 20, 100):
+            y += 40
+            for x in range(0, w + 20, 100):
+                x += 40
+
+                self.set_rect(x + size / 2 - 1, y, 2, size)
+                s.append_color(self.colour, self.rect)
+
+                self.set_rect(x, y + size / 2 - 1, size, 2)
+                s.append_color(self.colour, self.rect)
+
+        if picture.ready:
+
+                x = picture.display_x
+                y = picture.display_y
+                w = picture.display_w
+                h = picture.display_h
+                self.set_rect(x, y, w, h)
+                s.append_texture(picture.tex, self.rect)
+
+                self.set_color(0, 0, 0, 0.8)
+
+                if picture.crop:
+
+                    rx, ry, rw, rh = picture.get_display_rect()
+
+                    # Mask out rectangle
+                    self.set_rect(x, y, rx, h)
+                    s.append_color(self.colour, self.rect)
+                    self.set_rect(x + rx, y, w - rx, ry)
+                    s.append_color(self.colour, self.rect)
+                    self.set_rect(x + rx + rw, y + ry, w - rx - rw, h - ry)
+                    s.append_color(self.colour, self.rect)
+                    self.set_rect(x + rx, y + ry + rh, rw, h - ry - rh)
+                    s.append_color(self.colour, self.rect)
+
+                    # Draw center lines
+                    self.set_color(0.7, 0.7, 0.6, 0.6)
+                    self.set_rect(x + rx + rw // 2 - 0, y + ry, 2, rh)
+                    s.append_color(self.colour, self.rect)
+                    self.set_rect(x + rx, y + ry + rh // 2 - 0, rw, 2)
+                    s.append_color(self.colour, self.rect)
+
+                    # Draw rectangle outline
+                    self.set_color(0.7, 0.7, 0.6, 1)
+                    if config.get("theme", "pink") == 'pink':
+                        self.set_color(1, 0.6, 0.6, 1)
+                    self.set_r_rect(x + rx, y + ry, rw, rh, 0)
+                    s.append_border(self.r_rect, [2]*4, [self.colour] * 4)
+
+                    if picture.circle:
+                        self.set_color(0.7, 0.7, 0.6, 1)
+                        self.set_r_rect(x + rx, y + ry, rw, rh, 360)
+                        s.append_border(self.r_rect, [2] * 4, [self.colour] * 4)
+
+                    self.set_color(0.6, 0.6, 0.6, 0.6)
+                    if picture.rec_h == 1080 and (picture.rec_w == 2560 or picture.rec_w == 1920):
+                        self.set_color(0.2, 0.9, 0.2, 1)
+                    elif picture.lock_ratio and picture.crop_ratio != (1, 1):
+                        if picture.rec_w / picture.crop_ratio[0] * picture.crop_ratio[1] == picture.rec_h:
+                            self.set_color(0.9, 0.9, 0.4, 1)
+
+                    self.text(f"{picture.rec_w} x {picture.rec_h}", x + rx, y + ry - 16, s)
+
+                w = self.get_allocated_width()
+                h = self.get_allocated_height()
+                ex_w = picture.rec_w
+                ex_h = picture.rec_h
+                if not picture.crop:
+                    ex_w = picture.source_w
+                    ex_h = picture.source_h
+                ratio = ex_h / ex_w
+                if picture.export_constrain:
+                    if ex_w > picture.export_constrain:
+                        ex_w = picture.export_constrain
+                        ex_h = int(ex_w * ratio)
+                    if ex_h > picture.export_constrain:
+                        ex_h = picture.export_constrain
+                        ex_w = int(ex_w * ratio)
+
+                if picture.thumb_surfaces:
+                    right = w - 16
+                    bottom = h - 16
+
+                    for i, size in enumerate(picture.thumbs):
+                        if size not in picture.thumb_surfaces:
+                            picture.gen_thumbnails(hq=True)
+
+                        if picture.circle:
+                            tex = picture.thumb_surfaces[size]
+                            ww = tex.get_width()
+                            hh = tex.get_height()
+                            self.set_r_rect(right - size, bottom - size, ww, hh, 360)
+                            s.push_rounded_clip(self.r_rect)
+                            s.append_texture(picture.thumb_surfaces[size], self.rect)
+                            s.pop()
+
+                        else:
+                            tex = picture.thumb_surfaces[size]
+                            ww = tex.get_width()
+                            hh = tex.get_height()
+                            self.set_rect(right - size, bottom - size, ww, hh)
+                            s.append_texture(picture.thumb_surfaces[size], self.rect)
+
+                        if i == 0:
+                            self.set_color(0.6, 0.6, 0.6, 0.6)
+                            self.text(f"{ex_w} x {ex_h}", right - size, bottom - (size + 17), s)
+
+                        if i == 0 and picture.exif and not picture.discard_exif and picture.png is False:
+                            self.set_color(0.4, 0.6, 0.3, 1)
+                            self.text(f"EXIF", right - 32, bottom - (size + 17), s)
+
+                        right -= size + 16
 
 
 class Picture:
@@ -284,7 +446,7 @@ class Picture:
 
             if self.gray:
                 im = im.convert("L")
-                im = im.convert("RGB")
+                im = im.convert("RGBA")
 
             if self.flip_hoz:
                 im = im.transpose(method=Image.FLIP_LEFT_RIGHT)
@@ -316,11 +478,16 @@ class Picture:
 
             cr = self.apply_filters(cr)
 
-            by = cr.tobytes("raw", "BGRa")
-            arr = bytearray(by)
-            self.thumb_surfaces[size] = cairo.ImageSurface.create_for_data(
-                arr, cairo.FORMAT_ARGB32, w, h
-            )
+            # by = cr.tobytes("raw", "BGRa")
+            # arr = bytearray(by)
+            # self.thumb_surfaces[size] = cairo.ImageSurface.create_for_data(
+            #     arr, cairo.FORMAT_ARGB32, w, h
+            # )
+
+            by = cr.tobytes("raw", "RGBA")
+            gb = GLib.Bytes.new(by)
+            pb = GdkPixbuf.Pixbuf.new_from_bytes(gb, GdkPixbuf.Colorspace.RGB, True, 8, w, h, w * 4)
+            self.thumb_surfaces[size] = Gdk.Texture.new_for_pixbuf(pb)
 
     def reload(self, keep_rect=False):
 
@@ -343,6 +510,13 @@ class Picture:
         b_w, b_h = self.bounds
 
         if b_h > 100 and b_w > 100 and b_h - 80 < h:
+            # if w > h:
+            #     self.display_w = b_w - 320
+            #     self.display_h = round(b_w * (w / h))
+            # else:
+            #     self.display_h = b_h - 80
+            #     self.display_w = round(b_h * (w / h))
+            # print((self.display_w, self.display_h))
             im.thumbnail((max(b_w - 320, 320), b_h - 80))
             self.display_w, self.display_h = im.size
 
@@ -354,12 +528,10 @@ class Picture:
         if "A" not in im.getbands():
             im.putalpha(int(1 * 256.0))
 
-        by = im.tobytes("raw", "BGRa")
-        arr = bytearray(by)
-
-        self.surface = cairo.ImageSurface.create_for_data(
-            arr, cairo.FORMAT_ARGB32, self.display_w, self.display_h
-        )
+        by = im.tobytes("raw", "RGBA")
+        gb = GLib.Bytes.new(by)
+        pb = GdkPixbuf.Pixbuf.new_from_bytes(gb, GdkPixbuf.Colorspace.RGB, True, 8, self.display_w, self.display_h, self.display_w * 4)
+        self.tex = Gdk.Texture.new_for_pixbuf(pb)
         self.ready = True
         self.confine()
 
@@ -704,7 +876,7 @@ class Avvie:
         #sm.set_color_scheme(Adw.ColorScheme.PREFER_DARK)
 
         self.win = Gtk.ApplicationWindow(application=app)
-        self.dw = Gtk.DrawingArea()
+        self.dw = CustomDraw(self)
         self.about = Gtk.AboutDialog.new()
         self.about.set_transient_for(self.win)
 
@@ -838,7 +1010,7 @@ class Avvie:
         self.thumb_menu.set_parent(self.dw)
 
         # win drawing area
-        self.dw.set_draw_func(self.draw, None)
+        #self.dw.set_draw_func(self.draw, None)
         self.win.set_child(self.dw)
 
 

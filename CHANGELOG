@@ -1,10 +1,12 @@
 
 v2.0
 
- - Ported to GTK4
- - Enabled Libadwaita
- - Added new theme "Pinku"
+ - Ported framework to GTK4
+ - Ported drawing to hardware accelerated backend
+ - Enabled Libadwaita theme
+ - Added new theme colour "Pinku"
  - Added theme selector in settings
+ - Added circle guide in crop selection
 
 v1.7
 
