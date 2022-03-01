@@ -1,12 +1,13 @@
 
 v2.0
 
- - Ported framework to GTK4
- - Ported drawing to hardware accelerated backend
- - Enabled Libadwaita theme
+ - Ported framework to GTK4 + Libadwaita
+ - Ported canvas to hardware accelerated backend
  - Added new theme colour "Pinku"
  - Added theme selector in settings
  - Added circle guide in crop selection
+ - Fixed compatibility with some grayscale PNGs
+ - Changed crop selection behavior to not reset size on reload
 
 v1.7
 

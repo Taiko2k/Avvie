@@ -473,6 +473,8 @@ class Picture:
 
             w, h = cr.size
 
+            if "P" in cr.getbands():
+                cr = cr.convert("RGB")
             if "A" not in cr.getbands():
                 cr.putalpha(int(1 * 256.0))
 
@@ -525,6 +527,8 @@ class Picture:
             self.rec_w = round(250 / self.scale_factor)
             self.rec_h = self.rec_w
 
+        if "P" in im.getbands():
+            im = im.convert("RGB")
         if "A" not in im.getbands():
             im.putalpha(int(1 * 256.0))
 
@@ -591,7 +595,7 @@ class Picture:
         if "exif" in info:
             self.exif = piexif.load(info["exif"])
 
-        self.reload()
+        self.reload(keep_rect=self.rec_w > 0)
         self.gen_thumbnails(hq=True)
 
     def get_display_rect_hw(self):
@@ -1527,6 +1531,17 @@ class Avvie:
             picture.crop_ratio = (16, 10)
             #self.preview_circle_check.set_active(False)
 
+        if name == 'custom':
+            t = self.custom_ratio.get_text()
+            if ":" in t:
+                a, b = t.split(":", 1)
+                if a.isnumeric() and b.isnumeric():
+                    picture.crop_ratio = (int(a), int(b))
+                    config['custom-ratio'] = t
+            elif t.isnumeric():
+                picture.crop_ratio = (float(t), 1)
+                config['custom-ratio'] = t
+
         # if name == 'none':
         #     picture.crop_ratio = (1, 1)
         #     picture.crop = False
@@ -1658,6 +1673,20 @@ class Avvie:
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "21:9")
         vbox.append(opt)
+
+        opt = Gtk.CheckButton.new_with_label("Custom")
+        opt.set_group(opt2)
+        self.crop_mode_radios.append(opt)
+        opt.connect("toggled", self.toggle_menu_setting2, "custom")
+        cbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        cbox.append(opt)
+
+        self.custom_ratio = Gtk.Entry()
+        self.custom_ratio.set_max_width_chars(7)
+        self.custom_ratio.set_text(config.get("custom-ratio", "4:3"))
+        cbox.append(self.custom_ratio)
+
+        vbox.append(cbox)
 
         self.rotate_reset_button = Gtk.Button(label="Reset rotation")
         self.rot = Gtk.Scale.new_with_range(orientation=0, min=-90, max=90, step=2)
@@ -1816,7 +1845,6 @@ class Avvie:
             picture.rec_y += 1
             picture.gen_thumbnails(hq=True)
             self.dw.queue_draw()
-
 
     def on_key_release_event(self,  event, keyval, keycode, state):
 
