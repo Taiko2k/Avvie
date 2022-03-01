@@ -6,6 +6,7 @@ v2.0
  - Added new theme colour "Pinku"
  - Added theme selector in settings
  - Added circle guide in crop selection
+ - Added option for custom ratio lock
  - Fixed compatibility with some grayscale PNGs
  - Changed crop selection behavior to not reset size on reload
 

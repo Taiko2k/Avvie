@@ -1497,6 +1497,9 @@ class Avvie:
             picture.gen_thumbnails(hq=True)
         self.dw.queue_draw()
 
+    def enter_ratio(self, entry):
+        self.custom_ratio_radio.set_active(True)
+        self.toggle_menu_setting2(entry, "custom")
 
     def toggle_menu_setting2(self, button, name):
         picture.lock_ratio = True
@@ -1533,13 +1536,16 @@ class Avvie:
 
         if name == 'custom':
             t = self.custom_ratio.get_text()
+
             if ":" in t:
                 a, b = t.split(":", 1)
-                if a.isnumeric() and b.isnumeric():
+                if a.isdecimal() and b.isdecimal():
                     picture.crop_ratio = (int(a), int(b))
                     config['custom-ratio'] = t
-            elif t.isnumeric():
+
+            elif t.replace(".", "", 1).isdigit():
                 picture.crop_ratio = (float(t), 1)
+                print(picture.crop_ratio)
                 config['custom-ratio'] = t
 
         # if name == 'none':
@@ -1680,10 +1686,12 @@ class Avvie:
         opt.connect("toggled", self.toggle_menu_setting2, "custom")
         cbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         cbox.append(opt)
+        self.custom_ratio_radio = opt
 
         self.custom_ratio = Gtk.Entry()
         self.custom_ratio.set_max_width_chars(7)
         self.custom_ratio.set_text(config.get("custom-ratio", "4:3"))
+        self.custom_ratio.connect("activate", self.enter_ratio)
         cbox.append(self.custom_ratio)
 
         vbox.append(cbox)
