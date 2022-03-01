@@ -1502,6 +1502,7 @@ class Avvie:
         self.toggle_menu_setting2(entry, "custom")
 
     def toggle_menu_setting2(self, button, name):
+        last_lock = picture.lock_ratio
         picture.lock_ratio = True
 
         if name == "rect":
@@ -1536,8 +1537,21 @@ class Avvie:
 
         if name == 'custom':
             t = self.custom_ratio.get_text()
-
-            if ":" in t:
+            if "x" in t and t.replace(" ", "").replace("x", "", 1).isnumeric():
+                t = t.replace(" ", "")
+                a, b = t.split("x")
+                a = int(a)
+                b = int(b)
+                picture.rec_h = b
+                picture.rec_w = a
+            if "," in t and t.replace(" ", "").replace(",", "", 1).isnumeric():
+                t = t.replace(" ", "")
+                a, b = t.split(",")
+                a = int(a)
+                b = int(b)
+                picture.rec_h = b
+                picture.rec_w = a
+            elif ":" in t:
                 a, b = t.split(":", 1)
                 if a.isdecimal() and b.isdecimal():
                     picture.crop_ratio = (int(a), int(b))
@@ -1689,7 +1703,7 @@ class Avvie:
         self.custom_ratio_radio = opt
 
         self.custom_ratio = Gtk.Entry()
-        self.custom_ratio.set_max_width_chars(7)
+        self.custom_ratio.set_max_width_chars(8)
         self.custom_ratio.set_text(config.get("custom-ratio", "4:3"))
         self.custom_ratio.connect("activate", self.enter_ratio)
         cbox.append(self.custom_ratio)

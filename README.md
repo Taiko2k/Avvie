@@ -21,10 +21,11 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
 ## Usage tips
 
  - You can import by drag and drop from your Pictures folder
- - The thumbnail preview shows the output exactly as it would be at 184x184
  - Hold <kbd>Shift</kbd> to move the selection rectangle slowly
  - Tap <kbd>Ctrl</kbd> to enter free rectangle mode
  - Click the preview to toggle between ***square*** and ***circle*** (The final output will always be square)
+ - You can type a custom ratio into the entry field next to the "Custom" option e.g. `4:3`, then press Enter.
+ - You can also type a custom crop resolution into that same field, e.g. `300,500`.
  - **[Permission workaround]** Run `sudo flatpak override com.github.taiko2k.avvie --filesystem=host` to allow drag and drop from all file locations.
 
 ## Install
