@@ -889,7 +889,8 @@ class Avvie:
     def set_pink_theme(self):
         self.reset_theme()
         self.sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
-        self.css.load_from_file(Gio.File.new_for_path("pinku.css"))
+        path = os.path.join(os.path.dirname(__file__), "pinku.css")
+        self.css.load_from_file(Gio.File.new_for_path(path))
         self.sc.add_provider_for_display(self.win.get_display(), self.css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
     def on_activate(self, app):
@@ -1002,7 +1003,8 @@ class Avvie:
         switch.set_tooltip_text("Enable Crop")
         switch.set_margin_end(10)
         self.crop_switch_button = switch
-        image = Gtk.Image.new_from_file("image-crop.svg")
+        path = os.path.join(os.path.dirname(__file__), "image-crop.svg")
+        image = Gtk.Image.new_from_file(path)
         image.set_margin_end(7)
         box = Gtk.Box()
         box.append(image)
@@ -1166,6 +1168,10 @@ class Avvie:
             offset_x = x - picture.drag_start_position[0]
             offset_y = y - picture.drag_start_position[1]
 
+            if picture.slow_drag:
+                offset_x = round(offset_x // 10)
+                offset_y = round(offset_y // 10)
+
             dragging_corners = bool(picture.dragging_tl or
                                     picture.dragging_bl or
                                     picture.dragging_br or
@@ -1178,8 +1184,8 @@ class Avvie:
                 y_offset = y - picture.drag_start_position[1]
 
                 if picture.slow_drag:
-                    x_offset = x_offset // 10
-                    y_offset = y_offset // 10
+                    x_offset = round(x_offset // 10)
+                    y_offset = round(y_offset // 10)
 
                 rx = round(picture.original_position[0] + x_offset)
                 ry = round(picture.original_position[1] + y_offset)
