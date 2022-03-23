@@ -25,6 +25,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Notify', '0.7')
 from gi.repository import Gtk, Gdk, Gio, Adw, GLib, Notify, GdkPixbuf, Graphene, Gsk, Pango
 import os
+import sys
 import math
 import subprocess
 import piexif
@@ -123,7 +124,7 @@ class CustomDraw(Gtk.Widget):
         self.font.set_family("Sans")
         self.font.set_size(10 * Pango.SCALE)
         self.pango.set_font_description(self.font)
-
+        self.load_args = 1
 
     def set_color(self, r, g, b, a=1.0):
         self.colour.red = r
@@ -151,6 +152,11 @@ class CustomDraw(Gtk.Widget):
 
         w = self.get_allocated_width()
         h = self.get_allocated_height()
+
+        if self.load_args:  # really hack having this here, dunno what signal to connect it to
+            self.load_args = 0
+            self.avvie.run_args()
+
         self.set_color(*background_color)
         self.set_rect(0, 0, w, h)
         s.append_color(self.colour, self.rect)
@@ -875,6 +881,15 @@ class Avvie:
 
         self.crop_mode_radios = []
 
+    def run_args(self):
+        for item in sys.argv:
+            if not item.endswith(".py") and os.path.isfile(item):
+                self.quick_export_button.set_sensitive(True)
+                print((self.dw.get_allocated_width(), self.dw.get_height()))
+                picture.load(item, (self.dw.get_width(), self.dw.get_height()))
+                self.discard_exif_button.set_sensitive(picture.exif and True)
+                break
+
     def run(self):
         self.app.run(None)
 
@@ -900,6 +915,7 @@ class Avvie:
 
         self.win = Gtk.ApplicationWindow(application=app)
         self.dw = CustomDraw(self)
+
         self.about = Gtk.AboutDialog.new()
         self.about.set_transient_for(self.win)
 
