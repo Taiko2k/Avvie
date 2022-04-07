@@ -18,7 +18,7 @@
 
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://user-images.githubusercontent.com/17271572/62372437-97995200-b58b-11e9-9763-c41d5cfac4c5.png</image>
+      <image type="source">https://user-images.githubusercontent.com/17271572/162190359-54e90e27-3fa5-4a46-8715-5cdd4087f31e.png</image>
       <caption>Main window showing image with a crop selection</caption>
     </screenshot>
   </screenshots>
@@ -28,7 +28,7 @@
   </categories>
 
   <releases>
-    <release version="2.0" date="2022-03-24">
+    <release version="2.0" date="2022-04-07">
       <description>
         <ul>
           <li>Upgraded toolkit to GTK4</li>
