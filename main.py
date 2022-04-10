@@ -30,7 +30,7 @@ import math
 import subprocess
 import piexif
 import json
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageChops, ImageDraw
 
 app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
@@ -737,10 +737,33 @@ class Picture:
             path = path + extra + ext
 
         if png:
+
+            if picture.circle and config.get("circle-out", False):
+                cr = cr.convert("RGBA")
+                big_size = (cr.size[0] * 3, cr.size[1] * 3)
+                mask = Image.new('L', big_size, 0)
+                ImageDraw.Draw(mask).ellipse((0, 0) + big_size, fill=255)
+                mask = mask.resize(cr.size, Image.ANTIALIAS)
+                mask = ImageChops.darker(mask, cr.split()[-1])
+                cr.putalpha(mask)
+
             cr.save(path, "PNG")
         else:
 
-            cr = cr.convert("RGB")
+            if picture.circle and config.get("circle-out", False):
+
+                cr = cr.convert("RGBA")
+                big_size = (cr.size[0] * 3, cr.size[1] * 3)
+                mask = Image.new('L', big_size, 0)
+                ImageDraw.Draw(mask).ellipse((0, 0) + big_size, fill=255)
+                mask = mask.resize(cr.size, Image.ANTIALIAS)
+                mask = ImageChops.darker(mask, cr.split()[-1])
+                cr.putalpha(mask)
+                bg = Image.new("RGB", cr.size, (255, 255, 255))
+                bg.paste(cr, (0, 0), cr)
+                cr = bg
+            else:
+                cr = cr.convert("RGB")
 
             if self.exif is not None and not self.discard_exif:
                 w, h = cr.size
@@ -767,6 +790,12 @@ class SettingsDialog(Gtk.Dialog):
         picture.export_setting = name
         self.avvie.set_export_text()
         config["output-mode"] = name
+
+    def toggle_circle_out(self, button):
+        if button.get_active():
+            config["circle-out"] = True
+        else:
+            config["circle-out"] = False
 
     def toggle_theme(self, button, name):
         if button.get_active():
@@ -823,6 +852,13 @@ class SettingsDialog(Gtk.Dialog):
         vbox.append(opt)
         if picture.export_setting == "overwrite":
             opt.set_active(True)
+
+        vbox.append(Gtk.Separator())
+        opt = Gtk.CheckButton.new_with_label("Circle mode add mask")
+        opt.connect("toggled", self.toggle_circle_out)
+        if config.get("circle-out", False):
+            opt.set_active(True)
+        vbox.append(opt)
 
         vbox.append(Gtk.Separator())
 

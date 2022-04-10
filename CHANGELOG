@@ -1,4 +1,8 @@
 
+v2.1
+
+ - Added circle output mode
+
 v2.0
 
  - Ported framework to GTK4 + Libadwaita
