@@ -491,9 +491,9 @@ class Picture:
 
         for size in self.thumbs:
             if not hq:
-                cr.thumbnail((size, size), Image.NEAREST)  # BILINEAR
+                cr.thumbnail((size, size), Image.Resampling.NEAREST)  # BILINEAR
             else:
-                cr.thumbnail((size, size), Image.ANTIALIAS)
+                cr.thumbnail((size, size), Image.Resampling.LANCZOS)
 
             w, h = cr.size
 
