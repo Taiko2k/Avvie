@@ -526,7 +526,7 @@ class Picture:
             im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
 
         if self.rotation:
-            im = im.rotate(self.rotation, expand=True, resample=Image.NEAREST)  # , resample=0)
+            im = im.rotate(self.rotation, expand=True, resample=Image.Resampling.NEAREST)  # , resample=0)
 
         w, h = im.size
         self.source_w, self.source_h = w, h
@@ -691,7 +691,7 @@ class Picture:
         scaled = False
 
         if self.export_constrain:
-            cr.thumbnail((self.export_constrain, self.export_constrain), Image.ANTIALIAS)
+            cr.thumbnail((self.export_constrain, self.export_constrain), Image.Resampling.LANCZOS)
 
         if old_size != cr.size:
             scaled = True
@@ -743,7 +743,7 @@ class Picture:
                 big_size = (cr.size[0] * 3, cr.size[1] * 3)
                 mask = Image.new('L', big_size, 0)
                 ImageDraw.Draw(mask).ellipse((0, 0) + big_size, fill=255)
-                mask = mask.resize(cr.size, Image.ANTIALIAS)
+                mask = mask.resize(cr.size, Image.Resampling.LANCZOS)
                 mask = ImageChops.darker(mask, cr.split()[-1])
                 cr.putalpha(mask)
 
@@ -756,7 +756,7 @@ class Picture:
                 big_size = (cr.size[0] * 3, cr.size[1] * 3)
                 mask = Image.new('L', big_size, 0)
                 ImageDraw.Draw(mask).ellipse((0, 0) + big_size, fill=255)
-                mask = mask.resize(cr.size, Image.ANTIALIAS)
+                mask = mask.resize(cr.size, Image.Resampling.LANCZOS)
                 mask = ImageChops.darker(mask, cr.split()[-1])
                 cr.putalpha(mask)
                 bg = Image.new("RGB", cr.size, (255, 255, 255))
