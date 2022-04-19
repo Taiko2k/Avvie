@@ -326,9 +326,9 @@ class Picture:
 
         for size in self.thumbs:
             if not hq:
-                cr.thumbnail((size, size), Image.NEAREST)  # BILINEAR
+                cr.thumbnail((size, size), Image.Resampling.NEAREST)  # BILINEAR
             else:
-                cr.thumbnail((size, size), Image.ANTIALIAS)
+                cr.thumbnail((size, size), Image.Resampling.LANCZOS)
 
             w, h = cr.size
 
@@ -355,7 +355,7 @@ class Picture:
             im = im.transpose(method=Image.FLIP_TOP_BOTTOM)
 
         if self.rotation:
-            im = im.rotate(self.rotation, expand=True, resample=Image.NEAREST) #, resample=0)
+            im = im.rotate(self.rotation, expand=True, resample=Image.Resampling.NEAREST) #, resample=0)
 
         w, h = im.size
         self.source_w, self.source_h = w, h
@@ -513,7 +513,7 @@ class Picture:
         scaled = False
 
         if self.export_constrain:
-            cr.thumbnail((self.export_constrain, self.export_constrain), Image.ANTIALIAS)
+            cr.thumbnail((self.export_constrain, self.export_constrain), Image.Resampling.LANCZOS)
 
         if old_size != cr.size:
             scaled = True
