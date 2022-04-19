@@ -783,128 +783,134 @@ class Picture:
 
 picture = Picture()
 
+class SettingsDialog(Adw.PreferencesWindow):
+    def __init__(self, parent, avvie):
+        Adw.PreferencesWindow.__init__(self)
+        self.set_default_size(500, 550)
+        self.set_search_enabled(False)
+        self.avvie = avvie
 
-class SettingsDialog(Gtk.Dialog):
+        page = Adw.PreferencesPage.new()
+        self.add(page)
+
+        # Behavior Preferences
+        behavior_group = Adw.PreferencesGroup()
+        behavior_group.set_title("Behavior")
+        page.add(behavior_group)
+        toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
+        toggle.connect("notify::active", self.toggle_circle_out)
+        if config.get("circle-out", False):
+            toggle.set_active(True)
+        row = Adw.ActionRow()
+        row.set_title("Circle mode add mask")
+        row.add_suffix(toggle)
+        row.set_activatable_widget(toggle)
+        behavior_group.add(row)
+
+        # Export Preferences
+        export_group = Adw.PreferencesGroup()
+        export_group.set_title("Set quick export function")
+        page.add(export_group)
+
+        export_downloads = Gtk.CheckButton()
+        export_downloads.connect("toggled", self.toggle_menu_setting_export, "download")
+        export_downloads_row = self.create_row_for_radio("Export to Downloads", export_downloads)
+        export_group.add(export_downloads_row)
+        if picture.export_setting == "download":
+            export_downloads.set_active(True)
+
+        export_pictures = Gtk.CheckButton()
+        export_pictures.connect("toggled", self.toggle_menu_setting_export, "pictures")
+        export_pictures.set_group(export_downloads)
+        export_pictures_row = self.create_row_for_radio("Export to Pictures", export_pictures)
+        export_group.add(export_pictures_row)
+        if picture.export_setting == "pictures":
+            export_pictures.set_active(True)
+
+        export_overwrite = Gtk.CheckButton()
+        export_overwrite.connect("toggled", self.toggle_menu_setting_export, "overwrite")
+        export_overwrite.set_group(export_downloads)
+        export_overwrite_row = self.create_row_for_radio("Overwrite Source File", export_overwrite)
+        export_group.add(export_overwrite_row)
+        if picture.export_setting == "overwrite":
+            export_overwrite.set_active(True)
+
+        # Theme Preferences
+        theme_group = Adw.PreferencesGroup()
+        theme_group.set_title("Appearance")
+        page.add(theme_group)
+
+        themes = Gtk.StringList.new([
+            "Default",
+            "Dark",
+            "Pinku"
+        ])
+        row = Adw.ComboRow()
+        row.set_title("Theme")
+        row.set_model(themes)
+        theme_group.add(row)
+        if config.get("theme", "pink") == 'default':
+            row.set_selected(0)
+        if config.get("theme", "pink") == 'dark':
+            row.set_selected(1)
+        if config.get("theme", "pink") == 'pink':
+            row.set_selected(2)
+        row.connect('notify::selected', self.change_theme)
+
+        # Preview
+        preview_group = Adw.PreferencesGroup()
+        preview_group.set_title("Add Preview")
+        page.add(preview_group)
+        
+        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, valign=Gtk.Align.CENTER)
+        inline_box.set_spacing(6)
+        inline_box.get_style_context().add_class('card')
+        inline_box.get_style_context().add_class('toolbar')
+
+        spinbutton = Gtk.SpinButton()
+        spinbutton.set_numeric(True)
+        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
+        spinbutton.set_adjustment(avvie.add_preview_adjustment)
+        inline_box.append(spinbutton)
+
+        button = Gtk.Button(label="Add")
+        button.connect("clicked", avvie.add_preview)
+        inline_box.append(button)
+        
+        row = Adw.ActionRow()
+        row.set_title("Add Preview")
+        preview_group.add(inline_box)
+
+
+    def create_row_for_radio(self, title, radio):
+        row = Adw.ActionRow()
+        row.set_title(title)
+        row.add_prefix(radio)
+        row.set_activatable_widget(radio)
+        return row
 
     def toggle_menu_setting_export(self, button, name):
         picture.export_setting = name
         self.avvie.set_export_text()
         config["output-mode"] = name
 
-    def toggle_circle_out(self, button):
-        if button.get_active():
+    def toggle_circle_out(self, toggle, param):
+        if toggle.get_active():
             config["circle-out"] = True
         else:
             config["circle-out"] = False
 
-    def toggle_theme(self, button, name):
-        if button.get_active():
-            if name == "pink":
-                config["theme"] = "pink"
-                self.avvie.set_pink_theme()
-
-            elif name == "default":
-                config["theme"] = "default"
-                self.avvie.reset_theme()
-
-            elif name == "dark":
-                config["theme"] = "dark"
-                self.avvie.set_dark_theme()
-
-    def __init__(self, parent, avvie):
-        Gtk.Dialog.__init__(self)
-
-        self.set_default_size(170, 120)
-        self.set_title("Preferences")
-        self.set_transient_for(parent)
-        self.avvie = avvie
-        box = self.get_content_area()
-
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vbox.set_spacing(6)
-        vbox.set_margin_start(17)
-        vbox.set_margin_end(17)
-        vbox.set_margin_top(8)
-        vbox.set_margin_bottom(8)
-
-        l = Gtk.Label()
-        l.set_text("Set quick export function")
-        vbox.append(l)
-
-        opt = Gtk.CheckButton.new_with_label("Export to Downloads")
-        opt.connect("toggled", self.toggle_menu_setting_export, "download")
-        vbox.append(opt)
-        if picture.export_setting == "download":
-            opt.set_active(True)
-        opt2 = opt
-
-        opt = Gtk.CheckButton.new_with_label("Export to Pictures")
-        opt.set_group(opt2)
-        opt.connect("toggled", self.toggle_menu_setting_export, "pictures")
-        vbox.append(opt)
-        if picture.export_setting == "pictures":
-            opt.set_active(True)
-
-        opt = Gtk.CheckButton.new_with_label("Overwrite Source File")
-        opt.connect("toggled", self.toggle_menu_setting_export, "overwrite")
-        opt.set_group(opt2)
-
-        vbox.append(opt)
-        if picture.export_setting == "overwrite":
-            opt.set_active(True)
-
-        vbox.append(Gtk.Separator())
-        opt = Gtk.CheckButton.new_with_label("Circle mode add mask")
-        opt.connect("toggled", self.toggle_circle_out)
-        if config.get("circle-out", False):
-            opt.set_active(True)
-        vbox.append(opt)
-
-        vbox.append(Gtk.Separator())
-
-        l = Gtk.Label()
-        l.set_text("Add Preview")
-        vbox.append(l)
-
-        inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        inline_box.set_spacing(7)
-        b = Gtk.Button(label="Add")
-        b.connect("clicked", avvie.add_preview)
-        inline_box.append(b)
-
-        spinbutton = Gtk.SpinButton()
-        spinbutton.set_numeric(True)
-        spinbutton.set_update_policy(Gtk.SpinButtonUpdatePolicy.ALWAYS)
-
-        spinbutton.set_adjustment(avvie.add_preview_adjustment)
-
-        inline_box.append(spinbutton)
-
-        vbox.append(inline_box)
-
-        vbox.append(Gtk.Separator())
-        opt = Gtk.CheckButton.new_with_label("Default Theme")
-        opt.connect("toggled", self.toggle_theme, "default")
-        if config.get("theme", "pink") == 'default':
-            opt.set_active(True)
-        vbox.append(opt)
-        opt2 = opt
-
-        opt = Gtk.CheckButton.new_with_label("Dark Theme")
-        opt.connect("toggled", self.toggle_theme, "dark")
-        if config.get("theme", "pink") == 'dark':
-            opt.set_active(True)
-        opt.set_group(opt2)
-        vbox.append(opt)
-
-        opt = Gtk.CheckButton.new_with_label("Pinku")
-        opt.connect("toggled", self.toggle_theme, "pink")
-        if config.get("theme", "pink") == 'pink':
-            opt.set_active(True)
-        opt.set_group(opt2)
-        vbox.append(opt)
-
-        box.append(vbox)
+    def change_theme(self, combo, param):
+        selected = combo.get_selected()
+        if selected == 0:
+            config["theme"] = "default"
+            self.avvie.reset_theme()
+        elif selected == 1:
+            config["theme"] = "dark"
+            self.avvie.set_dark_theme()
+        elif selected == 2:
+            config["theme"] = "pink"
+            self.avvie.set_pink_theme()
 
 
 class Avvie:
@@ -1971,6 +1977,7 @@ class Avvie:
     def open_pref(self, button):
 
         dialog = SettingsDialog(self.win, self)
+        dialog.set_transient_for(self.win)
         dialog.show()
         self.popover.hide()
 
