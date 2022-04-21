@@ -802,7 +802,7 @@ class SettingsDialog(Adw.PreferencesWindow):
         if config.get("circle-out", False):
             toggle.set_active(True)
         row = Adw.ActionRow()
-        row.set_title("Circle mode add mask")
+        row.set_title("Export circle mode (PNG will use alpha mask)")
         row.add_suffix(toggle)
         row.set_activatable_widget(toggle)
         behavior_group.add(row)
