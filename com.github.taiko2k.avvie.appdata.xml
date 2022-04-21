@@ -28,14 +28,11 @@
   </categories>
 
   <releases>
-    <release version="2.0" date="2022-04-07">
+    <release version="2.1" date="2022-04-21">
       <description>
         <ul>
-          <li>Upgraded toolkit to GTK4</li>
-          <li>Updated to new GNOME 42 Adwaita style</li>
-          <li>New pink theme</li>
-          <li>Improved performance</li>
-          <li>Can now set custom crop aspect ratios</li>
+          <li>Added circle export mode</li>
+          <li>Tweaked preferences dialog layout</li>
         </ul>
       </description>
     </release>

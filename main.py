@@ -34,7 +34,7 @@ from PIL import Image, ImageFilter, ImageChops, ImageDraw
 
 app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
-version = "2.0"
+version = "2.1"
 
 # App background colour
 background_color = (0.15, 0.15, 0.15)
