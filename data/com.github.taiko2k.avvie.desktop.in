@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Avvie
+GenericName=Image Cropper
+Exec=avvie
+Icon=com.github.taiko2k.avvie
+MimeType=image/jpeg;image/png
+Terminal=false
+Type=Application
+Categories=GTK;Graphics
+StartupNotify=true

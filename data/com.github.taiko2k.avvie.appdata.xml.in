@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2019 Taiko2k captain.gxj@gmail.com -->
+<component type="desktop-application">
+  <id>com.github.taiko2k.avvie</id>
+  <name>Avvie</name>
+  <developer_name>Taiko2k</developer_name>
+  <summary>Crop images for avatars or wallpapers</summary>
+  <launchable type="desktop-id">com.github.taiko2k.avvie.desktop</launchable>
+  <metadata_license>CC-BY-SA-3.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <url type="homepage">https://github.com/Taiko2k/avvie</url>
+  <url type="bugtracker">https://github.com/Taiko2k/avvie/issues</url>
+  <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/65506667-343ef700-df20-11e9-8590-14bfa569c3c2.png</icon>
+
+  <description>
+    <p>A simple tool cropping and downsizing images. Suitable for avatars or cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in one click to your Pictures folder.</p>
+  </description>
+
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">https://user-images.githubusercontent.com/17271572/162190359-54e90e27-3fa5-4a46-8715-5cdd4087f31e.png</image>
+      <caption>Main window showing image with a crop selection</caption>
+    </screenshot>
+  </screenshots>
+
+  <categories>
+    <category>Graphics</category>
+  </categories>
+
+  <releases>
+    <release version="2.1" date="2022-04-21">
+      <description>
+        <ul>
+          <li>Added circle export mode</li>
+          <li>Tweaked preferences dialog layout</li>
+        </ul>
+      </description>
+    </release>
+
+  </releases>
+
+  <translation type="gettext">avvie</translation>
+
+  <content_rating type="oars-1.1" />
+
+  <kudos>
+    <kudo>HiDpiIcon</kudo>
+    <kudo>ModernToolkit</kudo>
+  </kudos>
+
+  <update_contact>captain.gxj_AT_gmail.com</update_contact>
+
+</component>
