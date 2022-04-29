@@ -54,8 +54,8 @@ if os.path.isfile(config_file):
 
 # Add
 Notify.init(app_title)
-notify = Notify.Notification.new(app_title, "Image file exported to Downloads.")
-notify_invalid_output = Notify.Notification.new(app_title, "Could not locate output folder!")
+notify = Notify.Notification.new(app_title, _("Image file exported to Downloads."))
+notify_invalid_output = Notify.Notification.new(app_title, _("Could not locate output folder!"))
 
 # Is this defined somewhere in Gtk?
 TARGET_TYPE_URI_LIST = 80
@@ -68,7 +68,7 @@ def open_encode_out(notification, action, data):
 
 notify.add_action(
     "action_click",
-    "Open output folder",
+    _("Open output folder"),
     open_encode_out,
     None
 )
@@ -795,26 +795,26 @@ class SettingsDialog(Adw.PreferencesWindow):
 
         # Behavior Preferences
         behavior_group = Adw.PreferencesGroup()
-        behavior_group.set_title("Behavior")
+        behavior_group.set_title(_("Behavior"))
         page.add(behavior_group)
         toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
         toggle.connect("notify::active", self.toggle_circle_out)
         if config.get("circle-out", False):
             toggle.set_active(True)
         row = Adw.ActionRow()
-        row.set_title("Export circle mode (PNG will use alpha mask)")
+        row.set_title(_("Export circle mode (PNG will use alpha mask)"))
         row.add_suffix(toggle)
         row.set_activatable_widget(toggle)
         behavior_group.add(row)
 
         # Export Preferences
         export_group = Adw.PreferencesGroup()
-        export_group.set_title("Set quick export function")
+        export_group.set_title(_("Set quick export function"))
         page.add(export_group)
 
         export_downloads = Gtk.CheckButton()
         export_downloads.connect("toggled", self.toggle_menu_setting_export, "download")
-        export_downloads_row = self.create_row_for_radio("Export to Downloads", export_downloads)
+        export_downloads_row = self.create_row_for_radio(_("Export to Downloads"), export_downloads)
         export_group.add(export_downloads_row)
         if picture.export_setting == "download":
             export_downloads.set_active(True)
@@ -822,7 +822,7 @@ class SettingsDialog(Adw.PreferencesWindow):
         export_pictures = Gtk.CheckButton()
         export_pictures.connect("toggled", self.toggle_menu_setting_export, "pictures")
         export_pictures.set_group(export_downloads)
-        export_pictures_row = self.create_row_for_radio("Export to Pictures", export_pictures)
+        export_pictures_row = self.create_row_for_radio(_("Export to Pictures"), export_pictures)
         export_group.add(export_pictures_row)
         if picture.export_setting == "pictures":
             export_pictures.set_active(True)
@@ -830,23 +830,23 @@ class SettingsDialog(Adw.PreferencesWindow):
         export_overwrite = Gtk.CheckButton()
         export_overwrite.connect("toggled", self.toggle_menu_setting_export, "overwrite")
         export_overwrite.set_group(export_downloads)
-        export_overwrite_row = self.create_row_for_radio("Overwrite Source File", export_overwrite)
+        export_overwrite_row = self.create_row_for_radio(_("Overwrite Source File"), export_overwrite)
         export_group.add(export_overwrite_row)
         if picture.export_setting == "overwrite":
             export_overwrite.set_active(True)
 
         # Theme Preferences
         theme_group = Adw.PreferencesGroup()
-        theme_group.set_title("Appearance")
+        theme_group.set_title(_("Appearance"))
         page.add(theme_group)
 
         themes = Gtk.StringList.new([
-            "Default",
-            "Dark",
-            "Pinku"
+            _("Default"),
+            _("Dark"),
+            _("Pinku")
         ])
         row = Adw.ComboRow()
-        row.set_title("Theme")
+        row.set_title(_("Theme"))
         row.set_model(themes)
         theme_group.add(row)
         if config.get("theme", "pink") == 'default':
@@ -859,7 +859,7 @@ class SettingsDialog(Adw.PreferencesWindow):
 
         # Preview
         preview_group = Adw.PreferencesGroup()
-        preview_group.set_title("Add Preview")
+        preview_group.set_title(_("Add Preview"))
         page.add(preview_group)
         
         inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, valign=Gtk.Align.CENTER)
@@ -873,12 +873,12 @@ class SettingsDialog(Adw.PreferencesWindow):
         spinbutton.set_adjustment(avvie.add_preview_adjustment)
         inline_box.append(spinbutton)
 
-        button = Gtk.Button(label="Add")
+        button = Gtk.Button(label=_("Add"))
         button.connect("clicked", avvie.add_preview)
         inline_box.append(button)
         
         row = Adw.ActionRow()
-        row.set_title("Add Preview")
+        row.set_title(_("Add Preview"))
         preview_group.add(inline_box)
 
 
@@ -978,14 +978,14 @@ class Avvie:
                                             parent=self.win, action=Gtk.FileChooserAction.SAVE)
 
         f = Gtk.FileFilter()
-        f.set_name("Image files")
+        f.set_name(_("Image files"))
         f.add_mime_type("image/jpeg")
         f.add_mime_type("image/png")
 
         self.save_dialog.connect("response", self.save_response)
         self.save_dialog.add_filter(f)
 
-        self.open_dialog = Gtk.FileChooserNative.new(title="Choose an image file",
+        self.open_dialog = Gtk.FileChooserNative.new(title=_("Choose an image file"),
                                             parent=self.win, action=Gtk.FileChooserAction.OPEN)
 
 
@@ -1033,7 +1033,7 @@ class Avvie:
 
         # Hb Open file
         button = Gtk.Button()
-        button.set_tooltip_text("Open image file")
+        button.set_tooltip_text(_("Open image file"))
         button.set_icon_name("document-open-symbolic")
         hb.pack_start(button)
         button.connect("clicked", self.open_file)
@@ -1051,14 +1051,14 @@ class Avvie:
         # hb main menu
         menu = Gtk.MenuButton()
         menu.set_icon_name("open-menu-symbolic")
-        menu.set_tooltip_text("Options Menu")
+        menu.set_tooltip_text(_("Options Menu"))
         hb.pack_end(menu)
 
         # Hb crop switch
         switch = Gtk.Switch()
         switch.connect("notify::active", self.crop_switch)
         switch.set_active(True)
-        switch.set_tooltip_text("Enable Crop")
+        switch.set_tooltip_text(_("Enable Crop"))
         switch.set_margin_end(10)
         self.crop_switch_button = switch
         path = os.path.join(os.path.dirname(__file__), "image-crop.svg")
@@ -1079,12 +1079,12 @@ class Avvie:
         action = Gio.SimpleAction.new("toggle-circle", None)
         action.connect("activate", self.click_thumb_menu)
         self.win.add_action(action)
-        menu.append("Toggle Circle", "win.toggle-circle")
+        menu.append(_("Toggle Circle"), "win.toggle-circle")
 
         action = Gio.SimpleAction.new("remove-thumb", None)
         action.connect("activate", self.click_thumb_menu)
         self.win.add_action(action)
-        menu.append("Remove Preview", "win.remove-thumb")
+        menu.append(_("Remove Preview"), "win.remove-thumb")
 
         self.thumb_remove_item = None
         self.thumb_menu = Gtk.PopoverMenu()
@@ -1098,6 +1098,7 @@ class Avvie:
 
         # About ---
         self.about.set_authors(["Taiko2k"])
+        self.about.set_translator_credits(_("translator-credits"))
         self.about.set_artists(["Tobias Bernard"])
         self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
         self.about.set_license_type(Gtk.License(3))
@@ -1114,14 +1115,14 @@ class Avvie:
     def set_export_text(self):
         setting = picture.export_setting
         if setting == "download":
-            self.quick_export_button.set_tooltip_text("Export to Downloads folder")
-            notify.update(app_title, "Image file exported to Downloads.")
+            self.quick_export_button.set_tooltip_text(_("Export to Downloads folder"))
+            notify.update(app_title, _("Image file exported to Downloads."))
         if setting == "pictures":
-            self.quick_export_button.set_tooltip_text("Export to Pictures folder")
-            notify.update(app_title, "Image file exported to Pictures.")
+            self.quick_export_button.set_tooltip_text(_("Export to Pictures folder"))
+            notify.update(app_title, _("Image file exported to Pictures."))
         if setting == "overwrite":
-            self.quick_export_button.set_tooltip_text("Overwrite Image")
-            notify.update(app_title, "Image file overwritten.")
+            self.quick_export_button.set_tooltip_text(_("Overwrite Image"))
+            notify.update(app_title, _("Image file overwritten."))
 
     def open_file(self, button):
         self.open_dialog.show()
@@ -1745,13 +1746,13 @@ class Avvie:
         vbox.set_margin_top(15)
         vbox.set_margin_bottom(15)
 
-        opt = Gtk.CheckButton.new_with_label("Square")
+        opt = Gtk.CheckButton.new_with_label(_("Square"))
         opt.connect("toggled", self.toggle_menu_setting2, "square")
         opt.set_active(True)
         vbox.append(opt)
         opt2 = opt
 
-        opt = Gtk.CheckButton.new_with_label("Free Rectangle")
+        opt = Gtk.CheckButton.new_with_label(_("Free Rectangle"))
         self.free_rectangle_radio = opt
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "rect")
@@ -1776,7 +1777,7 @@ class Avvie:
         opt.connect("toggled", self.toggle_menu_setting2, "21:9")
         vbox.append(opt)
 
-        opt = Gtk.CheckButton.new_with_label("Custom")
+        opt = Gtk.CheckButton.new_with_label(_("Custom"))
         opt.set_group(opt2)
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "custom")
@@ -1792,7 +1793,7 @@ class Avvie:
 
         vbox.append(cbox)
 
-        self.rotate_reset_button = Gtk.Button(label="Reset rotation")
+        self.rotate_reset_button = Gtk.Button(label=_("Reset rotation"))
         self.rot = Gtk.Scale.new_with_range(orientation=0, min=-90, max=90, step=2)
         self.rotate_reset_button.connect("clicked", self.rotate_reset)
         self.rotate_reset_button.set_sensitive(False)
@@ -1804,10 +1805,10 @@ class Avvie:
         vbox.append(self.rot)
         vbox.append(self.rotate_reset_button)
 
-        flip_vert_button = Gtk.Button(label="Flip Vertical")
+        flip_vert_button = Gtk.Button(label=_("Flip Vertical"))
         flip_vert_button.connect("clicked", self.toggle_flip_vert)
         vbox.append(flip_vert_button)
-        flip_hoz_button = Gtk.Button(label="Flip Horizontal")
+        flip_hoz_button = Gtk.Button(label=_("Flip Horizontal"))
         flip_hoz_button.connect("clicked", self.toggle_flip_hoz)
         vbox.append(flip_hoz_button)
 
@@ -1820,23 +1821,23 @@ class Avvie:
         vbox2.set_margin_top(15)
         vbox2.set_margin_bottom(15)
 
-        opt = Gtk.CheckButton.new_with_label("No Downscale")
+        opt = Gtk.CheckButton.new_with_label(_("No Downscale"))
         opt.connect("toggled", self.toggle_menu_setting, "1:1")
         vbox2.append(opt)
         opt2 = opt
 
-        opt = Gtk.CheckButton.new_with_label("Max 184x184")
+        opt = Gtk.CheckButton.new_with_label(_("Max 184x184"))
         opt.connect("toggled", self.toggle_menu_setting, "184")
         opt.set_group(opt2)
         vbox2.append(opt)
 
-        opt = Gtk.CheckButton.new_with_label("Max 1000x1000")
+        opt = Gtk.CheckButton.new_with_label(_("Max 1000x1000"))
         opt.connect("toggled", self.toggle_menu_setting, "1000")
         opt.set_group(opt2)
         vbox2.append(opt)
 
         inline_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        self.custom_resize_radio = Gtk.CheckButton.new_with_label("Custom")
+        self.custom_resize_radio = Gtk.CheckButton.new_with_label(_("Custom"))
         self.custom_resize_radio.connect("toggled", self.toggle_menu_setting, "custom")
         self.custom_resize_radio.set_group(opt2)
         inline_box.append(self.custom_resize_radio)
@@ -1855,39 +1856,39 @@ class Avvie:
         vbox2.append(Gtk.Separator())
 
         pn = Gtk.CheckButton()
-        pn.set_label("Export as PNG")
+        pn.set_label(_("Export as PNG"))
         pn.connect("toggled", self.toggle_menu_setting, "png")
         vbox2.append(pn)
 
         pn = Gtk.CheckButton()
-        pn.set_label("Discard EXIF")
+        pn.set_label(_("Discard EXIF"))
         pn.set_sensitive(False)
         pn.connect("toggled", self.toggle_menu_setting, "exif")
         self.discard_exif_button = pn
         vbox2.append(pn)
 
         sh = Gtk.CheckButton()
-        sh.set_label("Sharpen")
+        sh.set_label(_("Sharpen"))
         sh.connect("toggled", self.toggle_menu_setting, "sharpen")
         vbox2.append(sh)
 
         sh = Gtk.CheckButton()
-        sh.set_label("Grayscale")
+        sh.set_label(_("Grayscale"))
         sh.connect("toggled", self.toggle_menu_setting, "grayscale")
         vbox2.append(sh)
 
         vbox2.append(Gtk.Separator())
 
-        m1 = Gtk.Button(label="Export As")
+        m1 = Gtk.Button(label=_("Export As"))
         m1.connect("clicked", self.export_as)
         vbox2.append(m1)
 
-        m1 = Gtk.Button(label="Preferences")
+        m1 = Gtk.Button(label=_("Preferences"))
         m1.connect("clicked", self.open_pref)
         vbox2.append(m1)
 
 
-        m1 = Gtk.Button(label="About " + app_title)
+        m1 = Gtk.Button(label=_("About ") + app_title)
         m1.connect("clicked", self.show_about)
         vbox2.append(m1)
 
