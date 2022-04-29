@@ -924,8 +924,8 @@ class Avvie:
         self.crop_mode_radios = []
 
     def run_args(self):
-        for item in sys.argv:
-            if not item.endswith(".py") and os.path.isfile(item):
+        for item in sys.argv[1:]:
+            if os.path.isfile(item):
                 self.quick_export_button.set_sensitive(True)
                 print((self.dw.get_allocated_width(), self.dw.get_height()))
                 picture.load(item, (self.dw.get_width(), self.dw.get_height()))
