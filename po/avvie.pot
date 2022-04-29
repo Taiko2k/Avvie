@@ -1,0 +1,227 @@
+# LANGUAGE translation for avvie.
+# Copyright (C) YEAR Taiko2k.
+# This file is distributed under the same license as the avvie package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: avvie\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-28 21:54+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/com.github.taiko2k.avvie.desktop.in:4
+msgid "Image Cropper"
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:7
+msgid "Crop images for avatars or wallpapers"
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:16
+msgid ""
+"A simple tool cropping and downsizing images. Suitable for avatars or "
+"cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in "
+"one click to your Pictures folder."
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:22
+msgid "Main window showing image with a crop selection"
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:34
+msgid "Added circle export mode"
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:35
+msgid "Tweaked preferences dialog layout"
+msgstr ""
+
+#: src/main.py:57 src/main.py:1119
+msgid "Image file exported to Downloads."
+msgstr ""
+
+#: src/main.py:58
+msgid "Could not locate output folder!"
+msgstr ""
+
+#: src/main.py:71
+msgid "Open output folder"
+msgstr ""
+
+#: src/main.py:798
+msgid "Behavior"
+msgstr ""
+
+#: src/main.py:805
+msgid "Export circle mode (PNG will use alpha mask)"
+msgstr ""
+
+#: src/main.py:812
+msgid "Set quick export function"
+msgstr ""
+
+#: src/main.py:817
+msgid "Export to Downloads"
+msgstr ""
+
+#: src/main.py:825
+msgid "Export to Pictures"
+msgstr ""
+
+#: src/main.py:833
+msgid "Overwrite Source File"
+msgstr ""
+
+#: src/main.py:840
+msgid "Appearance"
+msgstr ""
+
+#: src/main.py:844
+msgid "Default"
+msgstr ""
+
+#: src/main.py:845
+msgid "Dark"
+msgstr ""
+
+#: src/main.py:846
+msgid "Pinku"
+msgstr ""
+
+#: src/main.py:849
+msgid "Theme"
+msgstr ""
+
+#: src/main.py:862 src/main.py:881
+msgid "Add Preview"
+msgstr ""
+
+#: src/main.py:876
+msgid "Add"
+msgstr ""
+
+#: src/main.py:981
+msgid "Image files"
+msgstr ""
+
+#: src/main.py:988
+msgid "Choose an image file"
+msgstr ""
+
+#: src/main.py:1036
+msgid "Open image file"
+msgstr ""
+
+#: src/main.py:1054
+msgid "Options Menu"
+msgstr ""
+
+#: src/main.py:1061
+msgid "Enable Crop"
+msgstr ""
+
+#: src/main.py:1082
+msgid "Toggle Circle"
+msgstr ""
+
+#: src/main.py:1087
+msgid "Remove Preview"
+msgstr ""
+
+#. TRANSLATORS: 'Name <email@domain.com>' or 'Name https://website.example'
+#: src/main.py:1101
+msgid "translator-credits"
+msgstr ""
+
+#: src/main.py:1118
+msgid "Export to Downloads folder"
+msgstr ""
+
+#: src/main.py:1121
+msgid "Export to Pictures folder"
+msgstr ""
+
+#: src/main.py:1122
+msgid "Image file exported to Pictures."
+msgstr ""
+
+#: src/main.py:1124
+msgid "Overwrite Image"
+msgstr ""
+
+#: src/main.py:1125
+msgid "Image file overwritten."
+msgstr ""
+
+#: src/main.py:1749
+msgid "Square"
+msgstr ""
+
+#: src/main.py:1755
+msgid "Free Rectangle"
+msgstr ""
+
+#: src/main.py:1780 src/main.py:1840
+msgid "Custom"
+msgstr ""
+
+#: src/main.py:1796
+msgid "Reset rotation"
+msgstr ""
+
+#: src/main.py:1808
+msgid "Flip Vertical"
+msgstr ""
+
+#: src/main.py:1811
+msgid "Flip Horizontal"
+msgstr ""
+
+#: src/main.py:1824
+msgid "No Downscale"
+msgstr ""
+
+#: src/main.py:1829
+msgid "Max 184x184"
+msgstr ""
+
+#: src/main.py:1834
+msgid "Max 1000x1000"
+msgstr ""
+
+#: src/main.py:1859
+msgid "Export as PNG"
+msgstr ""
+
+#: src/main.py:1864
+msgid "Discard EXIF"
+msgstr ""
+
+#: src/main.py:1871
+msgid "Sharpen"
+msgstr ""
+
+#: src/main.py:1876
+msgid "Grayscale"
+msgstr ""
+
+#: src/main.py:1882
+msgid "Export As"
+msgstr ""
+
+#: src/main.py:1886
+msgid "Preferences"
+msgstr ""
+
+#. TRANSLATORS: After this we will add "Avvie", e.g. for english it will be "About Avvie"
+#: src/main.py:1891
+msgid "About "
+msgstr ""
