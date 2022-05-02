@@ -29,5 +29,26 @@ A utility for quickly cropping images. Designed to be faster than the time it ta
  - **[Permission workaround]** Run `sudo flatpak override com.github.taiko2k.avvie --filesystem=host` to allow drag and drop from all file locations.
 
 ## Install
+Flatpak is the recommended way to install Avvie. You can get the latest version from flathub by clicking the button below.
 
 <a href='https://flathub.org/apps/details/com.github.taiko2k.avvie'><img width='240' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-i-en.png'/></a>
+
+### Third Party Packages
+You may also be able to obtain Avvie from your distribution's package manager. Note these packages are maintained independently and thus may differ from the official version on Flathub. Please report any issues experienced to the package maintainer.
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/avvie.svg)](https://repology.org/project/avvie/versions)
+
+## Build from source
+The easiest way to build is by cloning this repo with GNOME Builder. It will automatically resolve all relevant flatpak SDKs automatically. You can then export the bundle if you wish.
+
+Alternatively, clone the repo and use the following commands to build with meson.
+```
+meson builddir --prefix=/usr/local
+sudo ninja -C builddir install
+```
+
+To build a flatpak from the command line, use the following commands.
+```
+flatpak-builder --user --install flatpak-builddir com.github.taiko2k.avvie.json
+flatpak run com.github.taiko2k.avvie
+```
