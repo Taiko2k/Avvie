@@ -52,6 +52,15 @@ if os.path.isfile(config_file):
         config = json.load(f)
         print(f"Loaded config {config_file}")
 
+try:
+    _
+except:
+    _ = lambda x: x  # magic that makes the bad words go away
+
+resource_folder = os.path.join(os.path.dirname(__file__), "res")
+if not os.path.isdir(resource_folder):
+    resource_folder = os.path.dirname(__file__)
+
 # Add
 Notify.init(app_title)
 notify = Notify.Notification.new(app_title, _("Image file exported to Downloads."))
@@ -946,7 +955,7 @@ class Avvie:
     def set_pink_theme(self):
         self.reset_theme()
         self.sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
-        path = os.path.join(os.path.dirname(__file__), "pinku.css")
+        path = os.path.join(resource_folder, "pinku.css")
         self.css.load_from_file(Gio.File.new_for_path(path))
         self.sc.add_provider_for_display(self.win.get_display(), self.css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
@@ -1061,7 +1070,7 @@ class Avvie:
         switch.set_tooltip_text(_("Enable Crop"))
         switch.set_margin_end(10)
         self.crop_switch_button = switch
-        path = os.path.join(os.path.dirname(__file__), "image-crop.svg")
+        path = os.path.join(resource_folder, "image-crop.svg")
         image = Gtk.Image.new_from_file(path)
         image.set_margin_end(7)
         box = Gtk.Box()
