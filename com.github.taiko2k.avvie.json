@@ -6,9 +6,12 @@
   "command": "avvie",
   "finish-args": [
     "--share=ipc",
-    "--socket=fallback-x11",
     "--device=dri",
-    "--socket=wayland"
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--filesystem=xdg-pictures",
+    "--filesystem=xdg-download",
+    "--talk-name=org.freedesktop.Notifications"
   ],
   "cleanup": [
     "/include",
