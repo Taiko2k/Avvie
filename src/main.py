@@ -967,9 +967,6 @@ class Avvie:
         self.win = Gtk.ApplicationWindow(application=app)
         self.dw = CustomDraw(self)
 
-        self.about = Gtk.AboutDialog.new()
-        self.about.set_transient_for(self.win)
-
         self.sc = self.win.get_style_context()
         self.sm = app.get_style_manager()
         self.css = Gtk.CssProvider.new()
@@ -1101,21 +1098,7 @@ class Avvie:
         self.thumb_menu.set_parent(self.dw)
 
         # win drawing area
-        #self.dw.set_draw_func(self.draw, None)
         self.win.set_child(self.dw)
-
-
-        # About ---
-        self.about.set_authors(["Taiko2k"])
-        self.about.set_translator_credits(_("translator-credits"))
-        self.about.set_artists(["Tobias Bernard"])
-        self.about.set_copyright("Copyright 2019 Taiko2k captain.gxj@gmail.com")
-        self.about.set_license_type(Gtk.License(3))
-        self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
-        self.about.set_website_label("Github")
-        self.about.set_destroy_with_parent(True)
-        self.about.set_version(version)
-        self.about.set_logo_icon_name(app_id)
 
         self.win.present()
 
@@ -1966,6 +1949,9 @@ class Avvie:
             picture.slow_drag = False
             picture.drag_start_position = None
 
+    def about_response(self, dialog, response):
+        return True
+
     def open_response(self, dialog, response):
 
         if response == Gtk.ResponseType.ACCEPT:
@@ -1978,11 +1964,22 @@ class Avvie:
             self.discard_exif_button.set_sensitive(picture.exif and True)
 
     def show_about(self, button):
-        self.about.present()
+        self.about = Gtk.AboutDialog.new()
+        self.about.set_transient_for(self.win)
+
+        self.about.set_authors(["Taiko2k"])
+        self.about.set_translator_credits(_("translator-credits"))
+        self.about.set_artists(["Tobias Bernard"])
+        self.about.set_copyright("Copyright 2019-2022 Taiko2k captain.gxj@gmail.com")
+        self.about.set_license_type(Gtk.License(3))
+        self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
+        self.about.set_website_label("Github")
+        self.about.set_destroy_with_parent(True)
+        self.about.set_version(version)
+        self.about.set_logo_icon_name(app_id)
+
+        self.about.show()
         self.popover.hide()
-        #self.about.hide()
-        # self.about.run()
-        # self.about.hide()
 
     def open_pref(self, button):
 
