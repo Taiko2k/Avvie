@@ -10,11 +10,6 @@
     "--device=dri",
     "--socket=wayland"
   ],
-  "build-options": {
-    "build-args": [
-      "--share=network"
-    ]
-  },
   "cleanup": [
     "/include",
     "/lib/pkgconfig",
