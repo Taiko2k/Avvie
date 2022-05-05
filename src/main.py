@@ -1949,9 +1949,6 @@ class Avvie:
             picture.slow_drag = False
             picture.drag_start_position = None
 
-    def about_response(self, dialog, response):
-        return True
-
     def open_response(self, dialog, response):
 
         if response == Gtk.ResponseType.ACCEPT:
@@ -1967,7 +1964,6 @@ class Avvie:
         self.about = Gtk.AboutDialog()
         self.about.set_transient_for(self.win)
         self.about.set_modal(self.win)
-
 
         self.about.set_authors(["Taiko2k"])
         self.about.set_translator_credits(_("translator-credits"))
