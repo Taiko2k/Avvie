@@ -1964,8 +1964,10 @@ class Avvie:
             self.discard_exif_button.set_sensitive(picture.exif and True)
 
     def show_about(self, button):
-        self.about = Gtk.AboutDialog.new()
+        self.about = Gtk.AboutDialog()
         self.about.set_transient_for(self.win)
+        self.about.set_modal(self.win)
+
 
         self.about.set_authors(["Taiko2k"])
         self.about.set_translator_credits(_("translator-credits"))
