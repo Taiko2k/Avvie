@@ -22,8 +22,7 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Gdk', '4.0')
 gi.require_version('Adw', '1')
-gi.require_version('Notify', '0.7')
-from gi.repository import Gtk, Gdk, Gio, Adw, GLib, Notify, GdkPixbuf, Graphene, Gsk, Pango
+from gi.repository import Gtk, Gdk, Gio, Adw, GLib, GdkPixbuf, Graphene, Gsk, Pango
 import os
 import sys
 import math
@@ -61,27 +60,13 @@ resource_folder = os.path.join(os.path.dirname(__file__), "res")
 if not os.path.isdir(resource_folder):
     resource_folder = os.path.dirname(__file__)
 
-# Add
-Notify.init(app_title)
-notify = Notify.Notification.new(app_title, _("Image file exported to Downloads."))
-notify_invalid_output = Notify.Notification.new(app_title, _("Could not locate output folder!"))
-
 # Is this defined somewhere in Gtk?
 TARGET_TYPE_URI_LIST = 80
 
 
 # Add open file action to notification
-def open_encode_out(notification, action, data):
+def open_encode_out(action, param):
     subprocess.call(["xdg-open", picture.last_saved_location])
-
-
-notify.add_action(
-    "action_click",
-    _("Open output folder"),
-    open_encode_out,
-    None
-)
-
 
 def point_in_rect(rx, ry, rw, rh, px, py):
     return ry < py < ry + rh and rx < px < rx + rw
@@ -133,7 +118,7 @@ class CustomDraw(Gtk.Widget):
         self.font.set_family("Sans")
         self.font.set_size(10 * Pango.SCALE)
         self.pango.set_font_description(self.font)
-        self.load_args = 1
+        #self.load_args = 1
 
     def set_color(self, r, g, b, a=1.0):
         self.colour.red = r
@@ -162,9 +147,9 @@ class CustomDraw(Gtk.Widget):
         w = self.get_allocated_width()
         h = self.get_allocated_height()
 
-        if self.load_args:  # really hack having this here, dunno what signal to connect it to
-            self.load_args = 0
-            self.avvie.run_args()
+        if self.avvie.to_load:
+            picture.load(self.avvie.to_load, (w, h))
+            self.avvie.to_load = None
 
         self.set_color(*background_color)
         self.set_rect(0, 0, w, h)
@@ -364,6 +349,7 @@ class Picture:
                 raise
 
         self.thumb_surfaces = {}
+        self.avvie = None
 
     def test_br(self, x, y):
         rx, ry, rw, rh = self.get_display_rect()
@@ -664,16 +650,16 @@ class Picture:
                 path = self.loaded_fullpath
             else:
                 print("Export setting error")
-                return
+                return False
 
         print(f"Target folder is: {base_folder}")
 
         if not os.path.isdir(base_folder):
-            notify_invalid_output.show()
+            self.avvie.app.send_notification("2", self.avvie.error_notification)
 
         im = self.source_image
         if not im:
-            return
+            return False
 
         if self.gray:
             im = im.convert("L")
@@ -787,7 +773,7 @@ class Picture:
         self.last_saved_location = os.path.dirname(path)
 
         if show_notice:
-            notify.show()
+            self.avvie.show_export_notice()
 
 
 picture = Picture()
@@ -926,23 +912,38 @@ class Avvie:
     def __init__(self):
         self.win = None
         self.app = Adw.Application(application_id=app_id)
-        self.app.connect('activate', self.on_activate)
 
         GLib.set_application_name(app_title)
 
         self.crop_mode_radios = []
 
-    def run_args(self):
-        for item in sys.argv[1:]:
-            if os.path.isfile(item):
-                self.quick_export_button.set_sensitive(True)
-                print((self.dw.get_allocated_width(), self.dw.get_height()))
-                picture.load(item, (self.dw.get_width(), self.dw.get_height()))
-                self.discard_exif_button.set_sensitive(picture.exif and True)
-                break
+        self.show_exported_action = Gio.SimpleAction.new("show-exported", None)
+        self.show_exported_action.connect("activate", open_encode_out)
+        self.app.add_action(self.show_exported_action)
+
+        self.export_notification = Gio.Notification.new(app_title)
+        self.export_notification.add_button(_("Show in Files"), "app.show-exported")
+
+        self.error_notification = Gio.Notification.new(app_title + ": " + _("Error!"))
+        self.error_notification.set_body(_("Could not locate output folder!"))
+
+        self.app.connect("open", self.open)
+        self.app.set_flags(Gio.ApplicationFlags.HANDLES_OPEN)
+        self.app.connect('activate', self.on_activate)
+        self.to_load = None
+        self.running = False
+
+    # def run_args(self):
+    #     for item in sys.argv[1:]:
+    #         if os.path.isfile(item):
+    #             self.quick_export_button.set_sensitive(True)
+    #             print((self.dw.get_allocated_width(), self.dw.get_height()))
+    #             picture.load(item, (self.dw.get_width(), self.dw.get_height()))
+    #             self.discard_exif_button.set_sensitive(picture.exif and True)
+    #             break
 
     def run(self):
-        self.app.run(None)
+        self.app.run(sys.argv)
 
     def reset_theme(self):
         self.sc.remove_provider_for_display(self.win.get_display(), self.css)
@@ -959,10 +960,25 @@ class Avvie:
         self.css.load_from_file(Gio.File.new_for_path(path))
         self.sc.add_provider_for_display(self.win.get_display(), self.css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
+    def open(self, app, files, n, hint):
+        if files:
+            path = files[0].get_path()
+            if not self.running:
+                app.activate()
+            else:
+                self.dw.queue_draw()
+                self.win.present_with_time(Gdk.CURRENT_TIME)
+            self.quick_export_button.set_sensitive(True)
+            self.to_load = path
+            self.discard_exif_button.set_sensitive(picture.exif)
+
     def on_activate(self, app):
 
-
-        #sm.set_color_scheme(Adw.ColorScheme.PREFER_DARK)
+        self.app.register(None)
+        if self.running:
+            self.win.present_with_time(Gdk.CURRENT_TIME)
+            return
+        self.running = True
 
         self.win = Gtk.ApplicationWindow(application=app)
         self.dw = CustomDraw(self)
@@ -980,7 +996,7 @@ class Avvie:
         self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
 
 
-        self.save_dialog = Gtk.FileChooserNative.new(title="Choose where to save",
+        self.save_dialog = Gtk.FileChooserNative.new(title=_("Choose where to save"),
                                             parent=self.win, action=Gtk.FileChooserAction.SAVE)
 
         f = Gtk.FileFilter()
@@ -1104,17 +1120,22 @@ class Avvie:
 
         self.set_export_text()
 
+    def show_export_notice(self):
+        self.app.withdraw_notification("1")
+        self.app.send_notification("1", self.export_notification)
+
     def set_export_text(self):
         setting = picture.export_setting
+        self.app.withdraw_notification("1")
         if setting == "download":
             self.quick_export_button.set_tooltip_text(_("Export to Downloads folder"))
-            notify.update(app_title, _("Image file exported to Downloads."))
+            self.export_notification.set_body(_("Image file exported to Downloads."))
         if setting == "pictures":
             self.quick_export_button.set_tooltip_text(_("Export to Pictures folder"))
-            notify.update(app_title, _("Image file exported to Pictures."))
+            self.export_notification.set_body(_("Image file exported to Pictures."))
         if setting == "overwrite":
             self.quick_export_button.set_tooltip_text(_("Overwrite Image"))
-            notify.update(app_title, _("Image file overwritten."))
+            self.export_notification.set_body(_("Image file overwritten."))
 
     def open_file(self, button):
         self.open_dialog.show()
@@ -2012,7 +2033,10 @@ class Avvie:
 
 # Create a new application
 avvie = Avvie()
+picture.avvie = avvie
 avvie.run()
+
+avvie.app.withdraw_notification("1")
 
 
 # Save configuration to json file
