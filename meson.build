@@ -21,7 +21,6 @@ python_bin = python.find_installation('python3', modules: python3_required_modul
 dependencies = [
 	dependency('gtk4'),
 	dependency('libadwaita-1'),
-	dependency('libnotify'),
 ]
 
 
