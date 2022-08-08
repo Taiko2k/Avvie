@@ -1016,6 +1016,7 @@ class Avvie:
 
         self.win.set_title(app_title)
         self.win.set_default_size(1100, 700)
+        self.win.set_size_request(500, 350)
 
         evk = Gtk.GestureClick.new()
         evk.connect("pressed", self.click)
