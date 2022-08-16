@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: avvie\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-28 21:54+0200\n"
+"POT-Creation-Date: 2022-06-01 17:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,184 +44,192 @@ msgstr ""
 msgid "Tweaked preferences dialog layout"
 msgstr ""
 
-#: src/main.py:57 src/main.py:1119
-msgid "Image file exported to Downloads."
-msgstr ""
-
-#: src/main.py:58
-msgid "Could not locate output folder!"
-msgstr ""
-
-#: src/main.py:71
-msgid "Open output folder"
-msgstr ""
-
-#: src/main.py:798
+#: src/main.py:793
 msgid "Behavior"
 msgstr ""
 
-#: src/main.py:805
+#: src/main.py:800
 msgid "Export circle mode (PNG will use alpha mask)"
 msgstr ""
 
-#: src/main.py:812
+#: src/main.py:807
 msgid "Set quick export function"
 msgstr ""
 
-#: src/main.py:817
+#: src/main.py:812
 msgid "Export to Downloads"
 msgstr ""
 
-#: src/main.py:825
+#: src/main.py:820
 msgid "Export to Pictures"
 msgstr ""
 
-#: src/main.py:833
+#: src/main.py:828
 msgid "Overwrite Source File"
 msgstr ""
 
-#: src/main.py:840
+#: src/main.py:835
 msgid "Appearance"
 msgstr ""
 
-#: src/main.py:844
+#: src/main.py:839
 msgid "Default"
 msgstr ""
 
-#: src/main.py:845
+#: src/main.py:840
 msgid "Dark"
 msgstr ""
 
-#: src/main.py:846
+#: src/main.py:841
 msgid "Pinku"
 msgstr ""
 
-#: src/main.py:849
+#: src/main.py:844
 msgid "Theme"
 msgstr ""
 
-#: src/main.py:862 src/main.py:881
+#: src/main.py:857 src/main.py:876
 msgid "Add Preview"
 msgstr ""
 
-#: src/main.py:876
+#: src/main.py:871
 msgid "Add"
 msgstr ""
 
-#: src/main.py:981
+#: src/main.py:925
+msgid "Show in Files"
+msgstr ""
+
+#: src/main.py:927
+msgid "Error!"
+msgstr ""
+
+#: src/main.py:928
+msgid "Could not locate output folder!"
+msgstr ""
+
+#: src/main.py:999
+msgid "Choose where to save"
+msgstr ""
+
+#: src/main.py:1003
 msgid "Image files"
 msgstr ""
 
-#: src/main.py:988
+#: src/main.py:1010
 msgid "Choose an image file"
 msgstr ""
 
-#: src/main.py:1036
+#: src/main.py:1058
 msgid "Open image file"
 msgstr ""
 
-#: src/main.py:1054
+#: src/main.py:1076
 msgid "Options Menu"
 msgstr ""
 
-#: src/main.py:1061
+#: src/main.py:1083
 msgid "Enable Crop"
 msgstr ""
 
-#: src/main.py:1082
+#: src/main.py:1104
 msgid "Toggle Circle"
 msgstr ""
 
-#: src/main.py:1087
+#: src/main.py:1109
 msgid "Remove Preview"
 msgstr ""
 
-#. TRANSLATORS: 'Name <email@domain.com>' or 'Name https://website.example'
-#: src/main.py:1101
-msgid "translator-credits"
-msgstr ""
-
-#: src/main.py:1118
+#: src/main.py:1131
 msgid "Export to Downloads folder"
 msgstr ""
 
-#: src/main.py:1121
+#: src/main.py:1132
+msgid "Image file exported to Downloads."
+msgstr ""
+
+#: src/main.py:1134
 msgid "Export to Pictures folder"
 msgstr ""
 
-#: src/main.py:1122
+#: src/main.py:1135
 msgid "Image file exported to Pictures."
 msgstr ""
 
-#: src/main.py:1124
+#: src/main.py:1137
 msgid "Overwrite Image"
 msgstr ""
 
-#: src/main.py:1125
+#: src/main.py:1138
 msgid "Image file overwritten."
 msgstr ""
 
-#: src/main.py:1749
+#: src/main.py:1762
 msgid "Square"
 msgstr ""
 
-#: src/main.py:1755
+#: src/main.py:1768
 msgid "Free Rectangle"
 msgstr ""
 
-#: src/main.py:1780 src/main.py:1840
+#: src/main.py:1793 src/main.py:1853
 msgid "Custom"
 msgstr ""
 
-#: src/main.py:1796
+#: src/main.py:1809
 msgid "Reset rotation"
 msgstr ""
 
-#: src/main.py:1808
+#: src/main.py:1821
 msgid "Flip Vertical"
 msgstr ""
 
-#: src/main.py:1811
+#: src/main.py:1824
 msgid "Flip Horizontal"
 msgstr ""
 
-#: src/main.py:1824
+#: src/main.py:1837
 msgid "No Downscale"
 msgstr ""
 
-#: src/main.py:1829
+#: src/main.py:1842
 msgid "Max 184x184"
 msgstr ""
 
-#: src/main.py:1834
+#: src/main.py:1847
 msgid "Max 1000x1000"
 msgstr ""
 
-#: src/main.py:1859
+#: src/main.py:1872
 msgid "Export as PNG"
 msgstr ""
 
-#: src/main.py:1864
+#: src/main.py:1877
 msgid "Discard EXIF"
 msgstr ""
 
-#: src/main.py:1871
+#: src/main.py:1884
 msgid "Sharpen"
 msgstr ""
 
-#: src/main.py:1876
+#: src/main.py:1889
 msgid "Grayscale"
 msgstr ""
 
-#: src/main.py:1882
+#: src/main.py:1895
 msgid "Export As"
 msgstr ""
 
-#: src/main.py:1886
+#: src/main.py:1899
 msgid "Preferences"
 msgstr ""
 
 #. TRANSLATORS: After this we will add "Avvie", e.g. for english it will be "About Avvie"
-#: src/main.py:1891
+#: src/main.py:1904
 msgid "About "
+msgstr ""
+
+#. TRANSLATORS: 'Name <email@domain.com>' or 'Name https://website.example'
+#: src/main.py:1990
+msgid "translator-credits"
 msgstr ""
