@@ -28,11 +28,11 @@
   </categories>
 
   <releases>
-    <release version="2.1" date="2022-05-05">
+    <release version="2.2" date="2022-10-02">
       <description>
         <ul>
-          <li>Added circle export mode</li>
-          <li>Tweaked preferences dialog layout</li>
+          <li>Small bug fix</li>
+          <li>Updated translations</li>
         </ul>
       </description>
     </release>
