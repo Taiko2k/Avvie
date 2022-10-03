@@ -28,7 +28,7 @@ msgstr "Schneiden Sie Bilder für Avatare oder Bildschirmhintergründe zu"
 
 #: data/com.github.taiko2k.avvie.appdata.xml.in:16
 msgid ""
-"A simple tool cropping and downsizing images. Suitable for avatars or "
+"A simple tool for cropping and downsizing images. Suitable for avatars or "
 "cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in "
 "one click to your Pictures folder."
 msgstr ""
