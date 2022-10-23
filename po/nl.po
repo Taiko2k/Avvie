@@ -1,0 +1,240 @@
+# LANGUAGE translation for avvie.
+# Copyright (C) YEAR Taiko2k.
+# This file is distributed under the same license as the avvie package.
+#
+# Heimen Stoffels <vistausss@fastmail.com>, 2022.
+msgid ""
+msgstr ""
+"Project-Id-Version: avvie\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-01 17:56+0200\n"
+"PO-Revision-Date: 2022-10-22 20:09+0200\n"
+"Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 22.08.2\n"
+
+#: data/com.github.taiko2k.avvie.desktop.in:4
+msgid "Image Cropper"
+msgstr "Afbeeldingensnijder"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:7
+msgid "Crop images for avatars or wallpapers"
+msgstr "Snijd afbeeldingen bij voor gebruik als profielfoto's of achtergronden"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:16
+msgid ""
+"A simple tool for cropping and downsizing images. Suitable for avatars or "
+"cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in "
+"one click to your Pictures folder."
+msgstr ""
+"Een eenvoudig hulpmiddel voor het bijsnijden en verkleinen van afbeeldingen."
+" Zo kunt u bijvoorbeeld profielfoto's of passende bureaubladachtergronden"
+" maken. Ook kunnen afbeeldingen worden geconverteerd naar png en jpg, zelfs"
+" met één muisklik naar uw afbeeldingenmap."
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:22
+msgid "Main window showing image with a crop selection"
+msgstr "Het hoofdvenster met daarop een afbeelding die wordt bijgesneden"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:34
+msgid "Added circle export mode"
+msgstr "Nieuw: exporteren als cirkel"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:35
+msgid "Tweaked preferences dialog layout"
+msgstr "Verbeterd: indeling van het voorkeurenvenster"
+
+#: src/main.py:793
+msgid "Behavior"
+msgstr "Gedrag"
+
+#: src/main.py:800
+msgid "Export circle mode (PNG will use alpha mask)"
+msgstr "Exporteren als cirkel (bij png wordt een alfamaskering gebruikt)"
+
+#: src/main.py:807
+msgid "Set quick export function"
+msgstr "Snel exporteren instellen"
+
+#: src/main.py:812
+msgid "Export to Downloads"
+msgstr "Exporteren naar downloadsmap"
+
+#: src/main.py:820
+msgid "Export to Pictures"
+msgstr "Exporteren naar afbeeldingenmap"
+
+#: src/main.py:828
+msgid "Overwrite Source File"
+msgstr "Oorspronkelijk bestand overschrijven"
+
+#: src/main.py:835
+msgid "Appearance"
+msgstr "Vormgeving"
+
+#: src/main.py:839
+msgid "Default"
+msgstr "Standaard"
+
+#: src/main.py:840
+msgid "Dark"
+msgstr "Donker"
+
+#: src/main.py:841
+msgid "Pinku"
+msgstr "Pinku"
+
+#: src/main.py:844
+msgid "Theme"
+msgstr "Thema"
+
+#: src/main.py:857 src/main.py:876
+msgid "Add Preview"
+msgstr "Voorvertoning toevoegen"
+
+#: src/main.py:871
+msgid "Add"
+msgstr "Toevoegen"
+
+#: src/main.py:925
+msgid "Show in Files"
+msgstr "Tonen in bestandsbeheer"
+
+#: src/main.py:927
+msgid "Error!"
+msgstr "Foutmelding!"
+
+#: src/main.py:928
+msgid "Could not locate output folder!"
+msgstr "De opslaglocatie is niet beschikbaar!"
+
+#: src/main.py:999
+msgid "Choose where to save"
+msgstr "Geef aan waar het bestand moet worden opgeslagen"
+
+#: src/main.py:1003
+msgid "Image files"
+msgstr "Afbeeldingsbestanden"
+
+#: src/main.py:1010
+msgid "Choose an image file"
+msgstr "Kies een afbeeldingsbestand"
+
+#: src/main.py:1058
+msgid "Open image file"
+msgstr "Afbeelding openen"
+
+#: src/main.py:1076
+msgid "Options Menu"
+msgstr "Optiesmenu"
+
+#: src/main.py:1083
+msgid "Enable Crop"
+msgstr "Bijsnijden"
+
+#: src/main.py:1104
+msgid "Toggle Circle"
+msgstr "Cirkel aan/uit"
+
+#: src/main.py:1109
+msgid "Remove Preview"
+msgstr "Voorvertoning verwijderen"
+
+#: src/main.py:1131
+msgid "Export to Downloads folder"
+msgstr "Exporteren naar downloadsmap"
+
+#: src/main.py:1132
+msgid "Image file exported to Downloads."
+msgstr "De afbeelding is geëxporteerd naar de downloadsmap."
+
+#: src/main.py:1134
+msgid "Export to Pictures folder"
+msgstr "Exporteren naar afbeeldingenmap"
+
+#: src/main.py:1135
+msgid "Image file exported to Pictures."
+msgstr "De afbeelding is geëxporteerd naar de afbeeldingenmap."
+
+#: src/main.py:1137
+msgid "Overwrite Image"
+msgstr "Afbeelding overschrijven"
+
+#: src/main.py:1138
+msgid "Image file overwritten."
+msgstr "Het afbeeldingsbestand is overschreven."
+
+#: src/main.py:1762
+msgid "Square"
+msgstr "Vierkant"
+
+#: src/main.py:1768
+msgid "Free Rectangle"
+msgstr "Vrije rechthoek"
+
+#: src/main.py:1793 src/main.py:1853
+msgid "Custom"
+msgstr "Aangepast"
+
+#: src/main.py:1809
+msgid "Reset rotation"
+msgstr "Draaien ongedaan maken"
+
+#: src/main.py:1821
+msgid "Flip Vertical"
+msgstr "Verticaal spiegelen"
+
+#: src/main.py:1824
+msgid "Flip Horizontal"
+msgstr "Horizontaal spiegelen"
+
+#: src/main.py:1837
+msgid "No Downscale"
+msgstr "Niet verkleinen"
+
+#: src/main.py:1842
+msgid "Max 184x184"
+msgstr "Max. 184x184"
+
+#: src/main.py:1847
+msgid "Max 1000x1000"
+msgstr "Max. 1000x1000"
+
+#: src/main.py:1872
+msgid "Export as PNG"
+msgstr "Exporteren als png-afbeelding"
+
+#: src/main.py:1877
+msgid "Discard EXIF"
+msgstr "Exif-gegevens negeren"
+
+#: src/main.py:1884
+msgid "Sharpen"
+msgstr "Verscherpen"
+
+#: src/main.py:1889
+msgid "Grayscale"
+msgstr "Grijswaarden"
+
+#: src/main.py:1895
+msgid "Export As"
+msgstr "Exporteren als"
+
+#: src/main.py:1899
+msgid "Preferences"
+msgstr "Voorkeuren"
+
+#. TRANSLATORS: After this we will add "Avvie", e.g. for english it will be "About Avvie"
+#: src/main.py:1904
+msgid "About "
+msgstr "Over "
+
+#. TRANSLATORS: 'Name <email@domain.com>' or 'Name https://website.example'
+#: src/main.py:1990
+msgid "translator-credits"
+msgstr "Heimen Stoffels <vistausss@fastmail.com>"
