@@ -1902,7 +1902,7 @@ class Avvie:
         vbox2.append(m1)
 
 
-        m1 = Gtk.Button(label=_("About ") + app_title)
+        m1 = Gtk.Button(label=_("About %s") % app_title)
         m1.connect("clicked", self.show_about)
         vbox2.append(m1)
 
