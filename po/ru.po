@@ -131,7 +131,7 @@ msgstr "Открыть файл изображения"
 
 #: src/main.py:1076
 msgid "Options Menu"
-msgstr "Опции меню"
+msgstr "Меню опций"
 
 #: src/main.py:1083
 msgid "Enable Crop"
