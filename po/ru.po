@@ -1,0 +1,240 @@
+# LANGUAGE translation for avvie.
+# Copyright (C) YEAR Taiko2k.
+# This file is distributed under the same license as the avvie package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: avvie\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-01 17:56+0200\n"
+"PO-Revision-Date: 2023-03-29 23:43+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.1.1\n"
+
+#: data/com.github.taiko2k.avvie.desktop.in:4
+msgid "Image Cropper"
+msgstr "Обрезчик изображений"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:7
+msgid "Crop images for avatars or wallpapers"
+msgstr "Обрезка изображения для аватаров или обоев"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:16
+msgid ""
+"A simple tool for cropping and downsizing images. Suitable for avatars or "
+"cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in "
+"one click to your Pictures folder."
+msgstr ""
+"Простой инструмент для обрезки и уменьшения изображений. Подходит для "
+"создания аватаров или обоев рабочего стола. Преобразовывайте PNG в JPG. "
+"Экспортируйте за один щелчок в папку изображений."
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:22
+msgid "Main window showing image with a crop selection"
+msgstr "Главное окно показывает изображение с областью обрезки"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:34
+msgid "Added circle export mode"
+msgstr "Добавлен режим экспорта в круге"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:35
+msgid "Tweaked preferences dialog layout"
+msgstr "Настроен диалог параметров"
+
+#: src/main.py:793
+msgid "Behavior"
+msgstr "Поведение"
+
+#: src/main.py:800
+msgid "Export circle mode (PNG will use alpha mask)"
+msgstr "Режим экспорта в круг (PNG будет использовать Alpha Mask)"
+
+#: src/main.py:807
+msgid "Set quick export function"
+msgstr "Установить функцию быстрого экспорта"
+
+#: src/main.py:812
+msgid "Export to Downloads"
+msgstr "Экспортировать в Загрузки"
+
+#: src/main.py:820
+msgid "Export to Pictures"
+msgstr "Экспортировать в Изображения"
+
+#: src/main.py:828
+msgid "Overwrite Source File"
+msgstr "Перезаписать исходный файл"
+
+#: src/main.py:835
+msgid "Appearance"
+msgstr "Внешний вид"
+
+#: src/main.py:839
+msgid "Default"
+msgstr "Стандартный"
+
+#: src/main.py:840
+msgid "Dark"
+msgstr "Темный"
+
+#: src/main.py:841
+msgid "Pinku"
+msgstr "Розовый"
+
+#: src/main.py:844
+msgid "Theme"
+msgstr "Тема"
+
+#: src/main.py:857 src/main.py:876
+msgid "Add Preview"
+msgstr "Добавить превью"
+
+#: src/main.py:871
+msgid "Add"
+msgstr "Добавить"
+
+#: src/main.py:925
+msgid "Show in Files"
+msgstr "Показать в файлах"
+
+#: src/main.py:927
+msgid "Error!"
+msgstr "Ошибка!"
+
+#: src/main.py:928
+msgid "Could not locate output folder!"
+msgstr "Не получается найти папку для экспорта!"
+
+#: src/main.py:999
+msgid "Choose where to save"
+msgstr "Выберите, где сохранить"
+
+#: src/main.py:1003
+msgid "Image files"
+msgstr "Файлы изображений"
+
+#: src/main.py:1010
+msgid "Choose an image file"
+msgstr "Выберите файл изображения"
+
+#: src/main.py:1058
+msgid "Open image file"
+msgstr "Открыть файл изображения"
+
+#: src/main.py:1076
+msgid "Options Menu"
+msgstr "Меню опций"
+
+#: src/main.py:1083
+msgid "Enable Crop"
+msgstr "Включить обрезку"
+
+#: src/main.py:1104
+msgid "Toggle Circle"
+msgstr "Переключить круг"
+
+#: src/main.py:1109
+msgid "Remove Preview"
+msgstr "Удалить предпросмотр"
+
+#: src/main.py:1131
+msgid "Export to Downloads folder"
+msgstr "Экспортировать в папку Загрузки"
+
+#: src/main.py:1132
+msgid "Image file exported to Downloads."
+msgstr "Файл изображения экспортирован в Загрузки."
+
+#: src/main.py:1134
+msgid "Export to Pictures folder"
+msgstr "Экспортировать в папку Изображения"
+
+#: src/main.py:1135
+msgid "Image file exported to Pictures."
+msgstr "Файл изображения экспортирован в Изображения."
+
+#: src/main.py:1137
+msgid "Overwrite Image"
+msgstr "Перезаписать изображение"
+
+#: src/main.py:1138
+msgid "Image file overwritten."
+msgstr "Файл изображения перезаписан."
+
+#: src/main.py:1762
+msgid "Square"
+msgstr "Квадрат"
+
+#: src/main.py:1768
+msgid "Free Rectangle"
+msgstr "Свободный прямоугольник"
+
+#: src/main.py:1793 src/main.py:1853
+msgid "Custom"
+msgstr "Свой"
+
+#: src/main.py:1809
+msgid "Reset rotation"
+msgstr "Отменить вращение"
+
+#: src/main.py:1821
+msgid "Flip Vertical"
+msgstr "Отразить по вертикале"
+
+#: src/main.py:1824
+msgid "Flip Horizontal"
+msgstr "Отразить по горизонтале"
+
+#: src/main.py:1837
+msgid "No Downscale"
+msgstr "Не уменьшать"
+
+#: src/main.py:1842
+msgid "Max 184x184"
+msgstr "Макс. 184х184"
+
+#: src/main.py:1847
+msgid "Max 1000x1000"
+msgstr "Макс. 1000х1000"
+
+#: src/main.py:1872
+msgid "Export as PNG"
+msgstr "Экспортировать как PNG"
+
+#: src/main.py:1877
+msgid "Discard EXIF"
+msgstr "Стереть EXIF"
+
+#: src/main.py:1884
+msgid "Sharpen"
+msgstr "Добавить резкость"
+
+#: src/main.py:1889
+msgid "Grayscale"
+msgstr "Оттенки серого"
+
+#: src/main.py:1895
+msgid "Export As"
+msgstr "Экспортировать как"
+
+#: src/main.py:1899
+msgid "Preferences"
+msgstr "Параметры"
+
+#. TRANSLATORS: After this we will add "Avvie", e.g. for english it will be "About Avvie"
+#: src/main.py:1904
+msgid "About "
+msgstr "О программе "
+
+#. TRANSLATORS: 'Name <email@domain.com>' or 'Name https://website.example'
+#: src/main.py:1990
+msgid "translator-credits"
+msgstr "Altizo integration.into.society@gmail.com"
