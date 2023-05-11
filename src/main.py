@@ -802,10 +802,6 @@ class SettingsDialog(Adw.PreferencesWindow):
         row.set_activatable_widget(toggle)
         behavior_group.add(row)
 
-        aspect_group = Adw.PreferencesGroup()
-        aspect_group.set_title(_("Aspect ratio"))
-        page.add(aspect_group)
-
         aspect_ratios = Gtk.StringList.new([
             _("Square"),
             _("Free Rectangle"),
@@ -815,9 +811,9 @@ class SettingsDialog(Adw.PreferencesWindow):
             _("Custom")
         ])
         row = Adw.ComboRow()
-        row.set_title(_("Default"))
+        row.set_title(_("Default Aspect Ratio"))
         row.set_model(aspect_ratios)
-        aspect_group.add(row)
+        behavior_group.add(row)
         if config.get("aspect", "square") == "square":
             row.set_selected(0)
         elif config.get("aspect", "square") == "rect":
