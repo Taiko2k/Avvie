@@ -1035,24 +1035,27 @@ class Avvie:
 
         self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
 
+        self.save_dialog = Gtk.FileDialog.new()
+        self.save_dialog.set_title(_("Choose where to save"))
 
-        self.save_dialog = Gtk.FileChooserNative.new(title=_("Choose where to save"),
-                                            parent=self.win, action=Gtk.FileChooserAction.SAVE)
+        # self.save_dialog = Gtk.FileChooserNative.new(title=_("Choose where to save"),
+        #                                     parent=self.win, action=Gtk.FileChooserAction.SAVE)
 
         f = Gtk.FileFilter()
         f.set_name(_("Image files"))
         f.add_mime_type("image/jpeg")
         f.add_mime_type("image/png")
 
-        self.save_dialog.connect("response", self.save_response)
-        self.save_dialog.add_filter(f)
+        filters = Gio.ListStore.new(Gtk.FileFilter)
+        filters.append(f)
 
-        self.open_dialog = Gtk.FileChooserNative.new(title=_("Choose an image file"),
-                                            parent=self.win, action=Gtk.FileChooserAction.OPEN)
+        self.save_dialog.set_filters(filters)
+        self.save_dialog.set_default_filter(f)
 
-
-        self.open_dialog.add_filter(f)
-        self.open_dialog.connect("response", self.open_response)
+        self.open_dialog = Gtk.FileDialog.new()
+        self.open_dialog.set_title(_("Choose an image file"))
+        self.open_dialog.set_filters(filters)
+        self.open_dialog.set_default_filter(f)
 
         self.win.set_title(app_title)
         self.win.set_default_size(1100, 700)
@@ -1161,6 +1164,36 @@ class Avvie:
 
         self.set_export_text()
 
+    def show_save_dialog(self):
+        self.save_dialog.save(self.win, None, self.save_dialog_callback)
+
+    def save_dialog_callback(self, dialog, result):
+        try:
+            file = dialog.save_finish(result)
+            if file is not None:
+                print(f"Chosen file path is {file.get_path()}")
+                filename = file.get_path()
+                picture.export(filename)
+        except GLib.Error as error:
+            print(f"Error opening file: {error.message}")
+
+    def show_open_dialog(self):
+        self.open_dialog.open(self.win, None, self.open_dialog_callback)
+
+    def open_dialog_callback(self, dialog, result):
+        try:
+            file = dialog.open_finish(result)
+            if file is not None:
+                filename = file.get_path()
+                print("File selected: " + filename)
+                self.quick_export_button.set_sensitive(True)
+                picture.load(filename, (self.dw.get_width(), self.dw.get_height()))
+                self.dw.queue_draw()
+                self.discard_exif_button.set_sensitive(picture.exif and True)
+                # Handle loading file from here
+        except GLib.Error as error:
+            print(f"Error opening file: {error.message}")
+
     def show_export_notice(self):
         self.app.withdraw_notification("1")
         self.app.send_notification("1", self.export_notification)
@@ -1179,7 +1212,7 @@ class Avvie:
             self.export_notification.set_body(_("Image file overwritten."))
 
     def open_file(self, button):
-        self.open_dialog.show()
+        self.show_open_dialog()
 
     def click(self,  gesture, data, x, y):
 
@@ -2024,17 +2057,6 @@ class Avvie:
             picture.slow_drag = False
             picture.drag_start_position = None
 
-    def open_response(self, dialog, response):
-
-        if response == Gtk.ResponseType.ACCEPT:
-            file = dialog.get_file()
-            filename = file.get_path()
-            print("File selected: " + filename)
-            self.quick_export_button.set_sensitive(True)
-            picture.load(filename, (self.dw.get_width(), self.dw.get_height()))
-            self.dw.queue_draw()
-            self.discard_exif_button.set_sensitive(picture.exif and True)
-
     def show_about(self, button):
         self.about = Gtk.AboutDialog()
         self.about.set_transient_for(self.win)
@@ -2051,15 +2073,15 @@ class Avvie:
         self.about.set_version(version)
         self.about.set_logo_icon_name(app_id)
 
-        self.about.show()
-        self.popover.hide()
+        self.about.set_visible(True)
+        self.popover.set_visible(False)
 
     def open_pref(self, button):
 
         dialog = SettingsDialog(self.win, self)
         dialog.set_transient_for(self.win)
-        dialog.show()
-        self.popover.hide()
+        dialog.set_visible(True)
+        self.popover.set_visible(False)
 
     def add_preview(self, button):
 
@@ -2076,14 +2098,9 @@ class Avvie:
         if not picture.ready:
             return
 
-        self.save_dialog.show()
-        self.popover.hide()
+        self.show_save_dialog()
+        self.popover.set_visible(False)
 
-    def save_response(self, dialog, response):
-        if response == Gtk.ResponseType.ACCEPT:
-            file = dialog.get_file()
-            filename = file.get_path()
-            picture.export(filename)
 
 # Create a new application
 avvie = Avvie()
