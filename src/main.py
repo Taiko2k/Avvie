@@ -802,6 +802,36 @@ class SettingsDialog(Adw.PreferencesWindow):
         row.set_activatable_widget(toggle)
         behavior_group.add(row)
 
+        aspect_group = Adw.PreferencesGroup()
+        aspect_group.set_title(_("Aspect ratio"))
+        page.add(aspect_group)
+
+        aspect_ratios = Gtk.StringList.new([
+            _("Square"),
+            _("Free Rectangle"),
+            "16:10",
+            "16:9",
+            "21:9",
+            _("Custom")
+        ])
+        row = Adw.ComboRow()
+        row.set_title(_("Default"))
+        row.set_model(aspect_ratios)
+        aspect_group.add(row)
+        if config.get("aspect", "square") == "square":
+            row.set_selected(0)
+        elif config.get("aspect", "square") == "rect":
+            row.set_selected(1)
+        elif config.get("aspect", "square") == "16:10":
+            row.set_selected(2)
+        elif config.get("aspect", "square") == "16:9":
+            row.set_selected(3)
+        elif config.get("aspect", "square") == "21:9":
+            row.set_selected(4)
+        elif config.get("aspect", "square") == "custom":
+            row.set_selected(5)
+        row.connect('notify::selected', self.change_default_aspect_ratio)
+
         # Export Preferences
         export_group = Adw.PreferencesGroup()
         export_group.set_title(_("Set quick export function"))
@@ -907,6 +937,20 @@ class SettingsDialog(Adw.PreferencesWindow):
             config["theme"] = "pink"
             self.avvie.set_pink_theme()
 
+    def change_default_aspect_ratio(self, combo, param):
+        selected = combo.get_selected()
+        if selected == 0:
+            config["aspect"] = "square"
+        elif selected == 1:
+            config["aspect"] = "rect"
+        elif selected == 2:
+            config["aspect"] = "16:10"
+        elif selected == 3:
+            config["aspect"] = "16:9"
+        elif selected == 4:
+            config["aspect"] = "21:9"
+        elif selected == 5:
+            config["aspect"] = "custom"
 
 class Avvie:
     def __init__(self):
@@ -1753,6 +1797,8 @@ class Avvie:
 
     def gen_main_popover(self):
 
+        aspect = config.get("aspect")
+
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_spacing(5)
         vbox.set_margin_start(15)
@@ -1762,7 +1808,8 @@ class Avvie:
 
         opt = Gtk.CheckButton.new_with_label(_("Square"))
         opt.connect("toggled", self.toggle_menu_setting2, "square")
-        opt.set_active(True)
+        if aspect is None or aspect == "square":
+            opt.set_active(True)
         vbox.append(opt)
         opt2 = opt
 
@@ -1770,6 +1817,8 @@ class Avvie:
         self.free_rectangle_radio = opt
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "rect")
+        if aspect == "rect":
+            opt.set_active(True)
         opt.set_group(opt2)
         vbox.append(opt)
 
@@ -1777,24 +1826,32 @@ class Avvie:
         opt.set_group(opt2)
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "16:10")
+        if aspect == "16:10":
+            opt.set_active(True)
         vbox.append(opt)
 
         opt = Gtk.CheckButton.new_with_label("16:9")
         opt.set_group(opt2)
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "16:9")
+        if aspect == "16:9":
+            opt.set_active(True)
         vbox.append(opt)
 
         opt = Gtk.CheckButton.new_with_label("21:9")
         opt.set_group(opt2)
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "21:9")
+        if aspect == "21:9":
+            opt.set_active(True)
         vbox.append(opt)
 
         opt = Gtk.CheckButton.new_with_label(_("Custom"))
         opt.set_group(opt2)
         self.crop_mode_radios.append(opt)
         opt.connect("toggled", self.toggle_menu_setting2, "custom")
+        if aspect == "custom":
+            opt.set_active(True)
         cbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         cbox.append(opt)
         self.custom_ratio_radio = opt
