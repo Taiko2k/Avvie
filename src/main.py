@@ -492,7 +492,7 @@ class Picture:
 
             w, h = cr.size
 
-            if "P" in cr.getbands():
+            if cr.getbands() not in (('R', 'G', 'B'), ('R', 'G', 'B', 'A')):
                 cr = cr.convert("RGB")
             if "A" not in cr.getbands():
                 cr.putalpha(int(1 * 256.0))
@@ -546,7 +546,7 @@ class Picture:
             self.rec_w = round(250 / self.scale_factor)
             self.rec_h = self.rec_w
 
-        if "P" in im.getbands():
+        if im.getbands() not in (('R', 'G', 'B'), ('R', 'G', 'B', 'A')):
             im = im.convert("RGB")
         if "A" not in im.getbands():
             im.putalpha(int(1 * 256.0))
