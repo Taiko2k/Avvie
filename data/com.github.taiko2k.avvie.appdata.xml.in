@@ -28,10 +28,10 @@
   </categories>
 
   <releases>
-    <release version="2.2" date="2022-10-02">
+    <release version="2.3" date="2023-05-30">
       <description>
         <ul>
-          <li>Small bug fix</li>
+          <li>Minor fixes and tweaks</li>
           <li>Updated translations</li>
         </ul>
       </description>

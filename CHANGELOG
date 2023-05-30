@@ -1,4 +1,10 @@
 
+v2.3
+
+ - Added setting for default aspect ratio (Thanks @rgronberg)
+ - Added Russian translation (Thanks @Altizo)
+ - Fixed importing grayscale images not working
+
 v2.2
 
  - Fixed minimum window size
