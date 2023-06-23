@@ -19,6 +19,7 @@
 
 
 import gi
+
 gi.require_version('Gtk', '4.0')
 gi.require_version('Gdk', '4.0')
 gi.require_version('Adw', '1')
@@ -29,11 +30,17 @@ import math
 import subprocess
 import piexif
 import json
+import shutil
 from PIL import Image, ImageFilter, ImageChops, ImageDraw
+
+jpt = shutil.which("jpegtran")
+if not jpt:
+    print("jpegtran not found!")
+
 
 app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
-version = "2.3"
+version = "2.4"
 
 # App background colour
 background_color = (0.15, 0.15, 0.15)
@@ -262,7 +269,11 @@ class CustomDraw(Gtk.Widget):
                             self.set_rect(right - size, bottom - size, ww, hh)
                             s.append_texture(picture.thumb_surfaces[size], self.rect)
 
-                        if i == 0:
+                        if picture.trimmed_size and i == 0:
+                            self.set_color(0.6, 1, 0.6, 0.8)
+                            self.text(f"Lossless {picture.trimmed_size[0]} x {picture.trimmed_size[1]}", right - size, bottom - (size + 17), s)
+
+                        elif i == 0:
                             self.set_color(0.6, 0.6, 0.6, 0.6)
                             self.text(f"{ex_w} x {ex_h}", right - size, bottom - (size + 17), s)
 
@@ -328,6 +339,7 @@ class Picture:
         self.gray = False
         self.discard_exif = False
         self.exif = None
+        self.trimmed_size = None
 
         self.corner_hot_area = 60
         self.all_drag_min = 400
@@ -477,8 +489,18 @@ class Picture:
 
             self.thumb_cache_img = im
 
+        self.trimmed_size = None
         if self.crop:
-            cr = im.crop((self.rec_x, self.rec_y, self.rec_x + self.rec_w, self.rec_y + self.rec_h))
+
+            if self.jpegtran_test():
+                im = self.source_image
+                cr = self.run_jpegtran_pillow(im)
+                self.trimmed_size = cr.size
+
+            else:
+                cr = im.crop((self.rec_x, self.rec_y, self.rec_x + self.rec_w, self.rec_y + self.rec_h))
+
+
         else:
             cr = im.copy()
 
@@ -634,6 +656,46 @@ class Picture:
         self.rec_w = round(w / self.scale_factor)
         self.rec_h = round(h / self.scale_factor)
 
+    def jpegtran_test(self):
+        return config.get("lossless-jpg-crop", False) and jpt and self.source_image.format == 'JPEG' and not self.export_constrain
+
+    def run_jpegtran(self, filepath):
+        if self.flip_hoz:
+            cmd = f"jpegtran -flip horizontal -copy none -optimize -outfile {filepath} {filepath}"
+            subprocess.run(cmd, shell=True, check=True)
+        if self.flip_vert:
+            cmd = f"jpegtran -flip vertical -copy none -optimize -outfile {filepath} {filepath}"
+            subprocess.run(cmd, shell=True, check=True)
+        if self.rotation == -90.0:
+            cmd = f"jpegtran -rotate 90 -copy none -outfile {filepath} {filepath}"
+            subprocess.run(cmd, shell=True, check=True)
+        if self.rotation == 90.0:
+            cmd = f"jpegtran -rotate 270 -copy none -outfile {filepath} {filepath}"
+            subprocess.run(cmd, shell=True, check=True)
+        g = " -grayscale"
+        cmd = f"jpegtran -crop {self.rec_w}x{self.rec_h}+{self.rec_x}+{self.rec_y} -copy none -optimize {g if self.gray else ''} -outfile {filepath} {filepath}"
+        subprocess.run(cmd, shell=True, check=True)
+    def run_jpegtran_file(self, in_path, out_path):
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as temp:
+            f = open(in_path, "rb")
+            temp.write(f.read())
+            f.close()
+            self.run_jpegtran(temp.name)
+            f = open(out_path, "wb")
+            temp.seek(0)
+            f.write(temp.read())
+
+    def run_jpegtran_pillow(self, im):
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=True) as temp:
+            im = im.convert("RGB")
+            im.save(temp.name)
+            self.run_jpegtran(temp.name)
+            cr = Image.open(temp.name)
+
+        return cr
+
     def export(self, path=None):
 
         show_notice = True
@@ -731,7 +793,11 @@ class Picture:
 
             path = path + extra + ext
 
-        if png:
+        if self.jpegtran_test():
+            print("Using lossless mode!")
+            self.run_jpegtran_file(self.loaded_fullpath, path)
+
+        elif png:
 
             if picture.circle and config.get("circle-out", False):
                 cr = cr.convert("RGBA")
@@ -828,6 +894,18 @@ class SettingsDialog(Adw.PreferencesWindow):
             row.set_selected(5)
         row.connect('notify::selected', self.change_default_aspect_ratio)
 
+        # Lossless jpeg mode
+        toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
+        toggle.connect("notify::active", self.toggle_lossless_jpg)
+        if config.get("lossless-jpg-crop", False):
+            toggle.set_active(True)
+        row = Adw.ActionRow()
+        row.set_title(_("Lossless JPG cropping"))
+        row.set_subtitle(_("Lossless cropping is restricted to JPEG iMCU boundaries so selection may be trimmed. Not available with downscaling."))
+        row.add_suffix(toggle)
+        row.set_activatable_widget(toggle)
+        behavior_group.add(row)
+
         # Export Preferences
         export_group = Adw.PreferencesGroup()
         export_group.set_title(_("Set quick export function"))
@@ -915,6 +993,11 @@ class SettingsDialog(Adw.PreferencesWindow):
         self.avvie.set_export_text()
         config["output-mode"] = name
 
+    def toggle_lossless_jpg(self, toggle, param):
+        if toggle.get_active():
+            config["lossless-jpg-crop"] = True
+        else:
+            config["lossless-jpg-crop"] = False
     def toggle_circle_out(self, toggle, param):
         if toggle.get_active():
             config["circle-out"] = True

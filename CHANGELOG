@@ -1,4 +1,8 @@
 
+v2.4
+
+ - Added option for lossless JPEG cropping
+
 v2.3
 
  - Added setting for default aspect ratio (Thanks @rgronberg)
