@@ -657,7 +657,7 @@ class Picture:
         self.rec_h = round(h / self.scale_factor)
 
     def jpegtran_test(self):
-        return config.get("lossless-jpg-crop", False) and jpt and self.source_image.format == 'JPEG' and not self.export_constrain
+        return config.get("lossless-jpg-crop", False) and jpt and not self.png and self.source_image.format == 'JPEG' and not self.export_constrain
 
     def run_jpegtran(self, filepath):
         if self.flip_hoz:
