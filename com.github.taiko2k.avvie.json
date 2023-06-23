@@ -1,7 +1,7 @@
 {
   "app-id": "com.github.taiko2k.avvie",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "42",
+  "runtime-version": "44",
   "sdk": "org.gnome.Sdk",
   "command": "avvie",
   "finish-args": [
