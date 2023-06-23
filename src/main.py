@@ -863,7 +863,9 @@ class SettingsDialog(Adw.PreferencesWindow):
         if config.get("circle-out", False):
             toggle.set_active(True)
         row = Adw.ActionRow()
-        row.set_title(_("Export circle mode (PNG will use alpha mask)"))
+        row.set_title(_("Export circle with circle preview mode"))
+        row.set_subtitle(_("You can click the thumbnail to toggle circle preview mode "
+                           "which doesn't affect output unless this setting is also enabled. PNG's will export with alpha mask. JPGs will export with white frame."))
         row.add_suffix(toggle)
         row.set_activatable_widget(toggle)
         behavior_group.add(row)
