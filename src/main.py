@@ -831,10 +831,10 @@ class Picture:
                 self.exif["0th"][piexif.ImageIFD.XResolution] = (w, 1)
                 self.exif["0th"][piexif.ImageIFD.YResolution] = (h, 1)
                 exif_bytes = piexif.dump(self.exif)
-                cr.save(path, "JPEG", quality=95, exif=exif_bytes)
+                cr.save(path, "JPEG", quality=config.get("jpg-export-quality", 95), exif=exif_bytes)
             else:
 
-                cr.save(path, "JPEG", quality=95)
+                cr.save(path, "JPEG", quality=config.get("jpg-export-quality", 95))
 
         self.last_saved_location = os.path.dirname(path)
 
@@ -906,6 +906,19 @@ class SettingsDialog(Adw.PreferencesWindow):
         row.set_subtitle(_("Lossless cropping is restricted to JPEG iMCU boundaries so selection may be trimmed. Not available with downscaling."))
         row.add_suffix(toggle)
         row.set_activatable_widget(toggle)
+        behavior_group.add(row)
+
+        row = Adw.ActionRow()
+        self.slider = Gtk.Scale()
+        self.slider.set_digits(0)  # Number of decimal places to use
+        self.slider.set_range(0, 100)
+        self.slider.set_draw_value(True)  # Show a label with current value
+        self.slider.set_value(config.get("jpg-export-quality", 95))  # Sets the current value/position
+        self.slider.set_size_request(200, -1)
+        self.slider.connect('value-changed', self.jpg_quality_changed)
+        row.set_title(_("Export JPEG quality"))
+
+        row.add_suffix(self.slider)
         behavior_group.add(row)
 
         # Export Preferences
@@ -982,6 +995,8 @@ class SettingsDialog(Adw.PreferencesWindow):
         row.set_title(_("Add Preview"))
         preview_group.add(inline_box)
 
+    def jpg_quality_changed(self, slider):
+        config["jpg-export-quality"] = int(slider.get_value())
 
     def create_row_for_radio(self, title, radio):
         row = Adw.ActionRow()

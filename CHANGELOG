@@ -2,6 +2,7 @@
 v2.4
 
  - Added option for lossless JPEG cropping
+ - Added JPEG quality slider setting
  - Tweaked some info text in settings
 
 v2.3
