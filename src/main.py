@@ -201,12 +201,26 @@ class CustomDraw(Gtk.Widget):
                     self.set_rect(x + rx, y + ry + rh, rw, h - ry - rh)
                     s.append_color(self.colour, self.rect)
 
-                    # Draw center lines
                     self.set_color(0.7, 0.7, 0.6, 0.6)
-                    self.set_rect(x + rx + rw // 2 - 0, y + ry, 2, rh)
-                    s.append_color(self.colour, self.rect)
-                    self.set_rect(x + rx, y + ry + rh // 2 - 0, rw, 2)
-                    s.append_color(self.colour, self.rect)
+
+                    if config.get("rule-of-thirds", False) and not picture.circle:
+                        part = int(rw // 3)
+                        self.set_rect(x + rx + part, y + ry, 2, rh)
+                        s.append_color(self.colour, self.rect)
+                        self.set_rect(x + rx + part * 2, y + ry, 2, rh)
+                        s.append_color(self.colour, self.rect)
+                        part = int(rh // 3)
+                        self.set_rect(x + rx, y + ry + part, rw, 2)
+                        s.append_color(self.colour, self.rect)
+                        self.set_rect(x + rx, y + ry + part * 2, rw, 2)
+                        s.append_color(self.colour, self.rect)
+
+                    else:
+                        # Draw center lines
+                        self.set_rect(x + rx + rw // 2 - 0, y + ry, 2, rh)
+                        s.append_color(self.colour, self.rect)
+                        self.set_rect(x + rx, y + ry + rh // 2 - 0, rw, 2)
+                        s.append_color(self.colour, self.rect)
 
                     # Draw rectangle outline
                     self.set_color(0.7, 0.7, 0.6, 1)
@@ -858,6 +872,18 @@ class SettingsDialog(Adw.PreferencesWindow):
         behavior_group = Adw.PreferencesGroup()
         behavior_group.set_title(_("Behavior"))
         page.add(behavior_group)
+
+
+        toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
+        toggle.connect("notify::active", self.toggle_rule_of_thirds)
+        row = Adw.ActionRow()
+        row.set_title(_("Use rule-of-thirds grid"))
+        #row.set_subtitle(_(""))
+        row.add_suffix(toggle)
+        row.set_activatable_widget(toggle)
+        behavior_group.add(row)
+
+
         toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
         toggle.connect("notify::active", self.toggle_circle_out)
         if config.get("circle-out", False):
@@ -1020,6 +1046,12 @@ class SettingsDialog(Adw.PreferencesWindow):
             config["circle-out"] = True
         else:
             config["circle-out"] = False
+        self.dw.queue_draw()
+    def toggle_rule_of_thirds(self, toggle, param):
+        if toggle.get_active():
+            config["rule-of-thirds"] = True
+        else:
+            config["rule-of-thirds"] = False
 
     def change_theme(self, combo, param):
         selected = combo.get_selected()
