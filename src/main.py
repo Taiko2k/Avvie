@@ -1104,6 +1104,7 @@ class Avvie:
         self.app.connect('activate', self.on_activate)
         self.to_load = None
         self.running = False
+        self.file_list = []
 
     # def run_args(self):
     #     for item in sys.argv[1:]:
@@ -1212,7 +1213,7 @@ class Avvie:
         # self.connect("key-press-event", self.on_key_press_event)
         # self.connect("key-release-event", self.on_key_release_event)
 
-        dt = Gtk.DropTarget.new(Gio.File, Gdk.DragAction.COPY)
+        dt = Gtk.DropTarget.new(Gdk.FileList, Gdk.DragAction.COPY)
         dt.connect("drop", self.drag_drop_file)
         self.dw.add_controller(dt)
 
@@ -1235,6 +1236,18 @@ class Avvie:
         button.set_icon_name("document-open-symbolic")
         hb.pack_start(button)
         button.connect("clicked", self.open_file)
+
+        self.forward_button = Gtk.Button.new_from_icon_name("go-next-symbolic")
+        self.forward_button.set_visible(False)
+        self.back_button = Gtk.Button.new_from_icon_name("go-previous-symbolic")
+        self.back_button.set_visible(False)
+        self.forward_button.connect("clicked", self.on_forward_button_clicked)
+        self.back_button.connect("clicked", self.on_back_button_clicked)
+        self.navigate_spacer = Gtk.Separator()
+        self.navigate_spacer.set_visible(False)
+        hb.pack_start(self.navigate_spacer)
+        hb.pack_start(self.back_button)
+        hb.pack_start(self.forward_button)
 
         # Hb export image
         button = Gtk.Button()
@@ -1299,6 +1312,38 @@ class Avvie:
     def show_save_dialog(self):
         self.save_dialog.save(self.win, None, self.save_dialog_callback)
 
+    def on_forward_button_clicked(self, button):
+        try:
+            current = picture.loaded_fullpath
+            index = self.file_list.index(current)
+            index += 1
+            if index >= len(self.file_list):
+                return
+            if index == len(self.file_list) - 1:
+                self.forward_button.set_sensitive(False)
+            self.back_button.set_sensitive(True)
+
+            new = self.file_list[index]
+            self.open_process_2(new)
+        except:
+            print("ERROR")
+
+    def on_back_button_clicked(self, button):
+        try:
+            current = picture.loaded_fullpath
+            index = self.file_list.index(current)
+            index -= 1
+            if index < 0:
+                return
+            if index == 1:
+                self.back_button.set_sensitive(False)
+            self.forward_button.set_sensitive(True)
+
+            new = self.file_list[index]
+            self.open_process_2(new)
+        except:
+            print("ERROR")
+
     def save_dialog_callback(self, dialog, result):
         try:
             file = dialog.save_finish(result)
@@ -1310,19 +1355,44 @@ class Avvie:
             print(f"Error opening file: {error.message}")
 
     def show_open_dialog(self):
-        self.open_dialog.open(self.win, None, self.open_dialog_callback)
+        self.open_dialog.open_multiple(self.win, None, self.open_dialog_callback)
+
+    def open_process(self, path_list):
+
+        self.file_list = path_list
+        self.forward_button.set_sensitive(True)
+        self.back_button.set_sensitive(True)
+        if len(path_list) > 1:
+            self.forward_button.set_visible(True)
+            self.back_button.set_visible(True)
+            self.navigate_spacer.set_visible(True)
+        else:
+            self.forward_button.set_visible(False)
+            self.back_button.set_visible(False)
+            self.navigate_spacer.set_visible(False)
+
+        self.open_process_2(path_list[0])
+
+    def open_process_2(self, file_path):
+        print("File selected: " + file_path)
+        self.quick_export_button.set_sensitive(True)
+        if os.path.isfile(file_path):
+            picture.load(file_path, (self.dw.get_width(), self.dw.get_height()))
+
+        self.dw.queue_draw()
+        self.discard_exif_button.set_sensitive(picture.exif and True)
 
     def open_dialog_callback(self, dialog, result):
         try:
-            file = dialog.open_finish(result)
-            if file is not None:
-                filename = file.get_path()
-                print("File selected: " + filename)
-                self.quick_export_button.set_sensitive(True)
-                picture.load(filename, (self.dw.get_width(), self.dw.get_height()))
-                self.dw.queue_draw()
-                self.discard_exif_button.set_sensitive(picture.exif and True)
-                # Handle loading file from here
+            g_files = dialog.open_multiple_finish(result)
+
+            if not g_files:
+                return
+            files = []
+            for item in g_files:
+                files.append(item.get_path())
+            self.open_process(files)
+
         except GLib.Error as error:
             print(f"Error opening file: {error.message}")
 
@@ -1775,16 +1845,12 @@ class Avvie:
 
                     right -= size + 16
 
-    def drag_drop_file(self, drop_target, file, x, y):
+    def drag_drop_file(self, drop_target, g_files, x, y):
 
-        path = file.get_path()
-
-        self.quick_export_button.set_sensitive(True)
-        if os.path.isfile(path):
-            picture.load(path, (self.dw.get_width(), self.dw.get_height()))
-            self.discard_exif_button.set_sensitive(picture.exif and True)
-
-        self.dw.queue_draw()
+        list = []
+        for item in g_files.get_files():
+            list.append(item.get_path())
+        self.open_process(list)
 
     def click_thumb_menu(self, action, data):
         name = action.get_name()
@@ -2182,6 +2248,11 @@ class Avvie:
             picture.rec_y += 1
             picture.gen_thumbnails(hq=True)
             self.dw.queue_draw()
+
+        if keyval == Gdk.KEY_Page_Up:
+            self.on_back_button_clicked(None)
+        elif keyval == Gdk.KEY_Page_Down:
+            self.on_forward_button_clicked(None)
 
     def on_key_release_event(self,  event, keyval, keycode, state):
 
