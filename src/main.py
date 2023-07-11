@@ -2291,6 +2291,7 @@ class Avvie:
         dialog = SettingsDialog(self.win, self)
         dialog.set_transient_for(self.win)
         dialog.set_visible(True)
+        dialog.connect("close-request", lambda x: self.dw.queue_draw())
         self.popover.set_visible(False)
 
     def add_preview(self, button):
