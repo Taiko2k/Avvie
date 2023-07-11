@@ -203,7 +203,7 @@ class CustomDraw(Gtk.Widget):
 
                     self.set_color(0.7, 0.7, 0.6, 0.6)
 
-                    if config.get("rule-of-thirds", False) and not picture.circle:
+                    if config.get("guide-mode", 1) == 2 and not picture.circle:
                         part = int(rw // 3)
                         self.set_rect(x + rx + part, y + ry, 2, rh)
                         s.append_color(self.colour, self.rect)
@@ -215,7 +215,7 @@ class CustomDraw(Gtk.Widget):
                         self.set_rect(x + rx, y + ry + part * 2, rw, 2)
                         s.append_color(self.colour, self.rect)
 
-                    else:
+                    elif config.get("guide-mode", 1) == 1:
                         # Draw center lines
                         self.set_rect(x + rx + rw // 2 - 0, y + ry, 2, rh)
                         s.append_color(self.colour, self.rect)
@@ -873,16 +873,22 @@ class SettingsDialog(Adw.PreferencesWindow):
         behavior_group.set_title(_("Behavior"))
         page.add(behavior_group)
 
-
-        toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
-        toggle.connect("notify::active", self.toggle_rule_of_thirds)
         row = Adw.ActionRow()
-        row.set_title(_("Use rule-of-thirds grid"))
-        #row.set_subtitle(_(""))
-        row.add_suffix(toggle)
-        row.set_activatable_widget(toggle)
-        behavior_group.add(row)
+        row.set_title(_("Crop guide type"))
 
+        options = Gio.ListStore.new(Gtk.StringObject)
+        options.append(Gtk.StringObject.new("None"))
+        options.append(Gtk.StringObject.new("Cross"))
+        options.append(Gtk.StringObject.new("Rule of thirds"))
+
+        self.guide_drop_down = Gtk.DropDown.new()
+        self.guide_drop_down.set_model(options)
+        self.guide_drop_down.set_selected(config.get("guide-mode", 1))
+
+        self.guide_drop_down.connect("notify::selected-item", self.on_guide_changed)
+
+        row.add_suffix(self.guide_drop_down)
+        behavior_group.add(row)
 
         toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
         toggle.connect("notify::active", self.toggle_circle_out)
@@ -1047,11 +1053,13 @@ class SettingsDialog(Adw.PreferencesWindow):
         else:
             config["circle-out"] = False
         self.dw.queue_draw()
-    def toggle_rule_of_thirds(self, toggle, param):
-        if toggle.get_active():
-            config["rule-of-thirds"] = True
-        else:
-            config["rule-of-thirds"] = False
+
+    def on_guide_changed(self, drop_down, param):
+        index = drop_down.get_selected()
+        self.guide_drop_down.set_selected(index)
+        config["guide-mode"] = index
+        self.dw.queue_draw()
+
 
     def change_theme(self, combo, param):
         selected = combo.get_selected()
