@@ -28,11 +28,13 @@
   </categories>
 
   <releases>
-    <release version="2.3" date="2023-05-30">
+    <release version="2.4" date="2023-07-11">
       <description>
         <ul>
-          <li>Minor fixes and tweaks</li>
-          <li>Updated translations</li>
+          <li>Added option for lossless JPEG cropping</li>
+          <li>Added option to set JPEG export quality</li>
+          <li>Added rule of thirds grid option</li>
+          <li>Added ability to open and queue multiple files</li>
         </ul>
       </description>
     </release>

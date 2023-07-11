@@ -874,34 +874,17 @@ class SettingsDialog(Adw.PreferencesWindow):
         behavior_group.set_title(_("Behavior"))
         page.add(behavior_group)
 
-        row = Adw.ActionRow()
-        row.set_title(_("Crop guide type"))
 
-        options = Gio.ListStore.new(Gtk.StringObject)
-        options.append(Gtk.StringObject.new("None"))
-        options.append(Gtk.StringObject.new("Cross"))
-        options.append(Gtk.StringObject.new("Rule of thirds"))
+        options = Gtk.StringList.new(["None", "Cross", "Rule of thirds"])
 
-        self.guide_drop_down = Gtk.DropDown.new()
-        self.guide_drop_down.set_model(options)
-        self.guide_drop_down.set_selected(config.get("guide-mode", 1))
+        self.guide_combo_row = Adw.ComboRow()
+        self.guide_combo_row.set_title("Guide Mode")
+        self.guide_combo_row.set_model(options)
+        self.guide_combo_row.set_selected(config.get("guide-mode", 1))
 
-        self.guide_drop_down.connect("notify::selected-item", self.on_guide_changed)
+        self.guide_combo_row.connect("notify::selected", self.on_guide_changed)
+        behavior_group.add(self.guide_combo_row)
 
-        row.add_suffix(self.guide_drop_down)
-        behavior_group.add(row)
-
-        toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
-        toggle.connect("notify::active", self.toggle_circle_out)
-        if config.get("circle-out", False):
-            toggle.set_active(True)
-        row = Adw.ActionRow()
-        row.set_title(_("Export circle with circle preview mode"))
-        row.set_subtitle(_("You can click the thumbnail to toggle circle preview mode "
-                           "which doesn't affect output unless this setting is also enabled. PNG's will export with alpha mask. JPGs will export with white frame."))
-        row.add_suffix(toggle)
-        row.set_activatable_widget(toggle)
-        behavior_group.add(row)
 
         aspect_ratios = Gtk.StringList.new([
             _("Square"),
@@ -911,6 +894,7 @@ class SettingsDialog(Adw.PreferencesWindow):
             "21:9",
             _("Custom")
         ])
+
         row = Adw.ComboRow()
         row.set_title(_("Default Aspect Ratio"))
         row.set_model(aspect_ratios)
@@ -928,6 +912,19 @@ class SettingsDialog(Adw.PreferencesWindow):
         elif config.get("aspect", "square") == "custom":
             row.set_selected(5)
         row.connect('notify::selected', self.change_default_aspect_ratio)
+
+
+        toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
+        toggle.connect("notify::active", self.toggle_circle_out)
+        if config.get("circle-out", False):
+            toggle.set_active(True)
+        row = Adw.ActionRow()
+        row.set_title(_("Export circle with circle preview mode"))
+        row.set_subtitle(_("You can click the thumbnail to toggle circle preview mode "
+                           "which doesn't affect output unless this setting is also enabled. PNG's will export with alpha mask. JPGs will export with white frame."))
+        row.add_suffix(toggle)
+        row.set_activatable_widget(toggle)
+        behavior_group.add(row)
 
         # Lossless jpeg mode
         toggle = Gtk.Switch(valign=Gtk.Align.CENTER)
@@ -1053,11 +1050,10 @@ class SettingsDialog(Adw.PreferencesWindow):
             config["circle-out"] = True
         else:
             config["circle-out"] = False
-        self.dw.queue_draw()
 
-    def on_guide_changed(self, drop_down, param):
-        index = drop_down.get_selected()
-        self.guide_drop_down.set_selected(index)
+    def on_guide_changed(self, combo, param):
+        index = combo.get_selected()
+        self.guide_combo_row.set_selected(index)
         config["guide-mode"] = index
 
     def change_theme(self, combo, param):
