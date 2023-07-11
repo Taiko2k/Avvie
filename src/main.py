@@ -861,6 +861,7 @@ picture = Picture()
 class SettingsDialog(Adw.PreferencesWindow):
     def __init__(self, parent, avvie):
         Adw.PreferencesWindow.__init__(self)
+
         self.set_default_size(500, 550)
         self.set_search_enabled(False)
         self.avvie = avvie
@@ -1058,8 +1059,6 @@ class SettingsDialog(Adw.PreferencesWindow):
         index = drop_down.get_selected()
         self.guide_drop_down.set_selected(index)
         config["guide-mode"] = index
-        self.dw.queue_draw()
-
 
     def change_theme(self, combo, param):
         selected = combo.get_selected()
