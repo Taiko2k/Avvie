@@ -2264,20 +2264,22 @@ class Avvie:
             picture.drag_start_position = None
 
     def show_about(self, button):
-        self.about = Gtk.AboutDialog()
+        self.about = Adw.AboutWindow()
         self.about.set_transient_for(self.win)
         self.about.set_modal(self.win)
 
-        self.about.set_authors(["Taiko2k"])
+        self.about.set_application_name(app_title)
+        self.about.set_developers(["Taiko2k <captain.gxj@gmail.com>"])
+        self.about.set_developer_name("Taiko2k")
         self.about.set_translator_credits(_("translator-credits"))
         self.about.set_artists(["Tobias Bernard"])
-        self.about.set_copyright("Copyright 2019-2022 Taiko2k captain.gxj@gmail.com")
+        self.about.set_copyright("Copyright © 2019-2022 Taiko2k")
         self.about.set_license_type(Gtk.License(3))
         self.about.set_website("https://github.com/taiko2k/" + app_title.lower())
-        self.about.set_website_label("Github")
+        self.about.set_issue_url("https://github.com/taiko2k/" + app_title.lower() + "/issues")
         self.about.set_destroy_with_parent(True)
         self.about.set_version(version)
-        self.about.set_logo_icon_name(app_id)
+        self.about.set_application_icon(app_id)
 
         self.about.set_visible(True)
         self.popover.set_visible(False)
