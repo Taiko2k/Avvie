@@ -41,7 +41,7 @@ if not jpt:
 app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
 version = "2.4"
-default_theme = "pink"
+default_theme = "default"
 
 # App background colour
 background_color = (0.14, 0.14, 0.14)
