@@ -41,9 +41,11 @@ if not jpt:
 app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
 version = "2.4"
+default_theme = "default"
 
 # App background colour
-background_color = (0.15, 0.15, 0.15)
+background_color = (0.14, 0.14, 0.14)
+#background_color = (0.9, 0.9, 0.9)
 
 # Load json config file
 config_folder = os.path.join(GLib.get_user_config_dir(), app_id)
@@ -224,7 +226,7 @@ class CustomDraw(Gtk.Widget):
 
                     # Draw rectangle outline
                     self.set_color(0.7, 0.7, 0.6, 1)
-                    if config.get("theme", "pink") == 'pink':
+                    if config.get("theme", default_theme) == 'pink':
                         self.set_color(1, 0.6, 0.6, 1)
                     self.set_r_rect(x + rx, y + ry, rw, rh, 0)
                     s.append_border(self.r_rect, [2]*4, [self.colour] * 4)
@@ -987,18 +989,21 @@ class SettingsDialog(Adw.PreferencesWindow):
         themes = Gtk.StringList.new([
             _("Default"),
             _("Dark"),
+            _("Light"),
             _("Pinku")
         ])
         row = Adw.ComboRow()
         row.set_title(_("Theme"))
         row.set_model(themes)
         theme_group.add(row)
-        if config.get("theme", "pink") == 'default':
+        if config.get("theme", default_theme) == 'default':
             row.set_selected(0)
-        if config.get("theme", "pink") == 'dark':
+        if config.get("theme", default_theme) == 'dark':
             row.set_selected(1)
-        if config.get("theme", "pink") == 'pink':
+        if config.get("theme", default_theme) == 'light':
             row.set_selected(2)
+        if config.get("theme", default_theme) == 'pink':
+            row.set_selected(3)
         row.connect('notify::selected', self.change_theme)
 
         # Preview
@@ -1065,6 +1070,9 @@ class SettingsDialog(Adw.PreferencesWindow):
             config["theme"] = "dark"
             self.avvie.set_dark_theme()
         elif selected == 2:
+            config["theme"] = "light"
+            self.avvie.set_light_theme()
+        elif selected == 3:
             config["theme"] = "pink"
             self.avvie.set_pink_theme()
 
@@ -1129,6 +1137,10 @@ class Avvie:
         self.reset_theme()
         self.sm.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
 
+    def set_light_theme(self):
+        self.reset_theme()
+        self.sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+
     def set_pink_theme(self):
         self.reset_theme()
         self.sm.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
@@ -1156,26 +1168,26 @@ class Avvie:
             return
         self.running = True
 
-        self.win = Gtk.ApplicationWindow(application=app)
+        self.win = Adw.ApplicationWindow(application=app)
+        self.tb = Adw.ToolbarView()
         self.dw = CustomDraw(self)
 
         self.sc = self.win.get_style_context()
         self.sm = app.get_style_manager()
         self.css = Gtk.CssProvider.new()
 
-        if config.get("theme", "pink") == "pink":
+        if config.get("theme", default_theme) == "pink":
             self.set_pink_theme()
-        if config.get("theme", "pink") == "dark":
+        if config.get("theme", default_theme) == "dark":
             self.set_dark_theme()
+        if config.get("theme", default_theme) == "light":
+            self.set_light_theme()
 
 
         self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
 
         self.save_dialog = Gtk.FileDialog.new()
         self.save_dialog.set_title(_("Choose where to save"))
-
-        # self.save_dialog = Gtk.FileChooserNative.new(title=_("Choose where to save"),
-        #                                     parent=self.win, action=Gtk.FileChooserAction.SAVE)
 
         f = Gtk.FileFilter()
         f.set_name(_("Image files"))
@@ -1230,8 +1242,11 @@ class Avvie:
 
 
         # Header bar
-        hb = Gtk.HeaderBar()
-        self.win.set_titlebar(hb)
+        hb = Adw.HeaderBar()
+
+        self.tb.add_top_bar(hb)
+        self.win.set_content(self.tb)
+        self.tb.set_content(self.dw)
 
         # Hb Open file
         button = Gtk.Button()
@@ -1306,7 +1321,7 @@ class Avvie:
         self.thumb_menu.set_parent(self.dw)
 
         # win drawing area
-        self.win.set_child(self.dw)
+        #self.win.set_child(self.dw)
 
         self.win.present()
 
