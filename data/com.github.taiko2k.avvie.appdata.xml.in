@@ -4,7 +4,7 @@
   <id>com.github.taiko2k.avvie</id>
   <name>Avvie</name>
   <developer_name>Taiko2k</developer_name>
-  <summary>Crop images for avatars or wallpapers</summary>
+  <summary>Quick and easy image cropping</summary>
   <launchable type="desktop-id">com.github.taiko2k.avvie.desktop</launchable>
   <metadata_license>CC-BY-SA-3.0</metadata_license>
   <project_license>GPL-3.0+</project_license>

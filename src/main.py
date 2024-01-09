@@ -160,6 +160,7 @@ class CustomDraw(Gtk.Widget):
             picture.load(self.avvie.to_load, (w, h))
             self.avvie.to_load = None
 
+        light_theme = False
         if config.get("theme", default_theme) == "pink":
             self.set_color(*background_color)
             self.set_rect(0, 0, w, h)
@@ -169,6 +170,7 @@ class CustomDraw(Gtk.Widget):
         else:
             if self.avvie.cx_colour[0] > 0.5:
                 self.set_color(.8, .8, .8)
+                light_theme = True
             else:
                 self.set_color(.3, .3, .3)
 
@@ -243,6 +245,8 @@ class CustomDraw(Gtk.Widget):
                         s.append_border(self.r_rect, [2] * 4, [self.colour] * 4)
 
                     self.set_color(0.6, 0.6, 0.6, 0.6)
+                    if light_theme:
+                        self.set_color(0.4, 0.4, 0.4, 1)
                     if picture.rec_h == 1080 and (picture.rec_w == 2560 or picture.rec_w == 1920):
                         self.set_color(0.2, 0.9, 0.2, 1)
                     elif picture.lock_ratio and picture.crop_ratio != (1, 1):
@@ -297,6 +301,8 @@ class CustomDraw(Gtk.Widget):
 
                         elif i == 0:
                             self.set_color(0.6, 0.6, 0.6, 0.6)
+                            if light_theme:
+                                self.set_color(0.4, 0.4, 0.4, 1)
                             self.text(f"{ex_w} x {ex_h}", right - size, bottom - (size + 17), s)
 
                         if i == 0 and picture.exif and not picture.discard_exif and picture.png is False:
