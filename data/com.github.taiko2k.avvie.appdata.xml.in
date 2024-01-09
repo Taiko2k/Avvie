@@ -10,6 +10,8 @@
   <project_license>GPL-3.0+</project_license>
   <url type="homepage">https://github.com/Taiko2k/avvie</url>
   <url type="bugtracker">https://github.com/Taiko2k/avvie/issues</url>
+  <url type="vcs-browser">https://github.com/Taiko2k/avvie</url>
+  <url type="translate">https://github.com/Taiko2k/Avvie/tree/master/po</url>
   <icon type="remote" height="256" width="256">https://user-images.githubusercontent.com/17271572/65506667-343ef700-df20-11e9-8590-14bfa569c3c2.png</icon>
 
   <description>
@@ -23,13 +25,9 @@
     </screenshot>
   </screenshots>
 
-  <categories>
-    <category>Graphics</category>
-  </categories>
-
   <releases>
     <release version="2.4" date="2023-07-14">
-      <description>
+      <description translatable="no">
         <ul>
           <li>Added option for lossless JPEG cropping</li>
           <li>Added option to set JPEG export quality</li>
