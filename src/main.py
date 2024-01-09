@@ -41,7 +41,7 @@ if not jpt:
 app_title = 'Avvie'
 app_id = "com.github.taiko2k.avvie"
 version = "2.4"
-default_theme = "default"
+default_theme = "pink"
 
 # App background colour
 background_color = (0.14, 0.14, 0.14)
@@ -160,11 +160,17 @@ class CustomDraw(Gtk.Widget):
             picture.load(self.avvie.to_load, (w, h))
             self.avvie.to_load = None
 
-        self.set_color(*background_color)
-        self.set_rect(0, 0, w, h)
-        s.append_color(self.colour, self.rect)
+        if config.get("theme", default_theme) == "pink":
+            self.set_color(*background_color)
+            self.set_rect(0, 0, w, h)
+            s.append_color(self.colour, self.rect)
 
-        self.set_color(.3, .3, .3)
+            self.set_color(.3, .3, .3)
+        else:
+            if self.avvie.cx_colour[0] > 0.5:
+                self.set_color(.8, .8, .8)
+            else:
+                self.set_color(.3, .3, .3)
 
         size = 16
         for y in range(0, h + 20, 100):
@@ -990,7 +996,7 @@ class SettingsDialog(Adw.PreferencesWindow):
             _("Default"),
             _("Dark"),
             _("Light"),
-            _("Pinku")
+            _("Sakura")
         ])
         row = Adw.ComboRow()
         row.set_title(_("Theme"))
@@ -1075,6 +1081,9 @@ class SettingsDialog(Adw.PreferencesWindow):
         elif selected == 3:
             config["theme"] = "pink"
             self.avvie.set_pink_theme()
+
+        c = self.avvie.sc.lookup_color("theme_bg_color")[1]
+        self.avvie.cx_colour = (c.red, c.green, c.blue)
 
     def change_default_aspect_ratio(self, combo, param):
         selected = combo.get_selected()
@@ -1174,6 +1183,7 @@ class Avvie:
 
         self.sc = self.win.get_style_context()
         self.sm = app.get_style_manager()
+
         self.css = Gtk.CssProvider.new()
 
         if config.get("theme", default_theme) == "pink":
@@ -1183,6 +1193,8 @@ class Avvie:
         if config.get("theme", default_theme) == "light":
             self.set_light_theme()
 
+        c = self.sc.lookup_color("theme_bg_color")[1]
+        self.cx_colour = (c.red, c.green, c.blue)
 
         self.add_preview_adjustment = Gtk.Adjustment(value=64, lower=16, upper=512, step_increment=16)
 
@@ -1723,6 +1735,7 @@ class Avvie:
         c.paint()
 
         # Draw background grid
+
         c.set_source_rgb(0.3, 0.3, 0.3)
         c.set_line_width(1)
 
