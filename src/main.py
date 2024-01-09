@@ -889,10 +889,14 @@ class SettingsDialog(Adw.PreferencesWindow):
         page.add(behavior_group)
 
 
-        options = Gtk.StringList.new(["None", "Cross", "Rule of thirds"])
+        options = Gtk.StringList.new([
+            _("None"),
+            _("Cross"),
+            _("Rule of thirds")
+        ])
 
         self.guide_combo_row = Adw.ComboRow()
-        self.guide_combo_row.set_title("Guide Mode")
+        self.guide_combo_row.set_title(_("Guide Mode"))
         self.guide_combo_row.set_model(options)
         self.guide_combo_row.set_selected(config.get("guide-mode", 1))
 
