@@ -27,7 +27,7 @@
 
   <releases>
     <release version="2.4" date="2023-07-14">
-      <description translatable="no">
+      <description translate="no">
         <ul>
           <li>Added option for lossless JPEG cropping</li>
           <li>Added option to set JPEG export quality</li>
