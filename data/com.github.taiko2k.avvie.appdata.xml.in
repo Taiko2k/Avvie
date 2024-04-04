@@ -4,6 +4,9 @@
   <id>com.github.taiko2k.avvie</id>
   <name>Avvie</name>
   <developer_name>Taiko2k</developer_name>
+  <developer id="io.github.taiko2k">
+    <name>Lorenzo Paderi</name>
+  </developer>
   <summary>Quick and easy image cropping</summary>
   <launchable type="desktop-id">com.github.taiko2k.avvie.desktop</launchable>
   <metadata_license>CC-BY-SA-3.0</metadata_license>
