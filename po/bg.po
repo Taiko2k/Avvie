@@ -1,0 +1,291 @@
+# LANGUAGE translation for avvie.
+# Copyright (C) YEAR Taiko2k.
+# This file is distributed under the same license as the avvie package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# twlvnn <kraft_werk@tutanota.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: avvie\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-10 01:06+0300\n"
+"PO-Revision-Date: 2024-04-20 11:18+0200\n"
+"Last-Translator: twlvnn <kraft_werk@tutanota.com>\n"
+"Language-Team: Bulgarian <dict-notifications@fsa-bg.org>\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 45.3\n"
+
+#: data/com.github.taiko2k.avvie.desktop.in:3
+#: data/com.github.taiko2k.avvie.appdata.xml.in:5
+msgid "Avvie"
+msgstr "Avvie"
+
+#: data/com.github.taiko2k.avvie.desktop.in:4
+msgid "Image Cropper"
+msgstr "Резач на изображения"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:6
+msgid "Taiko2k"
+msgstr "Taiko2k"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:7
+msgid "Quick and easy image cropping"
+msgstr "Бързо и лесно изрязване на изображения"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:18
+msgid ""
+"A simple tool for cropping and downsizing images. Suitable for avatars or "
+"cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in "
+"one click to your Pictures folder."
+msgstr ""
+"Прост инструмент за изрязване и намаляване на размера на изображенията. "
+"Подходящ за аватари или за изрязване на снимки за използване като тапети за "
+"работния плот. Преобразувайте PNG в JPG. Изнасяйте с едно натискане в "
+"папката Изображения."
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:24
+msgid "Main window showing image with a crop selection"
+msgstr "Основен прозорец, показващ изображение с избрано изрязване"
+
+#: src/main.py:888
+msgid "Behavior"
+msgstr "Поведение"
+
+#: src/main.py:893
+msgid "None"
+msgstr "Без"
+
+#: src/main.py:894
+msgid "Cross"
+msgstr "Кръст"
+
+#: src/main.py:895
+msgid "Rule of thirds"
+msgstr "Поделяне на три"
+
+#: src/main.py:899
+msgid "Guide Mode"
+msgstr "Режим на водача"
+
+#: src/main.py:908 src/main.py:2077
+msgid "Square"
+msgstr "Квадрат"
+
+#: src/main.py:909 src/main.py:2084
+msgid "Free Rectangle"
+msgstr "Свободен правоъгълник"
+
+#: src/main.py:913 src/main.py:2117 src/main.py:2179
+msgid "Custom"
+msgstr "Друг"
+
+#: src/main.py:917
+msgid "Default Aspect Ratio"
+msgstr "Стандартно съотношение на екрана"
+
+#: src/main.py:940
+msgid "Export circle with circle preview mode"
+msgstr "Изнесете кръга с предварителен преглед с кръг"
+
+#: src/main.py:941
+msgid ""
+"You can click the thumbnail to toggle circle preview mode which doesn't "
+"affect output unless this setting is also enabled. PNG's will export with "
+"alpha mask. JPGs will export with white frame."
+msgstr ""
+"Може да натиснете миниатюрата, за да превключите предварителния преглед с "
+"кръг, който не влияе на резултата, освен ако тази настройка също не е "
+"включена. PNG ще се изнасят с прозрачност. JPG ще се изнасят с бяла рамка."
+
+#: src/main.py:953
+msgid "Lossless JPG cropping"
+msgstr "Изрежете JPG без загуба"
+
+#: src/main.py:954
+msgid ""
+"Lossless cropping is restricted to JPEG iMCU boundaries so selection may be "
+"trimmed. Not available with downscaling."
+msgstr ""
+"Изрязване без загуба е ограничено до границите на JPEG iMCU, така че избора "
+"може да бъде нарязан. Не е налично при намаляване на мащаба."
+
+#: src/main.py:967
+msgid "Export JPEG quality"
+msgstr "Качество на изнасяне на JPEG"
+
+#: src/main.py:974
+msgid "Set quick export function"
+msgstr "Задаване на функция за бързо изнасяне"
+
+#: src/main.py:979
+msgid "Export to Downloads"
+msgstr "Изнасете в Свалени"
+
+#: src/main.py:987
+msgid "Export to Pictures"
+msgstr "Изнесете в Изображения"
+
+#: src/main.py:995
+msgid "Overwrite Source File"
+msgstr "Презапишете файла с източника"
+
+#: src/main.py:1002
+msgid "Appearance"
+msgstr "Изглед"
+
+#: src/main.py:1006
+msgid "Default"
+msgstr "Стандартно"
+
+#: src/main.py:1007
+msgid "Dark"
+msgstr "Тъмна"
+
+#: src/main.py:1008
+msgid "Light"
+msgstr "Светла"
+
+#: src/main.py:1009
+msgid "Sakura"
+msgstr "Сакура"
+
+#: src/main.py:1012
+msgid "Theme"
+msgstr "Тема"
+
+#: src/main.py:1027 src/main.py:1046
+msgid "Add Preview"
+msgstr "Добавяне на предварителен преглед"
+
+#: src/main.py:1041
+msgid "Add"
+msgstr "Добавете"
+
+#: src/main.py:1127
+msgid "Show in Files"
+msgstr "Показване във „Файлове“"
+
+#: src/main.py:1129
+msgid "Error!"
+msgstr "Грешка!"
+
+#: src/main.py:1130
+msgid "Could not locate output folder!"
+msgstr "Папката за извеждане на резьултата не е намерена!"
+
+#: src/main.py:1212
+msgid "Choose where to save"
+msgstr "Избиране на местоположение за запазване"
+
+#: src/main.py:1215
+msgid "Image files"
+msgstr "Изображения"
+
+#: src/main.py:1226
+msgid "Choose an image file"
+msgstr "Избиране на изображение"
+
+#: src/main.py:1275
+msgid "Open image file"
+msgstr "Отваряне на изображение"
+
+#: src/main.py:1305
+msgid "Options Menu"
+msgstr "Меню с настройките"
+
+#: src/main.py:1312
+msgid "Enable Crop"
+msgstr "Включване на изрязване"
+
+#: src/main.py:1333
+msgid "Toggle Circle"
+msgstr "Превключване на кръг"
+
+#: src/main.py:1338
+msgid "Remove Preview"
+msgstr "Премахване на предварителен преглед"
+
+#: src/main.py:1447
+msgid "Export to Downloads folder"
+msgstr "Изнасяне в папката със свалени"
+
+#: src/main.py:1448
+msgid "Image file exported to Downloads."
+msgstr "Изображението е изнесено в Свалени."
+
+#: src/main.py:1450
+msgid "Export to Pictures folder"
+msgstr "Изнасяне в папката с изображения"
+
+#: src/main.py:1451
+msgid "Image file exported to Pictures."
+msgstr "Изображението е изнесено в Изображения."
+
+#: src/main.py:1453
+msgid "Overwrite Image"
+msgstr "Презаписване на изображението"
+
+#: src/main.py:1454
+msgid "Image file overwritten."
+msgstr "Изображението е презаписано."
+
+#: src/main.py:2135
+msgid "Reset rotation"
+msgstr "Връщане на обръщането"
+
+#: src/main.py:2147
+msgid "Flip Vertical"
+msgstr "Обръщане по вертикал"
+
+#: src/main.py:2150
+msgid "Flip Horizontal"
+msgstr "Обръщане по хоризонтал"
+
+#: src/main.py:2163
+msgid "No Downscale"
+msgstr "Без намаляване на мащаба"
+
+#: src/main.py:2168
+msgid "Max 184x184"
+msgstr "Максимум 184x184"
+
+#: src/main.py:2173
+msgid "Max 1000x1000"
+msgstr "Максимум 1000x1000"
+
+#: src/main.py:2198
+msgid "Export as PNG"
+msgstr "Изнасяне като PNG"
+
+#: src/main.py:2203
+msgid "Discard EXIF"
+msgstr "Отхвърляне на EXIF"
+
+#: src/main.py:2210
+msgid "Sharpen"
+msgstr "Изостряне"
+
+#: src/main.py:2215
+msgid "Grayscale"
+msgstr "Черно-бяло"
+
+#: src/main.py:2221
+msgid "Export As"
+msgstr "Изнасяне като"
+
+#: src/main.py:2225
+msgid "Preferences"
+msgstr "Настройки"
+
+#: src/main.py:2230
+#, python-format
+msgid "About %s"
+msgstr "Относно %s"
+
+#: src/main.py:2312
+msgid "translator-credits"
+msgstr "twlvnn <kraft_werk@tutanota.com>"
