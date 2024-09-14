@@ -1,0 +1,290 @@
+# LANGUAGE translation for avvie.
+# Copyright (C) YEAR Taiko2k.
+# This file is distributed under the same license as the avvie package.
+#
+# SPDX-FileCopyrightText: 2024 mva <ma12@rambler.ru>
+msgid ""
+msgstr ""
+"Project-Id-Version: avvie\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-10 01:06+0300\n"
+"PO-Revision-Date: 2024-09-14 10:05+0300\n"
+"Last-Translator: mva <ma12@rambler.ru>\n"
+"Language-Team: Russian <kde-russian@lists.kde.ru>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<"
+"=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Lokalize 23.08.4\n"
+
+#: data/com.github.taiko2k.avvie.desktop.in:3
+#: data/com.github.taiko2k.avvie.appdata.xml.in:5
+msgid "Avvie"
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.desktop.in:4
+msgid "Image Cropper"
+msgstr "Обрезчик изображений"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:6
+msgid "Taiko2k"
+msgstr ""
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:7
+msgid "Quick and easy image cropping"
+msgstr "Простая и быстрая обрезка изображений"
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:18
+msgid ""
+"A simple tool for cropping and downsizing images. Suitable for avatars or "
+"cropping photos for use as desktop wallpapers. Convert PNG to JPG. Export in "
+"one click to your Pictures folder."
+msgstr ""
+"Простой инструмент для обрезки и уменьшения изображений. Подходит для "
+"создания аватаров или обоев рабочего стола. Преобразовывайте PNG в JPG. "
+"Экспортируйте за один щелчок в папку изображений."
+
+#: data/com.github.taiko2k.avvie.appdata.xml.in:24
+msgid "Main window showing image with a crop selection"
+msgstr "Главное окно показывает изображение с областью обрезки"
+
+#: src/main.py:888
+msgid "Behavior"
+msgstr "Поведение"
+
+#: src/main.py:893
+msgid "None"
+msgstr "Нет"
+
+#: src/main.py:894
+msgid "Cross"
+msgstr "Через центр"
+
+#: src/main.py:895
+msgid "Rule of thirds"
+msgstr "Правило третей"
+
+#: src/main.py:899
+msgid "Guide Mode"
+msgstr "Линии в зоне обрезки"
+
+#: src/main.py:908 src/main.py:2077
+msgid "Square"
+msgstr "Квадрат"
+
+#: src/main.py:909 src/main.py:2084
+msgid "Free Rectangle"
+msgstr "Свободный прямоугольник"
+
+#: src/main.py:913 src/main.py:2117 src/main.py:2179
+msgid "Custom"
+msgstr "Свой"
+
+#: src/main.py:917
+msgid "Default Aspect Ratio"
+msgstr "Соотношение сторон по умолчанию"
+
+#: src/main.py:940
+msgid "Export circle with circle preview mode"
+msgstr "Обрезка по кругу"
+
+#: src/main.py:941
+msgid ""
+"You can click the thumbnail to toggle circle preview mode which doesn't "
+"affect output unless this setting is also enabled. PNG's will export with "
+"alpha mask. JPGs will export with white frame."
+msgstr ""
+"Щелкнуть по миниатюре для предпросмотра круга. PNG будет с альфа-маской. JPG "
+"будет круг в белой квадратной рамке."
+
+#: src/main.py:953
+msgid "Lossless JPG cropping"
+msgstr "Обрезка JPG без потерь"
+
+#: src/main.py:954
+msgid ""
+"Lossless cropping is restricted to JPEG iMCU boundaries so selection may be "
+"trimmed. Not available with downscaling."
+msgstr ""
+"Включение обрезки JPEG без потерь. Регулировка качества действать не будет."
+
+#: src/main.py:967
+msgid "Export JPEG quality"
+msgstr "Установить качество JPEG"
+
+#: src/main.py:974
+msgid "Set quick export function"
+msgstr "Установить функцию быстрого экспорта"
+
+#: src/main.py:979
+msgid "Export to Downloads"
+msgstr "Экспортировать в Загрузки"
+
+#: src/main.py:987
+msgid "Export to Pictures"
+msgstr "Экспортировать в Изображения"
+
+#: src/main.py:995
+msgid "Overwrite Source File"
+msgstr "Перезаписать исходный файл"
+
+#: src/main.py:1002
+msgid "Appearance"
+msgstr "Внешний вид"
+
+#: src/main.py:1006
+msgid "Default"
+msgstr "Стандартная"
+
+#: src/main.py:1007
+msgid "Dark"
+msgstr "Темная"
+
+#: src/main.py:1008
+msgid "Light"
+msgstr "Светлая"
+
+#: src/main.py:1009
+msgid "Sakura"
+msgstr "Сакура"
+
+#: src/main.py:1012
+msgid "Theme"
+msgstr "Тема"
+
+#: src/main.py:1027 src/main.py:1046
+msgid "Add Preview"
+msgstr "Добавить превью"
+
+#: src/main.py:1041
+msgid "Add"
+msgstr "Добавить"
+
+#: src/main.py:1127
+msgid "Show in Files"
+msgstr "Показать в файлах"
+
+#: src/main.py:1129
+msgid "Error!"
+msgstr "Ошибка!"
+
+#: src/main.py:1130
+msgid "Could not locate output folder!"
+msgstr "Не получается найти папку для экспорта!"
+
+#: src/main.py:1212
+msgid "Choose where to save"
+msgstr "Выберите, где сохранить"
+
+#: src/main.py:1215
+msgid "Image files"
+msgstr "Файлы изображений"
+
+#: src/main.py:1226
+msgid "Choose an image file"
+msgstr "Выберите файл изображения"
+
+#: src/main.py:1275
+msgid "Open image file"
+msgstr "Открыть файл изображения"
+
+#: src/main.py:1305
+msgid "Options Menu"
+msgstr "Меню опций"
+
+#: src/main.py:1312
+msgid "Enable Crop"
+msgstr "Включить обрезку"
+
+#: src/main.py:1333
+msgid "Toggle Circle"
+msgstr "Переключить круг"
+
+#: src/main.py:1338
+msgid "Remove Preview"
+msgstr "Удалить предпросмотр"
+
+#: src/main.py:1447
+msgid "Export to Downloads folder"
+msgstr "Экспортировать в папку Загрузки"
+
+#: src/main.py:1448
+msgid "Image file exported to Downloads."
+msgstr "Файл изображения экспортирован в Загрузки."
+
+#: src/main.py:1450
+msgid "Export to Pictures folder"
+msgstr "Экспортировать в папку Изображения"
+
+#: src/main.py:1451
+msgid "Image file exported to Pictures."
+msgstr "Файл изображения экспортирован в Изображения."
+
+#: src/main.py:1453
+msgid "Overwrite Image"
+msgstr "Перезаписать изображение"
+
+#: src/main.py:1454
+msgid "Image file overwritten."
+msgstr "Файл изображения перезаписан."
+
+#: src/main.py:2135
+msgid "Reset rotation"
+msgstr "Отменить вращение"
+
+#: src/main.py:2147
+msgid "Flip Vertical"
+msgstr "Отразить по вертикали"
+
+#: src/main.py:2150
+msgid "Flip Horizontal"
+msgstr "Отразить по горизонтали"
+
+#: src/main.py:2163
+msgid "No Downscale"
+msgstr "Не уменьшать"
+
+#: src/main.py:2168
+msgid "Max 184x184"
+msgstr "Макс. 184х184"
+
+#: src/main.py:2173
+msgid "Max 1000x1000"
+msgstr "Макс. 1000х1000"
+
+#: src/main.py:2198
+msgid "Export as PNG"
+msgstr "Экспортировать как PNG"
+
+#: src/main.py:2203
+msgid "Discard EXIF"
+msgstr "Стереть EXIF"
+
+#: src/main.py:2210
+msgid "Sharpen"
+msgstr "Добавить резкость"
+
+#: src/main.py:2215
+msgid "Grayscale"
+msgstr "Оттенки серого"
+
+#: src/main.py:2221
+msgid "Export As"
+msgstr "Экспортировать как"
+
+#: src/main.py:2225
+msgid "Preferences"
+msgstr "Параметры"
+
+#: src/main.py:2230
+#, python-format
+msgid "About %s"
+msgstr "О программе %s"
+
+#: src/main.py:2312
+msgid "translator-credits"
+msgstr ""
+"Altizo integration.into.society@gmail.com, и дополнение от ma12@rambler.ru"
+
